@@ -104,6 +104,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\Assets\Textures\stars.png">
+      <Link>Assets\Data\Textures\stars.png</Link>
+    </Content>
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
     <Content Include="Assets\LargeTile.scale-400.png" />
@@ -155,6 +158,9 @@
       <Project>{E91ACA74-0556-4BE4-A2EB-5813E61C1F78}</Project>
       <Name>Asteroids</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Data\PostProcess\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

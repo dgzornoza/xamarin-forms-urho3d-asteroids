@@ -26,7 +26,18 @@ namespace Asteroids
         {
             base.OnAppearing();
 
-            await MainUrhoSurface.Show<Game.UrhoApp>(new Urho.ApplicationOptions(assetsFolder: null));
+            string assetsFolder;
+            switch (Device.RuntimePlatform)
+            {
+                case Device.UWP:
+                    assetsFolder = "Assets/Data";
+                    break;
+                default:
+                    assetsFolder = "Data";
+                    break;
+            }
+
+            await MainUrhoSurface.Show<Game.UrhoApp>(new Urho.ApplicationOptions(assetsFolder));
         }
 
     }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using Urho;
 using Urho.Gui;
+using Urho.Urho2D;
 
 namespace Asteroids.Game
 {
@@ -40,8 +41,9 @@ namespace Asteroids.Game
 
         private void _setupViewport()
         {
+            Viewport viewport = new Viewport(Context, this._scene, this._camera, null);
             var renderer = Renderer;
-            renderer.SetViewport(0, new Viewport(Context, this._scene, this._camera, null));            
+            renderer.SetViewport(0, viewport);
         }
 
         private void _createScene()
@@ -59,21 +61,34 @@ namespace Asteroids.Game
             this._camera.Orthographic = true;
 
 
-            // Create Text Element
-            var text = new Text()
+            var graphics = Graphics;
+            this._camera.OrthoSize = (float)graphics.Height * PixelSize;
+            this._camera.Zoom = 1.5f * Math.Min((float)graphics.Width / 1920.0f, (float)graphics.Height / 1080.0f);
+            // Set zoom according to user's resolution to ensure full visibility (initial zoom (1.2) is set for full visibility at 1280x800 resolution)
+
+
+
+            //----------------------------------------------------------------------------------------
+            // background
+            var cache = ResourceCache;
+            Sprite2D backgroundSprite = cache.GetSprite2D("Textures/stars.png");
+            
+            if (backgroundSprite is null)
             {
-                Value = "Hello World!",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+                return;
+            }
 
-            text.SetColor(Color.Cyan);
-            text.SetFont(font: ResourceCache.GetFont("Fonts/Anonymous Pro.ttf"), size: 30);
-            // Add to UI Root
-            UI.Root.AddChild(text);
+            Node backgroundNode = this._scene.CreateChild("StaticSprite2D");
+            backgroundNode.Position = new Vector3(0.0f, 0.0f, 0.0f);
+
+            StaticSprite2D backgroundNodeStaticSprite = backgroundNode.CreateComponent<StaticSprite2D>();
+            // Set blend mode
+            backgroundNodeStaticSprite.BlendMode = BlendMode.Alpha;
+            backgroundNodeStaticSprite.Alpha = .5f;
+            // Set sprite
+            backgroundNodeStaticSprite.Sprite = backgroundSprite;
+            
         }
-
-
 
     }
 }
