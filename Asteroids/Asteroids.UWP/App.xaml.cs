@@ -53,6 +53,8 @@ namespace Asteroids.UWP
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
                 Xamarin.Forms.Forms.Init(e);
+                Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(1080, 720);
+                Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {

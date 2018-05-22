@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Asteroids.Game.Components;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -54,25 +55,43 @@ namespace Asteroids.Game
             this._scene = new Scene();
             this._scene.CreateComponent<Octree>();
 
+            this._createCamera();
+
+            // this._createBackground();
+
+            Node ShipNode = this._scene.CreateChild("Ship1");
+            ShipNode.CreateComponent<ShipComponent>();
+            ShipNode.Position = new Vector3(0.0f, 0.0f, 0.0f);
+        }
+
+
+        private void _createCamera()
+        {
             // Create camera
-            Node CameraNode = _scene.CreateChild("Camera");            
+            Node CameraNode = _scene.CreateChild("MainCamera");
             CameraNode.Position = (new Vector3(0.0f, 0.0f, -10.0f));
             this._camera = CameraNode.CreateComponent<Camera>();
             this._camera.Orthographic = true;
 
 
             var graphics = Graphics;
+            // x = Screen Width (px)
+            // y = Screen Height(px)
+            // s = Desired Height of Photoshop Square(px)
+            // Camera Size = x / ((( x / y ) * 2 ) * s ) = 10 sprites de 's'
+            // this._camera.OrthoSize = graphics.Width / (((graphics.Width / graphics.Height) * 2) * 32);
+
             this._camera.OrthoSize = (float)graphics.Height * PixelSize;
-            this._camera.Zoom = 1.5f * Math.Min((float)graphics.Width / 1920.0f, (float)graphics.Height / 1080.0f);
-            // Set zoom according to user's resolution to ensure full visibility (initial zoom (1.2) is set for full visibility at 1280x800 resolution)
+            // establecer el zoom segun la resolucion de diseño para asegurar visibilidad completa (zomm (1.0) para completa visibildiad en una resolucion 3:2 1920X1280)
+            this._camera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1080.0f, (float)graphics.Height / 720.0f);
+        }
 
 
-
-            //----------------------------------------------------------------------------------------
-            // background
+        private void _createBackground()
+        {
             var cache = ResourceCache;
             Sprite2D backgroundSprite = cache.GetSprite2D("Textures/stars.png");
-            
+
             if (backgroundSprite is null)
             {
                 return;
@@ -82,13 +101,11 @@ namespace Asteroids.Game
             backgroundNode.Position = new Vector3(0.0f, 0.0f, 0.0f);
 
             StaticSprite2D backgroundNodeStaticSprite = backgroundNode.CreateComponent<StaticSprite2D>();
-            // Set blend mode
+            // blend mode
             backgroundNodeStaticSprite.BlendMode = BlendMode.Alpha;
-            backgroundNodeStaticSprite.Alpha = .5f;
-            // Set sprite
+            // backgroundNodeStaticSprite.Alpha = .5f;
+            // sprite
             backgroundNodeStaticSprite.Sprite = backgroundSprite;
-            
         }
-
     }
 }
