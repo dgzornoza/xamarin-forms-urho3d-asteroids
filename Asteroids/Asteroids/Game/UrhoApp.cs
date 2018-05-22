@@ -40,13 +40,6 @@ namespace Asteroids.Game
 
 
 
-        private void _setupViewport()
-        {
-            Viewport viewport = new Viewport(Context, this._scene, this._camera, null);
-            var renderer = Renderer;
-            renderer.SetViewport(0, viewport);
-        }
-
         private void _createScene()
         {
             // https://discourse.urho3d.io/t/draw-a-line-with-custom-geometry-in-2d/3192/2
@@ -59,6 +52,7 @@ namespace Asteroids.Game
 
             // this._createBackground();
 
+            
             Node ShipNode = this._scene.CreateChild("Ship1");
             ShipNode.CreateComponent<ShipComponent>();
             ShipNode.Position = new Vector3(0.0f, 0.0f, 0.0f);
@@ -106,6 +100,13 @@ namespace Asteroids.Game
             // backgroundNodeStaticSprite.Alpha = .5f;
             // sprite
             backgroundNodeStaticSprite.Sprite = backgroundSprite;
+        }
+
+        private void _setupViewport()
+        {
+            Viewport viewport = new Viewport(Context, this._scene, this._camera, null);
+            var renderer = Renderer;
+            renderer.SetViewport(0, viewport);
         }
     }
 }

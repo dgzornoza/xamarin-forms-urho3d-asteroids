@@ -4,6 +4,7 @@ using System.Text;
 using Urho;
 using Urho.Actions;
 using Urho.Gui;
+using Urho.Resources;
 using Urho.Shapes;
 
 namespace Asteroids.Game.Components
@@ -21,6 +22,7 @@ namespace Asteroids.Game.Components
             // ReceiveSceneUpdates = true;
 
             _flashOnly = true;
+            
         }
 
 
@@ -48,12 +50,17 @@ namespace Asteroids.Game.Components
             // https://forums.xamarin.com/discussion/81723/how-to-shade-surfaces-of-customgeometry-with-solid-color
             // https://forums.xamarin.com/discussion/70135/draw-circles-or-line
 
-            CustomGeometry geom = this._shipNode.CreateComponent<CustomGeometry>();
-            geom.BeginGeometry(0, PrimitiveType.TriangleStrip);
+            CustomGeometry geometry = this._shipNode.CreateComponent<CustomGeometry>();
+            geometry.BeginGeometry(0, PrimitiveType.TriangleStrip);
+
+
+            // geometry.SetMaterial(UrhoApp.Current.ResourceCache.GetMaterial($"Materials/MatDiffEmissive.xml", sendEventOnFailure: false));
             var material = new Material();
             material.SetTechnique(0, CoreAssets.Techniques.NoTextureUnlitVCol, 1, 1);
+            // material.SetTechnique(0, CoreAssets.Techniques.DiffEmissive);
+            // material.SetShaderParameter("MatEmissiveColor", new Vector3(0, 0, 4));
             // material.CullMode = CullMode.None; //didn't see any difference with or without
-            geom.SetMaterial(material);
+            geometry.SetMaterial(material);
 
             float size = 2;
             Vector3 p0 = new Vector3(0, 0, 0);
@@ -62,12 +69,12 @@ namespace Asteroids.Game.Components
             // Vector3 p3 = new Vector3(10, 10, 0);
 
             // DEFINE BOTTOM FACE
-            geom.DefineVertex(p0);
-            geom.DefineColor(_flashOnly ? Color.Red : Color.Blue);
-            geom.DefineVertex(p1);
-            geom.DefineColor(_flashOnly ? Color.Red : Color.Blue);
-            geom.DefineVertex(p2);
-            geom.DefineColor(_flashOnly ? Color.Red : Color.Blue);
+            geometry.DefineVertex(p0);
+            geometry.DefineColor(_flashOnly ? Color.Red : Color.Blue);
+            geometry.DefineVertex(p1);
+            geometry.DefineColor(_flashOnly ? Color.Red : Color.Blue);
+            geometry.DefineVertex(p2);
+            geometry.DefineColor(_flashOnly ? Color.Red : Color.Blue);
 
             //// FRONT FACE
             //geom.DefineVertex(p0);
@@ -93,7 +100,8 @@ namespace Asteroids.Game.Components
             //geom.DefineVertex(p3);
             //geom.DefineColor(_flashOnly ? Color.Red : Color.Magenta);
 
-            geom.Commit();
+
+            geometry.Commit();
         }
 
         
