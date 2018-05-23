@@ -101,9 +101,9 @@ namespace Toolkit.UrhoSharp.B2dJson
         public PhysicsWorld2D readFromFile(string filename, out string errorMsg, PhysicsWorld2D existingWorld = null) { }
 
         //backward compatibility
-        public bool readIntoWorldFromValue(PhysicsWorld2D existingWorld, JValue worldValue) { return readFromValue(worldValue, existingWorld); }
-        public bool readIntoWorldFromString(PhysicsWorld2D existingWorld, string str, out string errorMsg) { return readFromString(str, errorMsg, existingWorld); }
-        public bool readIntoWorldFromFile(PhysicsWorld2D existingWorld, string filename, out string errorMsg) { return readFromFile(filename, errorMsg, existingWorld); }
+        public bool readIntoWorldFromValue(PhysicsWorld2D existingWorld, JValue worldValue) { return null != readFromValue(worldValue, existingWorld); }
+        public bool readIntoWorldFromString(PhysicsWorld2D existingWorld, string str, out string errorMsg) { return null != readFromString(str, out errorMsg, existingWorld); }
+        public bool readIntoWorldFromFile(PhysicsWorld2D existingWorld, string filename, out string errorMsg) { return null != readFromFile(filename, out errorMsg, existingWorld); }
 
         public PhysicsWorld2D j2b2World(JValue worldValue, PhysicsWorld2D world = null) { }
         public RigidBody2D j2b2Body(PhysicsWorld2D world, JValue bodyValue) { }
@@ -151,14 +151,14 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         ////// custom properties
 
-        public b2dJsonCustomProperties getCustomPropertiesForItem(void item, bool createIfNotExisting) { }
+        public B2dJsonCustomProperties getCustomPropertiesForItem(object item, bool createIfNotExisting) { }
 
-        protected void setCustomInt(void item, string propertyName, int val) { }
-        protected void setCustomFloat(void item, string propertyName, float val) { }
-        protected void setCustomString(void item, string propertyName, string val) { }
-        protected void setCustomVector(void item, string propertyName, b2Vec2 val) { }
-        protected void setCustomBool(void item, string propertyName, bool val) { }
-        protected void setCustomColor(void item, string propertyName, b2dJsonColor4 val) { }
+        protected void setCustomInt(object item, string propertyName, int val) { }
+        protected void setCustomFloat(object item, string propertyName, float val) { }
+        protected void setCustomString(object item, string propertyName, string val) { }
+        protected void setCustomVector(object item, string propertyName, Vector2 val) { }
+        protected void setCustomBool(object item, string propertyName, bool val) { }
+        protected void setCustomColor(object item, string propertyName, B2dJsonColor4 val) { }
 
 
         // //this define saves us writing out 25 functions which are almost exactly the same
@@ -172,23 +172,23 @@ namespace Toolkit.UrhoSharp.B2dJson
         //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Int, int)
         //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Float, float)
         //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(String, string)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Vector, b2Vec2)
+        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Vector, Vector2)
         //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Bool, bool)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Color, b2dJsonColor4)
+        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Color, B2dJsonColor4)
 
-        public bool hasCustomInt(void item, string propertyName) { }
-        public bool hasCustomFloat(void item, string propertyName) { }
-        public bool hasCustomString(void item, string propertyName) { }
-        public bool hasCustomVector(void item, string propertyName) { }
-        public bool hasCustomBool(void item, string propertyName) { }
-        public bool hasCustomColor(void item, string propertyName) { }
+        public bool hasCustomInt(object item, string propertyName) { }
+        public bool hasCustomFloat(object item, string propertyName) { }
+        public bool hasCustomString(object item, string propertyName) { }
+        public bool hasCustomVector(object item, string propertyName) { }
+        public bool hasCustomBool(object item, string propertyName) { }
+        public bool hasCustomColor(object item, string propertyName) { }
 
-        public int getCustomInt(void item, string propertyName, int defaultVal = 0) { }
-        public float getCustomFloat(void item, string propertyName, float defaultVal = 0) { }
-        public string getCustomString(void item, string propertyName, string defaultVal = "") { }
-        public b2Vec2 getCustomVector(void item, string propertyName, b2Vec2 defaultVal = b2Vec2(0, 0)) { }
-        public bool getCustomBool(void item, string propertyName, bool defaultVal = false) { }
-        public b2dJsonColor4 getCustomColor(void item, string propertyName, b2dJsonColor4 defaultVal = b2dJsonColor4()) { }
+        public int getCustomInt(object item, string propertyName, int defaultVal = 0) { }
+        public float getCustomFloat(object item, string propertyName, float defaultVal = 0) { }
+        public string getCustomString(object item, string propertyName, string defaultVal = "") { }
+        public Vector2 getCustomVector(object item, string propertyName, Vector2 defaultVal = Vector2(0, 0)) { }
+        public bool getCustomBool(object item, string propertyName, bool defaultVal = false) { }
+        public B2dJsonColor4 getCustomColor(object item, string propertyName, B2dJsonColor4 defaultVal = B2dJsonColor4()) { }
 
         // //this define saves us writing out 20 functions which are almost exactly the same
         // #define DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(ucType, lcType)\
@@ -200,7 +200,7 @@ namespace Toolkit.UrhoSharp.B2dJson
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Int, int)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Float, float)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(String, string)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Vector, b2Vec2)
+        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Vector, Vector2)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Bool, bool)
 
         // //this define saves us writing out 20 functions which are almost exactly the same
@@ -213,7 +213,7 @@ namespace Toolkit.UrhoSharp.B2dJson
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Int, int)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Float, float)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(String, string)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Vector, b2Vec2)
+        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Vector, Vector2)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Bool, bool)
 
         //////
@@ -222,27 +222,27 @@ namespace Toolkit.UrhoSharp.B2dJson
 
 
         //member helpers
-        protectedvoid vecToJson(string name, unsigned int v, JValue value, int index = -1) { }
-        protectedvoid vecToJson(string name, float v, JValue value, int index = -1) { }
-        protectedvoid vecToJson(string name, b2Vec2 vec, JValue value, int index = -1) { }
-        protectedvoid floatToJson(string name, float f, JValue value) { }
-        protectedRigidBody2D lookupBodyFromIndex(unsigned int index) { }
-        protectedint lookupBodyIndex(RigidBody2D body) { }
-        protectedint lookupJointIndex(Constraint2D joint) { }
+        protected void vecToJson(string name, uint v, JValue value, int index = -1) { }
+        protected void vecToJson(string name, float v, JValue value, int index = -1) { }
+        protected void vecToJson(string name, Vector2 vec, JValue value, int index = -1) { }
+        protected void floatToJson(string name, float f, JValue value) { }
+        protected RigidBody2D lookupBodyFromIndex(uint index) { }
+        protected int lookupBodyIndex(RigidBody2D body) { }
+        protected int lookupJointIndex(Constraint2D joint) { }
 
-        protectedJValue writeCustomPropertiesToJson(void item) { }
-        protectedvoid readCustomPropertiesFromJson(RigidBody2D item, JValue value) { }
-        protectedvoid readCustomPropertiesFromJson(CollisionShape2D item, JValue value) { }
-        protectedvoid readCustomPropertiesFromJson(Constraint2D item, JValue value) { }
-        protectedvoid readCustomPropertiesFromJson(B2dJsonImage item, JValue value) { }
-        protectedvoid readCustomPropertiesFromJson(PhysicsWorld2D item, JValue value) { }
+        protected JValue writeCustomPropertiesToJson(object item) { }
+        protected void readCustomPropertiesFromJson(RigidBody2D item, JValue value) { }
+        protected void readCustomPropertiesFromJson(CollisionShape2D item, JValue value) { }
+        protected void readCustomPropertiesFromJson(Constraint2D item, JValue value) { }
+        protected void readCustomPropertiesFromJson(B2dJsonImage item, JValue value) { }
+        protected void readCustomPropertiesFromJson(PhysicsWorld2D item, JValue value) { }
 
 
         //static helpers
         public static string floatToHex(float f) { }
         public static float hexToFloat(string str) { }
         public static float jsonToFloat(string name, JValue value, int index = -1, float defaultValue = 0) { }
-        public static b2Vec2 jsonToVec(string name, JValue value, int index = -1, b2Vec2 defaultValue = b2Vec2(0, 0)) { }
+        public static Vector2 jsonToVec(string name, JValue value, int index = -1, Vector2 defaultValue = Vector2(0, 0)) { }
 
     }
 
