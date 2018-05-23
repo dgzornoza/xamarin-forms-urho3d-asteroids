@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Urho;
 using Urho.Urho2D;
 
@@ -28,7 +30,7 @@ namespace Toolkit.UrhoSharp.B2dJson
         public Dictionary<string, B2dJsonColor4> m_customPropertyMap_color { get; set; }
     };
 
-    class b2dJson
+    public class b2dJson
     {
 
 
@@ -66,22 +68,214 @@ namespace Toolkit.UrhoSharp.B2dJson
         protected SortedSet<PhysicsWorld2D> m_worldsWithCustomProperties;
 
 
-        //constructor
-        public b2dJon(bool useHumanReadableFloats = false) { }
+        /// <summary>
+        /// default constructor
+        /// </summary>
+        public b2dJson(bool useHumanReadableFloats = false)
+        {
+            m_useHumanReadableFloats = useHumanReadableFloats;
+
+            m_indexToBodyMap = new Dictionary<int, RigidBody2D>();
+            m_bodyToIndexMap = new Dictionary<RigidBody2D, int>();
+            m_jointToIndexMap = new Dictionary<Constraint2D, int>();
+            m_bodies = new List<RigidBody2D>();
+            m_joints = new List<Constraint2D>();
+            m_images = new List<B2dJsonImage>();
+
+            m_bodyToNameMap = new Dictionary<RigidBody2D, string>();
+            m_fixtureToNameMap = new Dictionary<CollisionShape2D, string>();
+            m_jointToNameMap = new Dictionary<Constraint2D, string>();
+            m_imageToNameMap = new Dictionary<B2dJsonImage, string>();
+
+            m_bodyToPathMap = new Dictionary<RigidBody2D, string>();
+            m_fixtureToPathMap = new Dictionary<CollisionShape2D, string>();
+            m_jointToPathMap = new Dictionary<Constraint2D, string>();
+            m_imageToPathMap = new Dictionary<B2dJsonImage, string>();
+
+            m_customPropertiesMap = new Dictionary<object, B2dJsonCustomProperties>();
+
+            m_bodiesWithCustomProperties = new SortedSet<RigidBody2D>();
+            m_fixturesWithCustomProperties = new SortedSet<CollisionShape2D>();
+            m_jointsWithCustomProperties = new SortedSet<Constraint2D>();
+            m_imagesWithCustomProperties = new SortedSet<B2dJsonImage>();
+            m_worldsWithCustomProperties = new SortedSet<PhysicsWorld2D>();
+        }
 
 
         public void clear() { }
 
-        //writing functions
-        public JValue writeToValue(PhysicsWorld2D world) { }
-        public string writeToString(PhysicsWorld2D world) { }
-        public bool writeToFile(PhysicsWorld2D world, string filename) { }
+        
+        #region [writing functions]
 
-        public JValue b2j(PhysicsWorld2D world) { }
-        public JValue b2j(RigidBody2D body) { }
-        public JValue b2j(CollisionShape2D fixture) { }
-        public JValue b2j(Constraint2D joint) { }
-        public JValue b2j(B2dJsonImage image) { }
+        public JObject writeToValue(PhysicsWorld2D world)
+        {
+            if (null == world) return JObject.CreateNull();
+
+            return b2j(world);
+        }
+        public string writeToString(PhysicsWorld2D world)
+        {
+            if (null == world) return string.Empty;
+
+            return b2j(world).ToString();
+        }
+        public bool writeToFile(PhysicsWorld2D world, string filename, out string errorMsg)
+        {
+            errorMsg = string.Empty;
+            if (null == world || string.IsNullOrWhiteSpace(filename)) return false;
+
+            using (TextWriter writeFile = new StreamWriter(filename))
+            {
+                try
+                {
+                    writeFile.WriteLine(b2j(world).ToString());
+                }
+                catch (Exception e)
+                {
+                    errorMsg = $"Error writing JSON to file: {filename} {e.Message}";
+                    return false;
+                }
+            }
+
+            return true;
+        }        
+
+        private _getConstraints()
+        {
+            IEnumerable<Node> nodes2 = scene.GetChildrenWithComponent<Constraint2D>(recursive: true)
+                .Concat(scene.GetChildrenWithComponent<ConstraintDistance2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintFriction2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintGear2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintMotor2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintMouse2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintPrismatic2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintPulley2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintRevolute2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintRope2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintWeld2D>(recursive: true))
+                .Concat(scene.GetChildrenWithComponent<ConstraintWheel2D>(recursive: true));
+
+            groundNode.CreateComponent<Constraint2D>();
+            var c2 = nodes2.SelectMany(item => item.Components).Where(item => item.TypeName == Constraint2D.TypeNameStatic);
+            var d2 = nodes2.SelectMany(item => item.Components).OfType<Constraint2D>();
+        }
+
+        public IEnumerable<Constraint2D> getConstraints(PhysicsWorld2D world)
+        {
+            IEnumerable<Component> components = world.Scene.Children.SelectMany(item => item.Components).OfType<Constraint2D>();
+
+            // var t = node.Components.Where(item => item.GetType().GetTypeInfo().IsAssignableFrom(typeof(Constraint2D).GetTypeInfo()));
+
+            IEnumerable<Component> getComponents(Node node)
+            {
+                return node.Children.SelectMany(item => item.Components).OfType<Constraint2D>();
+            }
+
+            // si se procesa en cascada, se hace lo mismo en los nodos hijos recursivamente
+            foreach (var child in world.Scene.Children) world.Scene.Children.Select(item => getComponents(item));
+        }
+
+        public JObject b2j(PhysicsWorld2D world)
+        {
+            JObject worldValue = new JObject();
+
+            m_bodyToIndexMap.Clear();
+            m_jointToIndexMap.Clear();
+
+            vecToJson("gravity", world.Gravity, worldValue);
+            worldValue["allowSleep"] = world.AllowSleeping;
+            worldValue["autoClearForces"] = world.AutoClearForces;
+            worldValue["warmStarting"] = world.WarmStarting;
+            worldValue["continuousPhysics"] = world.ContinuousPhysics;
+            worldValue["subStepping"] = world.SubStepping;
+            //worldValue["hasDestructionListener"] = world->HasDestructionListener();
+            //worldValue["hasContactFilter"] = world->HasContactFilter();
+            //worldValue["hasContactListener"] = world->HasContactListener();
+
+
+            // Body
+            int index = 0;            
+            JArray jArray = new JArray();
+            IEnumerable<RigidBody2D> worldBodyList = world.Scene.GetChildrenWithComponent<RigidBody2D>(recursive: true).SelectMany(item => item.Components).OfType<RigidBody2D>();
+            foreach (var item in worldBodyList)
+            {
+                m_bodyToIndexMap.Add(item, index);
+                jArray.Add(b2j(item));
+                index++;
+            }
+            worldValue["body"] = jArray;
+
+
+            // Joints: need two passes for joints because gear joints reference other joints
+            index = 0;
+            jArray = new JArray();
+            IEnumerable<Constraint2D> worldBodyList = world.Scene.GetChildrenWithComponent<Constraint2D>(recursive: true).SelectMany(item => item.Components).OfType<Constraint2D>();
+            foreach (var joint in world.JointList)
+            {
+                if (joint.JointType == JointType.Gear)
+                    continue;
+                m_jointToIndexMap[joint] = i;
+                arr.Add(B2n(joint));
+                i++;
+            }
+
+            foreach (var joint in world.JointList)
+            {
+                if (joint.JointType != JointType.Gear)
+                    continue;
+                m_jointToIndexMap[joint] = i;
+                arr.Add(B2n(joint));
+                i++;
+            }
+            worldValue["joint"] = arr;
+
+            for (b2Joint* joint = world->GetJointList(); joint; joint = joint->GetNext())
+            {
+                if (joint->GetType() == e_gearJoint)
+                    continue;
+                worldValue["joint"][i] = b2j(joint);
+                m_jointToIndexMap[joint] = index;
+                index++;
+            }
+            for (b2Joint* joint = world->GetJointList(); joint; joint = joint->GetNext())
+            {
+                if (joint->GetType() != e_gearJoint)
+                    continue;
+                worldValue["joint"][i] = b2j(joint);
+                m_jointToIndexMap[joint] = index;
+                index++;
+            }
+
+            // Images
+            index = 0;
+            {
+                std::map<b2dJsonImage*, string>::iterator it = m_imageToNameMap.begin();
+                std::map<b2dJsonImage*, string>::iterator end = m_imageToNameMap.end();
+                while (it != end)
+                {
+                    b2dJsonImage* image = it->first;
+                    worldValue["image"][index] = b2j(image);
+                    index++;
+
+                    ++it;
+                }
+            }
+
+            // Custom properties
+            Json::Value customPropertyValue = writeCustomPropertiesToJson(NULL);
+            if (!customPropertyValue.empty())
+                worldValue["customProperties"] = customPropertyValue;
+
+            m_bodyToIndexMap.clear();
+            m_jointToIndexMap.clear();
+
+            return worldValue;
+        }
+
+        public JObject b2j(RigidBody2D body) { }
+        public JObject b2j(CollisionShape2D fixture) { }
+        public JObject b2j(Constraint2D joint) { }
+        public JObject b2j(B2dJsonImage image) { }
 
         public void setBodyName(RigidBody2D body, string name) { }
         public void setFixtureName(CollisionShape2D fixture, string name) { }
@@ -95,21 +289,33 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         public void addImage(B2dJsonImage image) { }
 
-        //reading functions
-        public PhysicsWorld2D readFromValue(JValue worldValue, PhysicsWorld2D existingWorld = null) { }
+        #endregion [writing functions]
+
+
+        #region [reading functions]
+
+        public PhysicsWorld2D readFromValue(JObject worldValue, PhysicsWorld2D existingWorld = null) { }
         public PhysicsWorld2D readFromString(string str, out string errorMsg, PhysicsWorld2D existingWorld = null) { }
         public PhysicsWorld2D readFromFile(string filename, out string errorMsg, PhysicsWorld2D existingWorld = null) { }
 
-        //backward compatibility
-        public bool readIntoWorldFromValue(PhysicsWorld2D existingWorld, JValue worldValue) { return null != readFromValue(worldValue, existingWorld); }
+        #endregion [reading functions]
+
+
+
+        #region [backward compatibility]
+
+        public bool readIntoWorldFromValue(PhysicsWorld2D existingWorld, JObject worldValue) { return null != readFromValue(worldValue, existingWorld); }
         public bool readIntoWorldFromString(PhysicsWorld2D existingWorld, string str, out string errorMsg) { return null != readFromString(str, out errorMsg, existingWorld); }
         public bool readIntoWorldFromFile(PhysicsWorld2D existingWorld, string filename, out string errorMsg) { return null != readFromFile(filename, out errorMsg, existingWorld); }
 
-        public PhysicsWorld2D j2b2World(JValue worldValue, PhysicsWorld2D world = null) { }
-        public RigidBody2D j2b2Body(PhysicsWorld2D world, JValue bodyValue) { }
-        public CollisionShape2D j2b2Fixture(RigidBody2D body, JValue fixtureValue) { }
-        public Constraint2D j2b2Joint(PhysicsWorld2D world, JValue jointValue) { }
-        public B2dJsonImage j2b2dJsonImage(JValue imageValue) { }
+        #endregion [backward compatibility]
+
+
+        public PhysicsWorld2D j2b2World(JObject worldValue, PhysicsWorld2D world = null) { }
+        public RigidBody2D j2b2Body(PhysicsWorld2D world, JObject bodyValue) { }
+        public CollisionShape2D j2b2Fixture(RigidBody2D body, JObject fixtureValue) { }
+        public Constraint2D j2b2Joint(PhysicsWorld2D world, JObject jointValue) { }
+        public B2dJsonImage j2b2dJsonImage(JObject imageValue) { }
 
         public int getBodiesByName(string name, List<RigidBody2D> bodies) { }
         public int getFixturesByName(string name, List<CollisionShape2D> fixtures) { }
@@ -149,7 +355,8 @@ namespace Toolkit.UrhoSharp.B2dJson
         public string getJointPath(Constraint2D joint) { }
         public string getImagePath(B2dJsonImage img) { }
 
-        ////// custom properties
+        
+        #region [custom properties]
 
         public B2dJsonCustomProperties getCustomPropertiesForItem(object item, bool createIfNotExisting) { }
 
@@ -216,33 +423,39 @@ namespace Toolkit.UrhoSharp.B2dJson
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Vector, Vector2)
         //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Bool, bool)
 
-        //////
+        #endregion [custom properties]
 
 
 
+        #region [member helpers]
 
-        //member helpers
-        protected void vecToJson(string name, uint v, JValue value, int index = -1) { }
-        protected void vecToJson(string name, float v, JValue value, int index = -1) { }
-        protected void vecToJson(string name, Vector2 vec, JValue value, int index = -1) { }
-        protected void floatToJson(string name, float f, JValue value) { }
+        protected void vecToJson(string name, uint v, JObject value, int index = -1) { }
+        protected void vecToJson(string name, float v, JObject value, int index = -1) { }
+        protected void vecToJson(string name, Vector2 vec, JObject value, int index = -1) { }
+        protected void floatToJson(string name, float f, JObject value) { }
         protected RigidBody2D lookupBodyFromIndex(uint index) { }
         protected int lookupBodyIndex(RigidBody2D body) { }
         protected int lookupJointIndex(Constraint2D joint) { }
 
-        protected JValue writeCustomPropertiesToJson(object item) { }
-        protected void readCustomPropertiesFromJson(RigidBody2D item, JValue value) { }
-        protected void readCustomPropertiesFromJson(CollisionShape2D item, JValue value) { }
-        protected void readCustomPropertiesFromJson(Constraint2D item, JValue value) { }
-        protected void readCustomPropertiesFromJson(B2dJsonImage item, JValue value) { }
-        protected void readCustomPropertiesFromJson(PhysicsWorld2D item, JValue value) { }
+        protected JObject writeCustomPropertiesToJson(object item) { }
+        protected void readCustomPropertiesFromJson(RigidBody2D item, JObject value) { }
+        protected void readCustomPropertiesFromJson(CollisionShape2D item, JObject value) { }
+        protected void readCustomPropertiesFromJson(Constraint2D item, JObject value) { }
+        protected void readCustomPropertiesFromJson(B2dJsonImage item, JObject value) { }
+        protected void readCustomPropertiesFromJson(PhysicsWorld2D item, JObject value) { }
+
+        #endregion [member helpers]
 
 
-        //static helpers
+
+        #region [static helpers]
+
         public static string floatToHex(float f) { }
         public static float hexToFloat(string str) { }
-        public static float jsonToFloat(string name, JValue value, int index = -1, float defaultValue = 0) { }
-        public static Vector2 jsonToVec(string name, JValue value, int index = -1, Vector2 defaultValue = Vector2(0, 0)) { }
+        public static float jsonToFloat(string name, JObject value, int index = -1, float defaultValue = 0) { }
+        public static Vector2 jsonToVec(string name, JObject value, int index = -1, Vector2 defaultValue = Vector2(0, 0)) { }
+
+        #endregion [static helpers]
 
     }
 
