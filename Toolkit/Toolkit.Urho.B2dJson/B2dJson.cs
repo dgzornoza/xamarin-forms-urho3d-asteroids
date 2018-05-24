@@ -9,6 +9,18 @@ using Urho.Urho2D;
 namespace Toolkit.UrhoSharp.B2dJson
 {
 
+    internal static class Helpers 
+    {
+        public static IEnumerable<T> GetRecursiveComponents<T>(this Urho.Node node)
+        {            
+            List<T> components = node.Components.OfType<T>().ToList();
+
+            // si se procesa en cascada, se hace lo mismo en los nodos hijos recursivamente
+            foreach (var child in node.Children) components.AddRange(child.GetRecursiveComponents<T>());
+
+            return components;
+        }
+    }
 
     public class B2dJsonColor4
     {
@@ -109,16 +121,18 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         public JObject writeToValue(PhysicsWorld2D world)
         {
-            if (null == world) return JObject.CreateNull();
+            if (null == world) return new JObject();
 
             return b2j(world);
         }
+
         public string writeToString(PhysicsWorld2D world)
         {
             if (null == world) return string.Empty;
 
             return b2j(world).ToString();
         }
+
         public bool writeToFile(PhysicsWorld2D world, string filename, out string errorMsg)
         {
             errorMsg = string.Empty;
@@ -140,40 +154,7 @@ namespace Toolkit.UrhoSharp.B2dJson
             return true;
         }        
 
-        private _getConstraints()
-        {
-            IEnumerable<Node> nodes2 = scene.GetChildrenWithComponent<Constraint2D>(recursive: true)
-                .Concat(scene.GetChildrenWithComponent<ConstraintDistance2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintFriction2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintGear2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintMotor2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintMouse2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintPrismatic2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintPulley2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintRevolute2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintRope2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintWeld2D>(recursive: true))
-                .Concat(scene.GetChildrenWithComponent<ConstraintWheel2D>(recursive: true));
 
-            groundNode.CreateComponent<Constraint2D>();
-            var c2 = nodes2.SelectMany(item => item.Components).Where(item => item.TypeName == Constraint2D.TypeNameStatic);
-            var d2 = nodes2.SelectMany(item => item.Components).OfType<Constraint2D>();
-        }
-
-        public IEnumerable<Constraint2D> getConstraints(PhysicsWorld2D world)
-        {
-            IEnumerable<Component> components = world.Scene.Children.SelectMany(item => item.Components).OfType<Constraint2D>();
-
-            // var t = node.Components.Where(item => item.GetType().GetTypeInfo().IsAssignableFrom(typeof(Constraint2D).GetTypeInfo()));
-
-            IEnumerable<Component> getComponents(Node node)
-            {
-                return node.Children.SelectMany(item => item.Components).OfType<Constraint2D>();
-            }
-
-            // si se procesa en cascada, se hace lo mismo en los nodos hijos recursivamente
-            foreach (var child in world.Scene.Children) world.Scene.Children.Select(item => getComponents(item));
-        }
 
         public JObject b2j(PhysicsWorld2D world)
         {
@@ -192,11 +173,10 @@ namespace Toolkit.UrhoSharp.B2dJson
             //worldValue["hasContactFilter"] = world->HasContactFilter();
             //worldValue["hasContactListener"] = world->HasContactListener();
 
-
             // Body
             int index = 0;            
             JArray jArray = new JArray();
-            IEnumerable<RigidBody2D> worldBodyList = world.Scene.GetChildrenWithComponent<RigidBody2D>(recursive: true).SelectMany(item => item.Components).OfType<RigidBody2D>();
+            IEnumerable<RigidBody2D> worldBodyList = world.Scene.GetRecursiveComponents<RigidBody2D>();
             foreach (var item in worldBodyList)
             {
                 m_bodyToIndexMap.Add(item, index);
@@ -205,74 +185,42 @@ namespace Toolkit.UrhoSharp.B2dJson
             }
             worldValue["body"] = jArray;
 
-
-            // Joints: need two passes for joints because gear joints reference other joints
+            // Joints
             index = 0;
-            jArray = new JArray();
-            IEnumerable<Constraint2D> worldBodyList = world.Scene.GetChildrenWithComponent<Constraint2D>(recursive: true).SelectMany(item => item.Components).OfType<Constraint2D>();
-            foreach (var joint in world.JointList)
-            {
-                if (joint.JointType == JointType.Gear)
-                    continue;
-                m_jointToIndexMap[joint] = i;
-                arr.Add(B2n(joint));
-                i++;
-            }
-
-            foreach (var joint in world.JointList)
-            {
-                if (joint.JointType != JointType.Gear)
-                    continue;
-                m_jointToIndexMap[joint] = i;
-                arr.Add(B2n(joint));
-                i++;
-            }
-            worldValue["joint"] = arr;
-
-            for (b2Joint* joint = world->GetJointList(); joint; joint = joint->GetNext())
-            {
-                if (joint->GetType() == e_gearJoint)
-                    continue;
-                worldValue["joint"][i] = b2j(joint);
+            jArray = new JArray();            
+            IEnumerable<Constraint2D> worldJointList = world.Scene.GetRecursiveComponents<Constraint2D>();
+            foreach (var joint in worldJointList)
+            {                
                 m_jointToIndexMap[joint] = index;
+                jArray.Add(b2j(joint));
                 index++;
             }
-            for (b2Joint* joint = world->GetJointList(); joint; joint = joint->GetNext())
-            {
-                if (joint->GetType() != e_gearJoint)
-                    continue;
-                worldValue["joint"][i] = b2j(joint);
-                m_jointToIndexMap[joint] = index;
-                index++;
-            }
+            worldValue["joint"] = jArray;
 
             // Images
             index = 0;
+            jArray = new JArray();
+            foreach (var image in m_imageToNameMap.Keys)
             {
-                std::map<b2dJsonImage*, string>::iterator it = m_imageToNameMap.begin();
-                std::map<b2dJsonImage*, string>::iterator end = m_imageToNameMap.end();
-                while (it != end)
-                {
-                    b2dJsonImage* image = it->first;
-                    worldValue["image"][index] = b2j(image);
-                    index++;
-
-                    ++it;
-                }
+                jArray.Add(b2j(image));
             }
+            worldValue["image"] = jArray;
 
             // Custom properties
-            Json::Value customPropertyValue = writeCustomPropertiesToJson(NULL);
-            if (!customPropertyValue.empty())
-                worldValue["customProperties"] = customPropertyValue;
+            JArray customPropertyValue = writeCustomPropertiesToJson(null);
+            if (customPropertyValue.Count > 0) worldValue["customProperties"] = customPropertyValue;
 
-            m_bodyToIndexMap.clear();
-            m_jointToIndexMap.clear();
+            m_bodyToIndexMap.Clear();
+            m_jointToIndexMap.Clear();
 
             return worldValue;
         }
 
-        public JObject b2j(RigidBody2D body) { }
+        public JObject b2j(RigidBody2D body)
+        {
+
+        }
+
         public JObject b2j(CollisionShape2D fixture) { }
         public JObject b2j(Constraint2D joint) { }
         public JObject b2j(B2dJsonImage image) { }
@@ -437,7 +385,7 @@ namespace Toolkit.UrhoSharp.B2dJson
         protected int lookupBodyIndex(RigidBody2D body) { }
         protected int lookupJointIndex(Constraint2D joint) { }
 
-        protected JObject writeCustomPropertiesToJson(object item) { }
+        protected JArray writeCustomPropertiesToJson(object item) { }
         protected void readCustomPropertiesFromJson(RigidBody2D item, JObject value) { }
         protected void readCustomPropertiesFromJson(CollisionShape2D item, JObject value) { }
         protected void readCustomPropertiesFromJson(Constraint2D item, JObject value) { }
