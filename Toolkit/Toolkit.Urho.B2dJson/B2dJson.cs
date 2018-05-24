@@ -9,10 +9,10 @@ using Urho.Urho2D;
 namespace Toolkit.UrhoSharp.B2dJson
 {
 
-    internal static class Helpers 
+    internal static class Helpers
     {
         public static IEnumerable<T> GetRecursiveComponents<T>(this Urho.Node node)
-        {            
+        {
             List<T> components = node.Components.OfType<T>().ToList();
 
             // si se procesa en cascada, se hace lo mismo en los nodos hijos recursivamente
@@ -116,7 +116,7 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         public void clear() { }
 
-        
+
         #region [writing functions]
 
         public JObject writeToValue(PhysicsWorld2D world)
@@ -152,7 +152,7 @@ namespace Toolkit.UrhoSharp.B2dJson
             }
 
             return true;
-        }        
+        }
 
 
 
@@ -175,7 +175,7 @@ namespace Toolkit.UrhoSharp.B2dJson
 
             // TODO: index ??? parece no tener sentido junto con el diccionario
             // Body
-            int index = 0;            
+            int index = 0;
             JArray jArray = new JArray();
             IEnumerable<RigidBody2D> worldBodyList = world.Scene.GetRecursiveComponents<RigidBody2D>();
             foreach (var item in worldBodyList)
@@ -188,10 +188,10 @@ namespace Toolkit.UrhoSharp.B2dJson
 
             // Joints
             index = 0;
-            jArray = new JArray();            
+            jArray = new JArray();
             IEnumerable<Constraint2D> worldJointList = world.Scene.GetRecursiveComponents<Constraint2D>();
             foreach (var joint in worldJointList)
-            {                
+            {
                 m_jointToIndexMap[joint] = index;
                 jArray.Add(b2j(joint));
                 index++;
@@ -262,7 +262,86 @@ namespace Toolkit.UrhoSharp.B2dJson
             return bodyValue;
         }
 
-        public JObject b2j(CollisionShape2D fixture) { }
+        public JObject b2j(CollisionShape2D fixture)
+        {
+            JObject fixtureValue = new JObject();
+
+            string fixtureName = getFixtureName(fixture);
+
+            if (!string.IsNullOrWhiteSpace(fixtureName)) fixtureValue["name"] = fixtureName;
+
+            string fixturePath = getFixturePath(fixture);
+            if (!string.IsNullOrWhiteSpace(fixturePath)) fixtureValue["path"] = fixturePath;
+
+            if (fixture.Restitution != 0) floatToJson("restitution", fixture.Restitution, fixtureValue);
+            if (fixture.Friction != 0) floatToJson("friction", fixture.Friction, fixtureValue);
+            if (fixture.Density != 0) floatToJson("density", fixture.Density, fixtureValue);
+            if (fixture.Trigger) fixtureValue["sensor"] = true;
+
+            if (fixture.CategoryBits != 0x0001) fixtureValue["filter-categoryBits"] = fixture.CategoryBits;
+            if (fixture.MaskBits != 0xffff) fixtureValue["filter-maskBits"] = fixture.MaskBits;
+            if (fixture.GroupIndex != 0) fixtureValue["filter-groupIndex"] = fixture.GroupIndex;
+
+
+            JObject shapeValue = new JObject();
+            switch (fixture)
+            {
+                case CollisionCircle2D circle:
+                    floatToJson("radius", circle.Radius, shapeValue);
+                    vecToJson("center", circle.Center, shapeValue);
+                    fixtureValue["circle"] = shapeValue;
+                    break;
+
+                case CollisionEdge2D edge:
+                    vecToJson("vertex1", edge.Vertex1, shapeValue);
+                    vecToJson("vertex2", edge.Vertex2, shapeValue);
+                    // not exists smooth collision in urho2d
+                    //if (edge.m_hasVertex0) fixtureValue["edge"]["hasVertex0"] = true;
+                    //if (edge.m_hasVertex3) fixtureValue["edge"]["hasVertex3"] = true;
+                    //if (edge.m_hasVertex0) vecToJson("vertex0", edge.m_vertex0, fixtureValue["edge"]);
+                    //if (edge.m_hasVertex3) vecToJson("vertex3", edge.m_vertex3, fixtureValue["edge"]);
+                    fixtureValue["edge"] = shapeValue;
+                    break;
+
+                case CollisionChain2D chain:
+
+                    uint count = chain.VertexCount;
+                    
+                    for (uint i = 0; i < count; ++i) vecToJson("vertices", chain.GetVertex(i), shapeValue, (int)i);
+                    // not exists prev and next vertex in urho2d
+                    //if (chain.PrevVertex != null && chain.PrevVertex != Vector2.Zero)
+                    //{
+                    //    shapeValue["hasPrevVertex"] = true;
+                    //    vecToJson("prevVertex", chain.PrevVertex, shapeValue);
+                    //}
+                    //if (chain.NextVertex != null && chain.NextVertex != Vector2.Zero)
+                    //{
+                    //    shapeValue["hasNextVertex"] = true;
+                    //    vecToJson("nextVertex", chain.NextVertex, shapeValue);
+                    //}
+                    fixtureValue["chain"] = shapeValue;
+
+                    break;
+
+                case CollisionPolygon2D poly:
+
+                    uint vertexCount = poly.VertexCount;
+                    
+                    for (uint i = 0; i < vertexCount; ++i) vecToJson("vertices", poly.GetVertex(i), shapeValue, (int)i);
+                    fixtureValue["polygon"] = shapeValue;
+
+                    break;
+                default:
+                    System.Diagnostics.Trace.WriteLine("Unknown shape type : " + fixture.TypeName);
+                    break;
+            }
+
+            JArray customPropertyValue = writeCustomPropertiesToJson(fixture);
+            if (customPropertyValue.Count > 0) fixtureValue["customProperties"] = customPropertyValue;
+
+            return fixtureValue;
+        }
+
         public JObject b2j(Constraint2D joint) { }
         public JObject b2j(B2dJsonImage image) { }
 
@@ -344,7 +423,7 @@ namespace Toolkit.UrhoSharp.B2dJson
         public string getJointPath(Constraint2D joint) { }
         public string getImagePath(B2dJsonImage img) { }
 
-        
+
         #region [custom properties]
 
         public B2dJsonCustomProperties getCustomPropertiesForItem(object item, bool createIfNotExisting) { }
