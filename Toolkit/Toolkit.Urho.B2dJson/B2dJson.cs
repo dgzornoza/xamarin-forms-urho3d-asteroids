@@ -173,6 +173,7 @@ namespace Toolkit.UrhoSharp.B2dJson
             //worldValue["hasContactFilter"] = world->HasContactFilter();
             //worldValue["hasContactListener"] = world->HasContactListener();
 
+            // TODO: index ??? parece no tener sentido junto con el diccionario
             // Body
             int index = 0;            
             JArray jArray = new JArray();
@@ -197,8 +198,7 @@ namespace Toolkit.UrhoSharp.B2dJson
             }
             worldValue["joint"] = jArray;
 
-            // Images
-            index = 0;
+            // Images            
             jArray = new JArray();
             foreach (var image in m_imageToNameMap.Keys)
             {
@@ -218,7 +218,48 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         public JObject b2j(RigidBody2D body)
         {
+            JObject bodyValue = new JObject();
 
+            string bodyName = getBodyName(body);
+            if (!string.IsNullOrWhiteSpace(bodyName)) bodyValue["name"] = bodyName;
+
+            string bodyPath = getBodyPath(body);
+            if (!string.IsNullOrWhiteSpace(bodyPath)) bodyValue["path"] = bodyPath;
+
+            bodyValue["type"] = (int)body.BodyType;
+
+            vecToJson("position", body.Node.Position2D, bodyValue);
+            floatToJson("angle", body.Node.Rotation2D, bodyValue);
+
+            vecToJson("linearVelocity", body.LinearVelocity, bodyValue);
+            floatToJson("angularVelocity", body.AngularVelocity, bodyValue);
+
+
+            if (body.LinearDamping != 0) floatToJson("linearDamping", body.LinearDamping, bodyValue);
+            if (body.AngularDamping != 0) floatToJson("angularDamping", body.AngularDamping, bodyValue);
+            if (body.GravityScale != 1) floatToJson("gravityScale", body.GravityScale, bodyValue);
+
+            if (body.Bullet) bodyValue["bullet"] = true;
+            if (!body.AllowSleep) bodyValue["allowSleep"] = false;
+            if (body.Awake) bodyValue["awake"] = true;
+            if (!body.Enabled) bodyValue["active"] = false;
+            if (body.FixedRotation) bodyValue["fixedRotation"] = true;
+
+            if (body.Mass != 0) floatToJson("massData-mass", body.Mass, bodyValue);
+            if (body.MassCenter.X != 0 || body.MassCenter.Y != 0) vecToJson("massData-center", body.MassCenter, bodyValue);
+            if (body.Inertia != 0) floatToJson("massData-I", body.Inertia, bodyValue);
+
+
+            JArray jArray = new JArray();
+            IEnumerable<CollisionShape2D> bodyFixturesList = body.Node.Components.OfType<CollisionShape2D>();
+            foreach (var fixture in bodyFixturesList) jArray.Add(b2j(fixture));
+            bodyValue["fixture"] = jArray;
+
+
+            JArray customPropertyValue = writeCustomPropertiesToJson(body);
+            if (customPropertyValue.Count > 0) bodyValue["customProperties"] = customPropertyValue;
+
+            return bodyValue;
         }
 
         public JObject b2j(CollisionShape2D fixture) { }
