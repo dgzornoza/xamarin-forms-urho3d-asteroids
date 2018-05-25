@@ -366,134 +366,137 @@ namespace Toolkit.UrhoSharp.B2dJson
                 case ConstraintRevolute2D revoluteJoint:
                     jointValue["type"] = "revolute";
 
-                    vecToJson("anchorA", bodyA. GetLocalPoint(revoluteJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(revoluteJoint.GetAnchorB()), jointValue);
-                    floatToJson("refAngle", bodyB.GetAngle() - bodyA.GetAngle() - revoluteJoint.GetJointAngle(), jointValue);
-                    floatToJson("jointSpeed", revoluteJoint.GetJointSpeed(), jointValue);
-                    jointValue["enableLimit"] = revoluteJoint.IsLimitEnabled();
-                    floatToJson("lowerLimit", revoluteJoint.GetLowerLimit(), jointValue);
-                    floatToJson("upperLimit", revoluteJoint.GetUpperLimit(), jointValue);
-                    jointValue["enableMotor"] = revoluteJoint.IsMotorEnabled();
-                    floatToJson("motorSpeed", revoluteJoint.GetMotorSpeed(), jointValue);
-                    floatToJson("maxMotorTorque", revoluteJoint.GetMaxMotorTorque(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(revoluteJoint.Anchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(revoluteJoint.Anchor), jointValue);
+                    floatToJson("refAngle", bodyB.Node.Rotation2D - bodyA.Node.Rotation2D, jointValue);
+                    // not exists in urho2d
+                    // floatToJson("jointSpeed", revoluteJoint.GetJointSpeed(), jointValue);
+                    jointValue["enableLimit"] = revoluteJoint.EnableLimit;
+                    floatToJson("lowerLimit", revoluteJoint.LowerAngle, jointValue);
+                    floatToJson("upperLimit", revoluteJoint.UpperAngle, jointValue);
+                    jointValue["enableMotor"] = revoluteJoint.EnableMotor;
+                    floatToJson("motorSpeed", revoluteJoint.MotorSpeed, jointValue);
+                    floatToJson("maxMotorTorque", revoluteJoint.MaxMotorTorque, jointValue);
                     break;
 
                 case ConstraintPrismatic2D prismaticJoint:
                     {
                         jointValue["type"] = "prismatic";
 
-                        vecToJson("anchorA", bodyA.GetLocalPoint(prismaticJoint.GetAnchorA()), jointValue);
-                        vecToJson("anchorB", bodyB.GetLocalPoint(prismaticJoint.GetAnchorB()), jointValue);
-                        vecToJson("localAxisA", prismaticJoint.GetLocalAxisA(), jointValue);
-                        floatToJson("refAngle", prismaticJoint.GetReferenceAngle(), jointValue);
-                        jointValue["enableLimit"] = prismaticJoint.IsLimitEnabled();
-                        floatToJson("lowerLimit", prismaticJoint.GetLowerLimit(), jointValue);
-                        floatToJson("upperLimit", prismaticJoint.GetUpperLimit(), jointValue);
-                        jointValue["enableMotor"] = prismaticJoint.IsMotorEnabled();
-                        floatToJson("maxMotorForce", prismaticJoint.GetMaxMotorForce(), jointValue);
-                        floatToJson("motorSpeed", prismaticJoint.GetMotorSpeed(), jointValue);
+                        vecToJson("anchorA", bodyA.Node.WorldToLocal2D(prismaticJoint.Anchor), jointValue);
+                        vecToJson("anchorB", bodyB.Node.WorldToLocal2D(prismaticJoint.Anchor), jointValue);
+                        vecToJson("localAxisA", prismaticJoint.Axis, jointValue);
+                        floatToJson("refAngle", bodyB.Node.Rotation2D - bodyA.Node.Rotation2D, jointValue);
+                        jointValue["enableLimit"] = prismaticJoint.EnableLimit;
+                        floatToJson("lowerLimit", prismaticJoint.LowerTranslation, jointValue);
+                        floatToJson("upperLimit", prismaticJoint.UpperTranslation, jointValue);
+                        jointValue["enableMotor"] = prismaticJoint.EnableMotor;
+                        floatToJson("maxMotorForce", prismaticJoint.MaxMotorForce, jointValue);
+                        floatToJson("motorSpeed", prismaticJoint.MotorSpeed, jointValue);
                     }
                     break;
 
                 case ConstraintDistance2D distanceJoint:
                     jointValue["type"] = "distance";
 
-                    vecToJson("anchorA", bodyA.GetLocalPoint(distanceJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(distanceJoint.GetAnchorB()), jointValue);
-                    floatToJson("length", distanceJoint.GetLength(), jointValue);
-                    floatToJson("frequency", distanceJoint.GetFrequency(), jointValue);
-                    floatToJson("dampingRatio", distanceJoint.GetDampingRatio(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(distanceJoint.OwnerBodyAnchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(distanceJoint.OtherBodyAnchor), jointValue);
+                    floatToJson("length", distanceJoint.Length, jointValue);
+                    floatToJson("frequency", distanceJoint.FrequencyHz, jointValue);
+                    floatToJson("dampingRatio", distanceJoint.DampingRatio, jointValue);
                     break;
 
                 case ConstraintPulley2D pulleyJoint:
                     jointValue["type"] = "pulley";
 
-                    vecToJson("groundAnchorA", pulleyJoint.GetGroundAnchorA(), jointValue);
-                    vecToJson("groundAnchorB", pulleyJoint.GetGroundAnchorB(), jointValue);
-                    vecToJson("anchorA", bodyA.GetLocalPoint(pulleyJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(pulleyJoint.GetAnchorB()), jointValue);
-                    floatToJson("lengthA", (pulleyJoint.GetGroundAnchorA() - pulleyJoint.GetAnchorA()).Length(), jointValue);
-                    floatToJson("lengthB", (pulleyJoint.GetGroundAnchorB() - pulleyJoint.GetAnchorB()).Length(), jointValue);
-                    floatToJson("ratio", pulleyJoint.GetRatio(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(pulleyJoint.OwnerBodyAnchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(pulleyJoint.OtherBodyAnchor), jointValue);
+                    vecToJson("groundAnchorA", pulleyJoint.OwnerBodyGroundAnchor, jointValue);
+                    vecToJson("groundAnchorB", pulleyJoint.OtherBodyGroundAnchor, jointValue);
+                    floatToJson("lengthA", (pulleyJoint.OwnerBodyGroundAnchor - pulleyJoint.OwnerBodyAnchor).Length, jointValue);
+                    floatToJson("lengthB", (pulleyJoint.OtherBodyGroundAnchor - pulleyJoint.OtherBodyAnchor).Length, jointValue);
+                    floatToJson("ratio", pulleyJoint.Ratio, jointValue);
                     break;
 
                 case ConstraintMouse2D mouseJoint:
                     jointValue["type"] = "mouse";
 
-                    vecToJson("target", mouseJoint.GetTarget(), jointValue);
-                    vecToJson("anchorB", mouseJoint.GetAnchorB(), jointValue);
-                    floatToJson("maxForce", mouseJoint.GetMaxForce(), jointValue);
-                    floatToJson("frequency", mouseJoint.GetFrequency(), jointValue);
-                    floatToJson("dampingRatio", mouseJoint.GetDampingRatio(), jointValue);
+                    vecToJson("target", mouseJoint.Target, jointValue);
+                    // not exists in urho2d
+                    // vecToJson("anchorB", mouseJoint.GetAnchorB(), jointValue);
+                    floatToJson("maxForce", mouseJoint.MaxForce, jointValue);
+                    floatToJson("frequency", mouseJoint.FrequencyHz, jointValue);
+                    floatToJson("dampingRatio", mouseJoint.DampingRatio, jointValue);
                     break;
 
                 case ConstraintGear2D gearJoint:
                     jointValue["type"] = "gear";
 
-                    int jointIndex1 = lookupJointIndex(gearJoint.GetJoint1());
-                    int jointIndex2 = lookupJointIndex(gearJoint.GetJoint2());
+                    int jointIndex1 = lookupJointIndex(gearJoint.OwnerConstraint);
+                    int jointIndex2 = lookupJointIndex(gearJoint.OtherConstraint);
                     jointValue["joint1"] = jointIndex1;
                     jointValue["joint2"] = jointIndex2;
-                    jointValue["ratio"] = gearJoint.GetRatio();
+                    jointValue["ratio"] = gearJoint.Ratio;
                     break;
 
-                case ConstraintGear2D wheelJoint:
+                case ConstraintWheel2D wheelJoint:
 
                     jointValue["type"] = "wheel";
 
-                    vecToJson("anchorA", bodyA.GetLocalPoint(wheelJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(wheelJoint.GetAnchorB()), jointValue);
-                    vecToJson("localAxisA", wheelJoint.GetLocalAxisA(), jointValue);
-                    jointValue["enableMotor"] = wheelJoint.IsMotorEnabled();
-                    floatToJson("motorSpeed", wheelJoint.GetMotorSpeed(), jointValue);
-                    floatToJson("maxMotorTorque", wheelJoint.GetMaxMotorTorque(), jointValue);
-                    floatToJson("springFrequency", wheelJoint.GetSpringFrequencyHz(), jointValue);
-                    floatToJson("springDampingRatio", wheelJoint.GetSpringDampingRatio(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(wheelJoint.Anchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(wheelJoint.Anchor), jointValue);
+                    vecToJson("localAxisA", wheelJoint.Axis, jointValue);
+                    jointValue["enableMotor"] = wheelJoint.EnableMotor;
+                    floatToJson("motorSpeed", wheelJoint.MotorSpeed, jointValue);
+                    floatToJson("maxMotorTorque", wheelJoint.MaxMotorTorque, jointValue);
+                    floatToJson("springFrequency", wheelJoint.FrequencyHz, jointValue);
+                    floatToJson("springDampingRatio", wheelJoint.DampingRatio, jointValue);
 
                     break;
 
-                case ConstraintGear2D motorJoint:
+                case ConstraintMotor2D motorJoint:
 
                     jointValue["type"] = "motor";
 
-                    vecToJson("linearOffset", motorJoint.GetLinearOffset(), jointValue);
-                    vecToJson("anchorA", motorJoint.GetLinearOffset(), jointValue);
-                    floatToJson("refAngle", motorJoint.GetAngularOffset(), jointValue);
-                    floatToJson("maxForce", motorJoint.GetMaxForce(), jointValue);
-                    floatToJson("maxTorque", motorJoint.GetMaxTorque(), jointValue);
-                    floatToJson("correctionFactor", motorJoint.GetCorrectionFactor(), jointValue);
+                    vecToJson("linearOffset", motorJoint.LinearOffset, jointValue);
+                    vecToJson("anchorA", motorJoint.LinearOffset, jointValue);
+                    floatToJson("refAngle", motorJoint.AngularOffset, jointValue);
+                    floatToJson("maxForce", motorJoint.MaxForce, jointValue);
+                    floatToJson("maxTorque", motorJoint.MaxTorque, jointValue);
+                    floatToJson("correctionFactor", motorJoint.CorrectionFactor, jointValue);
 
                     break;
 
-                case ConstraintGear2D weldJoint:
+                case ConstraintWeld2D weldJoint:
 
                     jointValue["type"] = "weld";
 
-                    vecToJson("anchorA", bodyA.GetLocalPoint(weldJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(weldJoint.GetAnchorB()), jointValue);
-                    floatToJson("refAngle", weldJoint.GetReferenceAngle(), jointValue);
-                    floatToJson("frequency", weldJoint.GetFrequency(), jointValue);
-                    floatToJson("dampingRatio", weldJoint.GetDampingRatio(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(weldJoint.Anchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(weldJoint.Anchor), jointValue);
+
+                    floatToJson("refAngle", bodyB.Node.Rotation2D - bodyA.Node.Rotation2D, jointValue);
+                    floatToJson("frequency", weldJoint.FrequencyHz, jointValue);
+                    floatToJson("dampingRatio", weldJoint.DampingRatio, jointValue);
 
                     break;
 
-                case ConstraintGear2D frictionJoint:
+                case ConstraintFriction2D frictionJoint:
 
                     jointValue["type"] = "friction";
 
-                    vecToJson("anchorA", bodyA.GetLocalPoint(frictionJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(frictionJoint.GetAnchorB()), jointValue);
-                    floatToJson("maxForce", frictionJoint.GetMaxForce(), jointValue);
-                    floatToJson("maxTorque", frictionJoint.GetMaxTorque(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(frictionJoint.Anchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(frictionJoint.Anchor), jointValue);
+                    floatToJson("maxForce", frictionJoint.MaxForce, jointValue);
+                    floatToJson("maxTorque", frictionJoint.MaxTorque, jointValue);
 
                     break;
 
-                case ConstraintGear2D ropeJoint:
+                case ConstraintRope2D ropeJoint:
                     jointValue["type"] = "rope";
 
-                    vecToJson("anchorA", bodyA.GetLocalPoint(ropeJoint.GetAnchorA()), jointValue);
-                    vecToJson("anchorB", bodyB.GetLocalPoint(ropeJoint.GetAnchorB()), jointValue);
-                    floatToJson("maxLength", ropeJoint->GetMaxLength(), jointValue);
+                    vecToJson("anchorA", bodyA.Node.WorldToLocal2D(ropeJoint.OwnerBodyAnchor), jointValue);
+                    vecToJson("anchorB", bodyB.Node.WorldToLocal2D(ropeJoint.OtherBodyAnchor), jointValue);
+                    floatToJson("maxLength", ropeJoint.MaxLength, jointValue);
 
                     break;
 
