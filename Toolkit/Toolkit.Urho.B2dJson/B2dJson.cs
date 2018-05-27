@@ -44,7 +44,11 @@ namespace Toolkit.UrhoSharp.B2dJson
 
     public class b2dJson
     {
+        /// <summary>From box2d</summary>
+        private const int b2_maxPolygonVertices = 8;
 
+        private const string URHO2D_PHYSIC_ROOT_NODE_NAME = "B2dJsonPhysicWorldRoot";
+        private readonly CreateMode m_creationMode;
 
         protected bool m_useHumanReadableFloats;
         protected Dictionary<int, RigidBody2D> m_indexToBodyMap;
@@ -83,8 +87,9 @@ namespace Toolkit.UrhoSharp.B2dJson
         /// <summary>
         /// default constructor
         /// </summary>
-        public b2dJson(bool useHumanReadableFloats = false)
+        public b2dJson(CreateMode creationMode = CreateMode.Local, bool useHumanReadableFloats = false)
         {
+            m_creationMode = creationMode;
             m_useHumanReadableFloats = useHumanReadableFloats;
 
             m_indexToBodyMap = new Dictionary<int, RigidBody2D>();
@@ -119,25 +124,57 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         #region [writing functions]
 
-        public JObject writeToValue(PhysicsWorld2D world)
+        /// <summary>
+        /// Write urho2d scene (only box2d physic world data) into b2djson format for R.U.B.E editor
+        /// </summary>
+        /// <param name="urhoScene">Urho2d scene</param>
+        /// <returns>json object with urho2d physic world in b2djson format</returns>
+        /// <remarks>
+        /// b2djson do not maintain the tree structure of nodes with the physical components from urho2d, 
+        /// so that if it is loaded, the structure of nodes will be different from the current one.
+        /// </remarks>
+        public JObject writeToValue(Scene urhoScene)
         {
-            if (null == world) return new JObject();
+            PhysicsWorld2D world;
+            if (null == urhoScene || null == (world = urhoScene.GetComponent<PhysicsWorld2D>())) return new JObject();            
 
             return b2j(world);
         }
 
-        public string writeToString(PhysicsWorld2D world)
+        /// <summary>
+        /// Write urho2d scene (only box2d physic world data) into b2djson format for R.U.B.E editor
+        /// </summary>
+        /// <param name="urhoScene">Urho2d scene</param>
+        /// <returns>string with urho2d physic world in b2djson format</returns>
+        /// <remarks>
+        /// b2djson do not maintain the tree structure of nodes with the physical components from urho2d, 
+        /// so that if it is loaded, the structure of nodes will be different from the current one.
+        /// </remarks>
+        public string writeToString(Scene urhoScene)
         {
-            if (null == world) return string.Empty;
+            PhysicsWorld2D world;
+            if (null == urhoScene || null == (world = urhoScene.GetComponent<PhysicsWorld2D>())) return string.Empty;            
 
             return b2j(world).ToString();
         }
 
-        public bool writeToFile(PhysicsWorld2D world, string filename, out string errorMsg)
+        /// <summary>
+        /// Write urho2d scene (only box2d physic world data) into b2djson format for R.U.B.E editor
+        /// </summary>
+        /// <param name="urhoScene">Urho2d scene</param>
+        /// <param name="filename">path to filename to write</param>
+        /// <param name="errorMsg">error message</param>
+        /// <returns>true if write to file, false otherwise</returns>
+        /// <remarks>
+        /// b2djson do not maintain the tree structure of nodes with the physical components from urho2d, 
+        /// so that if it is loaded, the structure of nodes will be different from the current one.
+        /// </remarks>
+        public bool writeToFile(Scene urhoScene, string filename, out string errorMsg)
         {
             errorMsg = string.Empty;
-            if (null == world || string.IsNullOrWhiteSpace(filename)) return false;
-
+            PhysicsWorld2D world;
+            if (null == urhoScene || string.IsNullOrWhiteSpace(filename) || null == (world = urhoScene.GetComponent<PhysicsWorld2D>())) return false;
+            
             using (TextWriter writeFile = new StreamWriter(filename))
             {
                 try
@@ -153,7 +190,6 @@ namespace Toolkit.UrhoSharp.B2dJson
 
             return true;
         }
-
 
 
         public JObject b2j(PhysicsWorld2D world)
@@ -511,47 +547,436 @@ namespace Toolkit.UrhoSharp.B2dJson
             return jointValue;
         }
 
-        public JObject b2j(B2dJsonImage image) { }
+        public JObject b2j(B2dJsonImage image)
+        {
+            JObject imageValue = new JObject();
 
-        public void setBodyName(RigidBody2D body, string name) { }
-        public void setFixtureName(CollisionShape2D fixture, string name) { }
-        public void setJointName(Constraint2D joint, string name) { }
-        public void setImageName(B2dJsonImage image, string name) { }
+            imageValue["body"] = null != image.Body ? lookupBodyIndex(image.Body) : -1;
 
-        public void setBodyPath(RigidBody2D body, string path) { }
-        public void setFixturePath(CollisionShape2D fixture, string path) { }
-        public void setJointPath(Constraint2D joint, string path) { }
-        public void setImagePath(B2dJsonImage image, string path) { }
+            if (null != image.Name) imageValue["name"] = image.Name;
+            if (image.Path != "") imageValue["path"] = image.Path;
+            if (null != image.File) imageValue["file"] = image.File;
 
-        public void addImage(B2dJsonImage image) { }
+            vecToJson("center", image.Center, imageValue);
+            floatToJson("angle", image.Angle, imageValue);
+            floatToJson("scale", image.Scale, imageValue);
+            floatToJson("aspectScale", image.AspectScale, imageValue);
+            if (image.Flip) imageValue["flip"] = true;
+            floatToJson("opacity", image.Opacity, imageValue);
+            imageValue["filter"] = (int)image.Filter;
+            floatToJson("renderOrder", image.RenderOrder, imageValue);
+
+            bool defaultColorTint = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (image.ColorTint[i] != 255)
+                {
+                    defaultColorTint = false;
+                    break;
+                }
+            }
+
+            if (!defaultColorTint)
+            {
+                for (int i = 0; i < 4; i++) imageValue["colorTint"][i] = image.ColorTint[i];
+            }
+
+            // image->updateCorners();
+            for (int i = 0; i < 4; i++) vecToJson("corners", image.Corners[i], imageValue, i);
+
+            // image->updateUVs();
+            for (int i = 0; i < 2 * image.NumPoints; i++)
+            {
+                vecToJson("glVertexPointer", image.Points[i], imageValue, i);
+                vecToJson("glTexCoordPointer", image.UvCoords[i], imageValue, i);
+            }
+            for (int i = 0; i < image.NumIndices; i++)
+                vecToJson("glDrawElements", (uint)image.Indices[i], imageValue, i);
+
+            JArray customPropertyValue = writeCustomPropertiesToJson(image);
+            if (customPropertyValue.Count > 0) imageValue["customProperties"] = customPropertyValue;
+
+            return imageValue;
+        }
 
         #endregion [writing functions]
 
 
+
+        #region [Setters]
+
+        public void setBodyName(RigidBody2D body, string name) { m_bodyToNameMap[body] = name; }
+        public void setFixtureName(CollisionShape2D fixture, string name) { m_fixtureToNameMap[fixture] = name; }
+        public void setJointName(Constraint2D joint, string name) { m_jointToNameMap[joint] = name; }
+        public void setImageName(B2dJsonImage image, string name) { m_imageToNameMap[image] = name; }
+
+        public void setBodyPath(RigidBody2D body, string path) { m_bodyToPathMap[body] = path; }
+        public void setFixturePath(CollisionShape2D fixture, string path) { m_fixtureToPathMap[fixture] = path; }
+        public void setJointPath(Constraint2D joint, string path) { m_jointToPathMap[joint] = path; }
+        public void setImagePath(B2dJsonImage image, string path) { m_imageToNameMap[image] = path; }
+
+        public void addImage(B2dJsonImage image) { setImageName(image, image.Name); }
+
+        #endregion [Setters]
+
+
         #region [reading functions]
 
-        public PhysicsWorld2D readFromValue(JObject worldValue, PhysicsWorld2D existingWorld = null) { }
-        public PhysicsWorld2D readFromString(string str, out string errorMsg, PhysicsWorld2D existingWorld = null) { }
-        public PhysicsWorld2D readFromFile(string filename, out string errorMsg, PhysicsWorld2D existingWorld = null) { }
+        /// <summary>
+        /// Read b2djson format from R.U.B.E editor into urho2d scene (only box2d physic world data)
+        /// </summary>
+        /// <param name="b2djsonWorld">physic world in b2djson format from R.U.B.E editor</param>
+        /// <param name="urhoScene">Urho2d scene where will be loaded</param>
+        /// <returns>true if exit, false otherwise</returns>
+        /// <remarks>
+        /// All components of the physical world will be created under a root node called from const 'URHO2D_PHYSIC_ROOT_NOE_NAME', since RUBE is agnostic to the system of components of urho.
+        /// </remarks>
+        public bool readIntoSceneFromValue(JObject b2djsonWorld, Scene urhoScene)
+        {
+            j2b2World(b2djsonWorld, urhoScene);
+            return true;
+        }
+
+        /// <summary>
+        /// Read b2djson format from R.U.B.E editor into urho2d scene (only box2d physic world data)
+        /// </summary>
+        /// <param name="str">string with physic world in b2djson format from R.U.B.E editor</param>
+        /// <param name="urhoScene">Urho2d scene where will be loaded</param>
+        /// <param name="errorMsg">error message</param>
+        /// <returns>true if exit, false otherwise</returns>
+        /// <remarks>
+        /// All components of the physical world will be created under a root node called 'b2djson', since RUBE is agnostic to the system of components of urho.
+        /// </remarks>
+        public bool readIntoSceneFromString(string str, Scene urhoScene, out string errorMsg)
+        {
+            errorMsg = null;
+            bool hasError;
+
+            try
+            {
+                JObject worldValue = JObject.Parse(str);
+                j2b2World(worldValue, urhoScene);
+                hasError = false;
+            }
+            catch (IOException ex)
+            {
+                errorMsg = $"Failed to parse JSON: {ex.Message}";
+                hasError = true;
+            }
+
+            return hasError;
+        }
+
+        /// <summary>
+        /// Read b2djson format from R.U.B.E editor into urho2d scene (only box2d physic world data)
+        /// </summary>
+        /// <param name="filename">file with physic world in b2djson format from R.U.B.E editor</param>
+        /// <param name="urhoScene">Urho2d scene where will be loaded</param>
+        /// <param name="errorMsg">error message</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// All components of the physical world will be created under a root node called 'b2djson', since RUBE is agnostic to the system of components of urho.
+        /// </remarks>
+        public bool readIntoSceneFromFile(string filename, Scene ushoScene, out string errorMsg)
+        {
+            errorMsg = null;
+            bool hasError;            
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(filename)) throw new ArgumentNullException("Param filename is null or empty");
+
+                string str = System.IO.File.ReadAllText(filename);
+                JObject worldValue = JObject.Parse(str);
+                j2b2World(worldValue, ushoScene);
+                hasError = false;
+            }
+            catch (IOException ex)
+            {
+                errorMsg = $"Error reading file: {filename}, {ex.Message}";
+                hasError = true;
+            }
+
+            return hasError;
+        }
+
+
+
+        /// <summary>
+        /// Create physic world in urho2d scene from b2dson format
+        /// </summary>
+        /// <param name="worldValue">world value in b2djson format</param>
+        /// <param name="urhoScene">urho2d scene where will be loaded</param>
+        /// <returns>root node for all physic world</returns>
+        public Node j2b2World(JObject worldValue, Scene urhoScene)
+        {            
+            if (null == urhoScene) throw new ArgumentNullException("ushoScene");
+
+            m_bodies.Clear();
+
+            PhysicsWorld2D world = urhoScene.GetOrCreateComponent<PhysicsWorld2D>();
+            world.Gravity = jsonToVec("gravity", worldValue);
+            
+            world.AllowSleeping = (bool)worldValue["allowSleep"];
+            world.AutoClearForces = (bool)worldValue["autoClearForces"];
+            world.WarmStarting = (bool)worldValue["warmStarting"];
+            world.ContinuousPhysics = (bool)worldValue["continuousPhysics"];
+            world.SubStepping = (bool)worldValue["subStepping"];
+
+            readCustomPropertiesFromJson(world, worldValue);
+
+            // Create RootNode            
+            Node physicRootNode = urhoScene.Children.FirstOrDefault(item => item.Name == URHO2D_PHYSIC_ROOT_NODE_NAME);
+            if (null != physicRootNode) urhoScene.RemoveChild(physicRootNode);
+            physicRootNode = urhoScene.CreateChild(URHO2D_PHYSIC_ROOT_NODE_NAME);
+
+
+            //bool recreationMayDiffer = false; //hahaha
+            //if ( ! world->GetAutoClearForces() ) { std::cout << "Note: world is not set to auto clear forces.\n"; recreationMayDiffer = true; }
+            //if ( world->GetWarmStarting() ) { std::cout << "Note: world is set to use warm starting.\n"; recreationMayDiffer = true; }
+            //if ( world->GetContinuousPhysics() ) { std::cout << "Note: world is set to use continuous physics.\n"; recreationMayDiffer = true; }
+            //if ( world->GetSubStepping() ) { std::cout << "Note: world is set to use sub stepping.\n"; recreationMayDiffer = true; }
+            //if ( worldValue["hasDestructionListener"].asBool() ) { std::cout << "Note: world originally had a destruction listener set.\n"; recreationMayDiffer = true; }
+            //if ( worldValue["hasContactFilter"].asBool() ) { std::cout << "Note: world originally had a contact filter set.\n"; recreationMayDiffer = true; }
+            //if ( worldValue["hasContactListener"].asBool() ) { std::cout << "Note: world originally had a contact listener set.\n"; recreationMayDiffer = true; }
+            //if ( recreationMayDiffer )
+            //    std::cout << "Recreated behaviour may differ from original.\n";
+
+
+            JArray bodyValues = (JArray)worldValue["body"];
+            if (null != bodyValues)
+            {
+                int numBodyValues = bodyValues.Count;
+                for (int i = 0; i < numBodyValues; i++)
+                {
+                    JObject bodyValue = (JObject)bodyValues[i];
+                    RigidBody2D body = j2b2Body(physicRootNode.CreateChild(mode: m_creationMode), bodyValue);
+                    readCustomPropertiesFromJson(body, bodyValue);
+                    m_bodies.Add(body);
+                    m_indexToBodyMap.Add(i, body);
+                }
+            }
+
+            //need two passes for joints because gear joints reference other joints
+            JArray jointValues = (JArray)worldValue["joint"];
+            if (null != jointValues)
+            {
+                int numJointValues = jointValues.Count;
+                for (int i = 0; i < numJointValues; i++)
+                {
+                    JObject jointValue = (JObject)jointValues[i];
+                    if (jointValue["type"].ToString() != "gear")
+                    {
+                        Constraint2D joint = j2b2Joint(world, jointValue);
+                        readCustomPropertiesFromJson(joint, jointValue);
+                        m_joints.Add(joint);
+                    }
+                }
+                for (int i = 0; i < numJointValues; i++)
+                {
+                    JObject jointValue = (JObject)jointValues[i];
+                    if (jointValue["type"].ToString() == "gear")
+                    {
+                        Constraint2D joint = j2b2Joint(world, jointValue);
+                        readCustomPropertiesFromJson(joint, jointValue);
+                        m_joints.Add(joint);
+                    }
+                }
+            }
+
+            JArray imageValues = (JArray)worldValue["image"];
+            if (null != imageValues)
+            {
+                int numImageValues = imageValues.Count;
+                for (int i = 0; i < numImageValues; i++)
+                {
+                    JObject imageValue = (JObject)imageValues[i];
+                    B2dJsonImage image = j2b2dJsonImage(imageValue);
+                    readCustomPropertiesFromJson(image, imageValue);
+                    m_images.Add(image);
+                }
+            }
+
+            return physicRootNode;
+        }
+
+
+        public RigidBody2D j2b2Body(Node bodyNode, JObject bodyValue)
+        {
+
+            RigidBody2D body = bodyNode.CreateComponent<RigidBody2D>(mode: m_creationMode);
+
+            body.BodyType = (BodyType2D)(int.Parse(bodyValue["type"].ToString()));
+            bodyNode.Position = new Vector3(jsonToVec("position", bodyValue));
+            bodyNode.Rotation2D = jsonToFloat("angle", bodyValue);
+            body.SetLinearVelocity(jsonToVec("linearVelocity", bodyValue));
+            body.AngularVelocity = jsonToFloat("angularVelocity", bodyValue);
+            body.LinearDamping = jsonToFloat("linearDamping", bodyValue, -1, 0);
+            body.AngularDamping = jsonToFloat("angularDamping", bodyValue, -1, 0);
+            body.GravityScale = jsonToFloat("gravityScale", bodyValue, -1, 1);
+
+            body.AllowSleep = bodyValue["allowSleep"] == null ? true : (bool)bodyValue["allowSleep"];
+            body.Awake = bodyValue["awake"] == null ? false : (bool)bodyValue["awake"];
+            body.FixedRotation = bodyValue["fixedRotation"] == null ? false : (bool)bodyValue["fixedRotation"];
+            body.Bullet = bodyValue["bullet"] == null ? false : (bool)bodyValue["bullet"];
+            body.Enabled = bodyValue["active"] == null ? true : (bool)bodyValue["active"];
+
+
+            string bodyName = bodyValue["name"]?.ToString();
+            if (null != bodyName) setBodyName(body, bodyName);
+
+            string bodyPath = bodyValue["path"]?.ToString();
+            if (null != bodyPath) setBodyPath(body, bodyPath);
+
+            int i = 0;
+            JArray fixtureValues = (JArray)bodyValue["fixture"];
+            if (null != fixtureValues)
+            {
+                int numFixtureValues = fixtureValues.Count;
+                for (i = 0; i < numFixtureValues; i++)
+                {
+                    JObject fixtureValue = (JObject)fixtureValues[i];
+                    CollisionShape2D fixture = j2b2Fixture(body, fixtureValue);
+                    readCustomPropertiesFromJson(fixture, fixtureValue);
+                }
+            }
+
+            // may be necessary if user has overridden mass characteristics
+            body.Mass = jsonToFloat("massData-mass", bodyValue);
+            body.SetMassCenter(jsonToVec("massData-center", bodyValue));
+            body.Inertia = jsonToFloat("massData-I", bodyValue);
+
+            return body;
+        }
+
+        public CollisionShape2D j2b2Fixture(RigidBody2D body, JObject fixtureValue)
+        {
+            CollisionShape2D fixture = null;
+            if (null == fixtureValue) return fixture;
+            
+            var restitution = jsonToFloat("restitution", fixtureValue);
+            var friction = jsonToFloat("friction", fixtureValue);
+            var density = jsonToFloat("density", fixtureValue);
+            var isSensor = fixtureValue["sensor"] == null ? false : (bool)fixtureValue["sensor"];
+
+            var categoryBits = fixtureValue["filter-categoryBits"] == null ? 0x0001 : (int)fixtureValue["filter-categoryBits"];
+            var maskBits = fixtureValue["filter-maskBits"] == null ? 0xffff : (int)fixtureValue["filter-maskBits"];
+            var groupIndex = fixtureValue["filter-groupIndex"] == null ? (short)0 : (short)fixtureValue["filter-groupIndex"];
+
+
+            if (null != fixtureValue["circle"])
+            {
+                CollisionCircle2D circleFixture = body.Node.CreateComponent<CollisionCircle2D>(mode: m_creationMode);
+                JObject circleValue = (JObject)fixtureValue["circle"];                
+                circleFixture.Center = jsonToVec("center", circleValue);
+                circleFixture.Radius = jsonToFloat("radius", circleValue);
+                circleFixture.Density = density;
+                fixture = circleFixture;
+            }
+            else if (null != fixtureValue["edge"])
+            {
+                CollisionEdge2D edgeFixture = body.Node.CreateComponent<CollisionEdge2D>(mode: m_creationMode);
+                JObject edgeValue = (JObject)fixtureValue["edge"];
+                edgeFixture.Vertex1 = jsonToVec("vertex1", edgeValue);
+                edgeFixture.Vertex2 = jsonToVec("vertex2", edgeValue);
+                // not exists smooth collision in urho2d
+                // edgeShape.m_hasVertex0 = fixtureValue["edge"].get("hasVertex0", false).asBool();
+                // edgeShape.m_hasVertex3 = fixtureValue["edge"].get("hasVertex3", false).asBool();
+                // if (edgeShape.m_hasVertex0) edgeShape.m_vertex0 = jsonToVec("vertex0", fixtureValue["edge"]);
+                // if (edgeShape.m_hasVertex3) edgeShape.m_vertex3 = jsonToVec("vertex3", fixtureValue["edge"]);
+                fixture = edgeFixture;
+            }
+            else if (null != fixtureValue["loop"])
+            {
+                // support old format (r197)
+                CollisionChain2D chainFixture = body.Node.CreateComponent<CollisionChain2D>(mode: m_creationMode);
+                JObject chainValue = (JObject)fixtureValue["loop"];                
+                int numVertices = ((JArray)chainValue["x"]).Count;
+                for (int i = 0; i < numVertices; i++) chainFixture.SetVertex((uint)i, jsonToVec("vertices", chainValue, i));
+                chainFixture.Loop = true;
+                fixture = chainFixture;
+            }
+            else if (null != fixtureValue["chain"])
+            {
+                CollisionChain2D chainFixture = body.Node.CreateComponent<CollisionChain2D>(mode: m_creationMode);
+                JObject chainValue = (JObject)fixtureValue["chain"];                
+                int numVertices = ((JArray)chainValue["vertices"]["x"]).Count;
+                List<Vector2> vertices = new List<Vector2>(numVertices);
+                for (int i = 0; i < numVertices; i++) vertices.Add(jsonToVec("vertices", chainValue, i));
+
+                // Urho2d not has next/previous vertex, only has loop.
+                // this code is created reading 'b2ChainShape.cpp' from box2d
+                var hasPrevVertex = chainValue["hasPrevVertex"] == null ? false : (bool)chainValue["hasPrevVertex"];
+                var hasNextVertex = chainValue["hasNextVertex"] == null ? false : (bool)chainValue["hasNextVertex"];
+                if (hasPrevVertex && hasNextVertex)
+                {
+                    chainFixture.Loop = true;                   
+                }
+                fixture = chainFixture;
+            }
+            else if (null != fixtureValue["polygon"])
+            {                
+                JObject polygonValue = (JObject)fixtureValue["polygon"];
+                
+                int numVertices = ((JArray)polygonValue["vertices"]["x"]).Count;
+                if (numVertices > b2_maxPolygonVertices)
+                {
+                    Console.WriteLine("Ignoring polygon fixture with too many vertices.");
+                }
+                else if (numVertices < 2)
+                {
+                    Console.WriteLine("Ignoring polygon fixture less than two vertices.");
+                }
+                else if (numVertices == 2)
+                {
+                    Console.WriteLine("Creating edge shape instead of polygon with two vertices.");
+                    CollisionEdge2D poligonFixture = body.Node.CreateComponent<CollisionEdge2D>(mode: m_creationMode);
+                    poligonFixture.Vertex1 = (jsonToVec("vertices", polygonValue, 0));
+                    poligonFixture.Vertex2 = (jsonToVec("vertices", polygonValue, 1));
+                    fixture = poligonFixture;
+                }
+                else
+                {
+                    CollisionPolygon2D poligonFixture = body.Node.CreateComponent<CollisionPolygon2D>(mode: m_creationMode);
+                    for (int i = 0; i < numVertices; i++) poligonFixture.SetVertex((uint)i, jsonToVec("vertices", polygonValue, i)));
+                    fixture = poligonFixture;
+                }                
+            }
+
+            string fixtureName = fixtureValue["name"]?.ToString();
+            if (null != fixtureName) setFixtureName(fixture, fixtureName);
+            string fixturePath = fixtureValue["path"]?.ToString();
+            if (null != fixturePath) setFixturePath(fixture, fixturePath);
+
+            if (fixture != null)
+            {
+                fixture.Restitution = restitution;
+                fixture.Friction = friction;
+                fixture.Density = density;
+                fixture.Trigger = isSensor;
+                fixture.CategoryBits = categoryBits;
+                fixture.MaskBits = maskBits;
+                fixture.GroupIndex = groupIndex;
+            }
+
+            return fixture;
+        }
+
+        public Constraint2D j2b2Joint(PhysicsWorld2D world, JObject jointValue)
+        {
+
+        }
+
+        public B2dJsonImage j2b2dJsonImage(JObject imageValue)
+        {
+
+        }
 
         #endregion [reading functions]
 
 
 
-        #region [backward compatibility]
-
-        public bool readIntoWorldFromValue(PhysicsWorld2D existingWorld, JObject worldValue) { return null != readFromValue(worldValue, existingWorld); }
-        public bool readIntoWorldFromString(PhysicsWorld2D existingWorld, string str, out string errorMsg) { return null != readFromString(str, out errorMsg, existingWorld); }
-        public bool readIntoWorldFromFile(PhysicsWorld2D existingWorld, string filename, out string errorMsg) { return null != readFromFile(filename, out errorMsg, existingWorld); }
-
-        #endregion [backward compatibility]
-
-
-        public PhysicsWorld2D j2b2World(JObject worldValue, PhysicsWorld2D world = null) { }
-        public RigidBody2D j2b2Body(PhysicsWorld2D world, JObject bodyValue) { }
-        public CollisionShape2D j2b2Fixture(RigidBody2D body, JObject fixtureValue) { }
-        public Constraint2D j2b2Joint(PhysicsWorld2D world, JObject jointValue) { }
-        public B2dJsonImage j2b2dJsonImage(JObject imageValue) { }
+        #region [Getters]
 
         public int getBodiesByName(string name, List<RigidBody2D> bodies) { }
         public int getFixturesByName(string name, List<CollisionShape2D> fixtures) { }
@@ -590,6 +1015,11 @@ namespace Toolkit.UrhoSharp.B2dJson
         public string getFixturePath(CollisionShape2D fixture) { }
         public string getJointPath(Constraint2D joint) { }
         public string getImagePath(B2dJsonImage img) { }
+
+
+        #endregion [Getters]
+
+
 
 
         #region [custom properties]
