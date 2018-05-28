@@ -223,11 +223,20 @@ namespace Toolkit.UrhoSharp.B2dJson
             worldValue["body"] = jArray;
 
             // Joints
+            // need two passes for joints because gear joints reference other joints
             index = 0;
             jArray = new JArray();
             IEnumerable<Constraint2D> worldJointList = world.Scene.GetRecursiveComponents<Constraint2D>();
             foreach (var joint in worldJointList)
             {
+                if (joint.TypeName == ConstraintGear2D.TypeNameStatic) continue;
+                m_jointToIndexMap[joint] = index;
+                jArray.Add(b2j(joint));
+                index++;
+            }
+            foreach (var joint in worldJointList)
+            {
+                if (joint.TypeName != ConstraintGear2D.TypeNameStatic) continue;
                 m_jointToIndexMap[joint] = index;
                 jArray.Add(b2j(joint));
                 index++;
@@ -757,7 +766,7 @@ namespace Toolkit.UrhoSharp.B2dJson
                 }
             }
 
-            //need two passes for joints because gear joints reference other joints
+            // need two passes for joints because gear joints reference other joints
             JArray jointValues = (JArray)worldValue["joint"];
             if (null != jointValues)
             {
@@ -938,7 +947,7 @@ namespace Toolkit.UrhoSharp.B2dJson
                 else
                 {
                     CollisionPolygon2D poligonFixture = body.Node.CreateComponent<CollisionPolygon2D>(mode: m_creationMode);
-                    for (int i = 0; i < numVertices; i++) poligonFixture.SetVertex((uint)i, jsonToVec("vertices", polygonValue, i)));
+                    for (int i = 0; i < numVertices; i++) poligonFixture.SetVertex((uint)i, jsonToVec("vertices", polygonValue, i));
                     fixture = poligonFixture;
                 }                
             }
@@ -964,7 +973,190 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         public Constraint2D j2b2Joint(PhysicsWorld2D world, JObject jointValue)
         {
+            Constraint2D joint = null;
 
+            int bodyIndexA = (int)jointValue["bodyA"];
+            int bodyIndexB = (int)jointValue["bodyB"];
+            if (bodyIndexA >= m_bodies.Count || bodyIndexB >= (int)m_bodies.Count) return null;
+
+            // set features common to all joints
+            var bodyA = m_bodies[bodyIndexA];
+            var bodyB = m_bodies[bodyIndexB];
+            var collideConnected = jointValue["collideConnected"] == null ? false : (bool)jointValue["collideConnected"];
+
+            // keep these in scope after the if/else below
+            ConstraintRevolute2D revoluteDef;
+            ConstraintPrismatic2D prismaticDef;
+            ConstraintDistance2D distanceDef;
+            ConstraintPulley2D pulleyDef;
+            ConstraintMouse2D mouseDef;
+            ConstraintGear2D gearDef;
+            ConstraintWheel2D wheelDef;
+            ConstraintMotor2D motorDef;
+            ConstraintWeld2D weldDef;
+            ConstraintFriction2D frictionDef;
+            ConstraintRope2D ropeDef;
+
+            
+            Vector2 mouseJointTarget = new Vector2(0, 0);
+            string type = jointValue["type"]?.ToString();            
+            if (type == "revolute")
+            {
+                joint = revoluteDef = bodyA.Node.CreateComponent<ConstraintRevolute2D>(mode: m_creationMode);
+                revoluteDef.OtherBody = bodyB;
+
+                revoluteDef.Anchor = jsonToVec("anchorA", jointValue);
+                // Urho2d not contains anchorB and reference angle
+                // revoluteDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                // revoluteDef.referenceAngle = jsonToFloat("refAngle", jointValue);
+                revoluteDef.EnableLimit = jointValue["enableLimit"] == null ? false : (bool)jointValue["enableLimit"];
+                revoluteDef.LowerAngle = jsonToFloat("lowerLimit", jointValue);
+                revoluteDef.UpperAngle = jsonToFloat("upperLimit", jointValue);
+                revoluteDef.EnableMotor = jointValue["enableMotor"] == null ? false : (bool)jointValue["enableMotor"];
+                revoluteDef.MotorSpeed = jsonToFloat("motorSpeed", jointValue);
+                revoluteDef.MaxMotorTorque = jsonToFloat("maxMotorTorque", jointValue);                
+            }
+            else if (type == "prismatic")
+            {
+                joint = prismaticDef = bodyA.Node.CreateComponent<ConstraintPrismatic2D>(mode: m_creationMode);
+                prismaticDef.OtherBody = bodyB;
+
+                prismaticDef.Anchor = jsonToVec("anchorA", jointValue);
+                // Urho2d not contains anchorB and reference angle
+                // prismaticDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                // prismaticDef.referenceAngle = jsonToFloat("refAngle", jointValue);
+                prismaticDef.Axis = jointValue["localAxisA"] != null ? jsonToVec("localAxisA", jointValue) : jsonToVec("localAxis1", jointValue);
+                prismaticDef.EnableLimit = jointValue["enableLimit"] == null ? false : (bool)jointValue["enableLimit"];
+                prismaticDef.LowerTranslation = jsonToFloat("lowerLimit", jointValue);
+                prismaticDef.UpperTranslation = jsonToFloat("upperLimit", jointValue);
+                prismaticDef.EnableMotor = jointValue["enableMotor"] == null ? false : (bool)jointValue["enableMotor"];
+                prismaticDef.MotorSpeed = jsonToFloat("motorSpeed", jointValue);
+                prismaticDef.MaxMotorForce = jsonToFloat("maxMotorForce", jointValue);
+            }
+            else if (type == "distance")
+            {
+                joint = distanceDef = bodyA.Node.CreateComponent<ConstraintDistance2D>(mode: m_creationMode);
+                distanceDef.OtherBody = bodyB;
+
+                distanceDef.OwnerBodyAnchor = jsonToVec("anchorA", jointValue);
+                distanceDef.OtherBodyAnchor = jsonToVec("anchorB", jointValue);
+                distanceDef.Length = jsonToFloat("length", jointValue);
+                distanceDef.FrequencyHz = jsonToFloat("frequency", jointValue);
+                distanceDef.DampingRatio = jsonToFloat("dampingRatio", jointValue);
+            }
+            else if (type == "pulley")
+            {
+                joint = pulleyDef = bodyA.Node.CreateComponent<ConstraintPulley2D>(mode: m_creationMode);
+                pulleyDef.OtherBody = bodyB;
+                                 
+                pulleyDef.OwnerBodyGroundAnchor = jsonToVec("groundAnchorA", jointValue);
+                pulleyDef.OtherBodyGroundAnchor = jsonToVec("groundAnchorB", jointValue);
+                pulleyDef.OwnerBodyAnchor = jsonToVec("anchorA", jointValue);
+                pulleyDef.OtherBodyAnchor = jsonToVec("anchorB", jointValue);
+                // urho2d not contains length (= OwnerBodyGroundAnchor - OtherBodyGroundAnchor)
+                // pulleyDef.lengthA = jsonToFloat("lengthA", jointValue);
+                // pulleyDef.lengthB = jsonToFloat("lengthB", jointValue);
+                pulleyDef.Ratio = jsonToFloat("ratio", jointValue);
+            }
+            else if (type == "mouse")
+            {
+                joint = mouseDef = bodyA.Node.CreateComponent<ConstraintMouse2D>(mode: m_creationMode);
+                mouseDef.OtherBody = bodyB;
+                 
+                mouseJointTarget = jsonToVec("target", jointValue);
+                mouseDef.Target = jsonToVec("anchorB", jointValue); // alter after creating joint
+                mouseDef.MaxForce = jsonToFloat("maxForce", jointValue);
+                mouseDef.FrequencyHz = jsonToFloat("frequency", jointValue);
+                mouseDef.DampingRatio = jsonToFloat("dampingRatio", jointValue);
+            }
+            else if (type == "gear")
+            {
+                joint = gearDef = bodyA.Node.CreateComponent<ConstraintGear2D>(mode: m_creationMode);
+                gearDef.OtherBody = bodyB;
+
+                int jointIndex1 = (int)jointValue["joint1"];
+                int jointIndex2 = (int)jointValue["joint2"];
+                gearDef.OwnerConstraint = m_joints[jointIndex1];
+                gearDef.OtherConstraint = m_joints[jointIndex2];
+                gearDef.Ratio = jsonToFloat("ratio", jointValue);
+            }
+            else if (type == "wheel")
+            {
+                joint = wheelDef = bodyA.Node.CreateComponent<ConstraintWheel2D>(mode: m_creationMode);
+                wheelDef.OtherBody = bodyB;
+                 
+                wheelDef.Anchor = jsonToVec("anchorA", jointValue);
+                // Urho2d not contains anchorB
+                // wheelDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                wheelDef.Axis = jsonToVec("localAxisA", jointValue);
+                wheelDef.EnableMotor = jointValue["enableMotor"] == null ? false : (bool)jointValue["enableMotor"];
+                wheelDef.MotorSpeed = jsonToFloat("motorSpeed", jointValue);
+                wheelDef.MaxMotorTorque = jsonToFloat("maxMotorTorque", jointValue);
+                wheelDef.FrequencyHz = jsonToFloat("springFrequency", jointValue);
+                wheelDef.DampingRatio = jsonToFloat("springDampingRatio", jointValue);
+            }
+            else if (type == "motor")
+            {
+                jointDef = &motorDef;
+                if (jointValue.isMember("linearOffset"))
+                    motorDef.linearOffset = jsonToVec("linearOffset", jointValue);
+                else
+                    motorDef.linearOffset = jsonToVec("anchorA", jointValue); //pre v1.7 editor exported anchorA as the linear offset
+                motorDef.angularOffset = jsonToFloat("refAngle", jointValue);
+                motorDef.maxForce = jsonToFloat("maxForce", jointValue);
+                motorDef.maxTorque = jsonToFloat("maxTorque", jointValue);
+                motorDef.correctionFactor = jsonToFloat("correctionFactor", jointValue);
+            }
+            else if (type == "weld")
+            {
+                jointDef = &weldDef;
+                weldDef.localAnchorA = jsonToVec("anchorA", jointValue);
+                weldDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                weldDef.referenceAngle = jsonToFloat("refAngle", jointValue);
+                weldDef.frequencyHz = jsonToFloat("frequency", jointValue);
+                weldDef.dampingRatio = jsonToFloat("dampingRatio", jointValue);
+            }
+            else if (type == "friction")
+            {
+                jointDef = &frictionDef;
+                frictionDef.localAnchorA = jsonToVec("anchorA", jointValue);
+                frictionDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                frictionDef.maxForce = jsonToFloat("maxForce", jointValue);
+                frictionDef.maxTorque = jsonToFloat("maxTorque", jointValue);
+            }
+            else if (type == "rope")
+            {
+                jointDef = &ropeDef;
+                ropeDef.localAnchorA = jsonToVec("anchorA", jointValue);
+                ropeDef.localAnchorB = jsonToVec("anchorB", jointValue);
+                ropeDef.maxLength = jsonToFloat("maxLength", jointValue);
+            }
+
+            if (jointDef)
+            {
+                //set features common to all joints
+                jointDef->bodyA = m_bodies[bodyIndexA];
+                jointDef->bodyB = m_bodies[bodyIndexB];
+                jointDef->collideConnected = jointValue.get("collideConnected", false).asBool();
+
+                joint = world->CreateJoint(jointDef);
+
+                if (type == "mouse") ((ConstraintMouse2D)joint).Target = mouseJointTarget;
+
+                string jointName = jointValue.get("name", "").asString();
+                if (jointName != "")
+                {
+                    setJointName(joint, jointName.c_str());
+                }
+
+                string jointPath = jointValue.get("path", "").asString();
+                if (jointPath != "")
+                {
+                    setJointPath(joint, jointPath.c_str());
+                }
+            }
+
+            return joint;
         }
 
         public B2dJsonImage j2b2dJsonImage(JObject imageValue)
