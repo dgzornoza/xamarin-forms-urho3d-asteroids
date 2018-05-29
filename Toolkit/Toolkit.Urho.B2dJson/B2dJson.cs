@@ -34,6 +34,21 @@ namespace Toolkit.UrhoSharp.B2dJson
 
     public class B2dJsonCustomProperties
     {
+        public Dictionary<string, T> GetCustomPropertyMapFromType<T>()
+        {
+            switch (typeof(T))
+            {
+                case Type intType when intType == typeof(int): return m_customPropertyMap_int as Dictionary<string, T>;
+                case Type floatType when floatType == typeof(float): return m_customPropertyMap_float as Dictionary<string, T>;
+                case Type stringType when stringType == typeof(string): return m_customPropertyMap_string as Dictionary<string, T>;
+                case Type vectorType when vectorType == typeof(Vector2): return m_customPropertyMap_b2Vec2 as Dictionary<string, T>;
+                case Type boolType when boolType == typeof(bool): return m_customPropertyMap_bool as Dictionary<string, T>;
+                case Type colorType when colorType == typeof(B2dJsonColor4): return m_customPropertyMap_color as Dictionary<string, T>;
+            }
+
+            return new Dictionary<string, T>();
+        }
+
         public Dictionary<string, int> m_customPropertyMap_int { get; set; }
         public Dictionary<string, float> m_customPropertyMap_float { get; set; }
         public Dictionary<string, string> m_customPropertyMap_string { get; set; }
@@ -1272,70 +1287,139 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         #region [custom properties]
 
-        public B2dJsonCustomProperties getCustomPropertiesForItem(object item, bool createIfNotExisting) { }
+        public B2dJsonCustomProperties getCustomPropertiesForItem(object item, bool createIfNotExisting)
+        {
+            if (m_customPropertiesMap.ContainsKey(item)) return m_customPropertiesMap[item];
+            if (!createIfNotExisting) return null;
 
-        protected void setCustomInt(object item, string propertyName, int val) { }
-        protected void setCustomFloat(object item, string propertyName, float val) { }
-        protected void setCustomString(object item, string propertyName, string val) { }
-        protected void setCustomVector(object item, string propertyName, Vector2 val) { }
-        protected void setCustomBool(object item, string propertyName, bool val) { }
-        protected void setCustomColor(object item, string propertyName, B2dJsonColor4 val) { }
+            B2dJsonCustomProperties props = new B2dJsonCustomProperties();
+            m_customPropertiesMap[item] = props;
+
+            return props;
+        }
 
 
-        // //this define saves us writing out 25 functions which are almost exactly the same
-        // #define DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(ucType, lcType)\
-        //     void setCustom##ucType(RigidBody2D item, string propertyName, lcType val)          { m_bodiesWithCustomProperties.insert(item); setCustom##ucType((void)item, propertyName, val); }\
-        //     void setCustom##ucType(CollisionShape2D item, string propertyName, lcType val)       { m_fixturesWithCustomProperties.insert(item); setCustom##ucType((void)item, propertyName, val); }\
-        //     void setCustom##ucType(Constraint2D item, string propertyName, lcType val)         { m_jointsWithCustomProperties.insert(item); setCustom##ucType((void)item, propertyName, val); }\
-        //     void setCustom##ucType(B2dJsonImage item, string propertyName, lcType val)    { m_imagesWithCustomProperties.insert(item); setCustom##ucType((void)item, propertyName, val); }\
-        //     void setCustom##ucType(PhysicsWorld2D item, string propertyName, lcType val)         { m_worldsWithCustomProperties.insert(item); setCustom##ucType((void)item, propertyName, val); }
+        public void setCustomInt(object item, string propertyName, int val) { setCustomValueType<int>(item, propertyName, val); }
+        public void setCustomFloat(object item, string propertyName, float val) { setCustomValueType<float>(item, propertyName, val); }
+        public void setCustomString(object item, string propertyName, string val) { setCustomValueType<string>(item, propertyName, val); }
+        public void setCustomVector(object item, string propertyName, Vector2 val) { setCustomValueType<Vector2>(item, propertyName, val); }
+        public void setCustomBool(object item, string propertyName, bool val) { setCustomValueType<bool>(item, propertyName, val); }
+        public void setCustomColor(object item, string propertyName, B2dJsonColor4 val) { setCustomValueType<B2dJsonColor4>(item, propertyName, val); }
 
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Int, int)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Float, float)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(String, string)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Vector, Vector2)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Bool, bool)
-        //     DECLARE_SET_CUSTOM_PROPERTY_VALUE_FUNCTIONS(Color, B2dJsonColor4)
 
-        public bool hasCustomInt(object item, string propertyName) { }
-        public bool hasCustomFloat(object item, string propertyName) { }
-        public bool hasCustomString(object item, string propertyName) { }
-        public bool hasCustomVector(object item, string propertyName) { }
-        public bool hasCustomBool(object item, string propertyName) { }
-        public bool hasCustomColor(object item, string propertyName) { }
+        protected void setCustomValueType<T>(object item, string propertyName, T val)
+        {
+            switch (item)
+            {
+                case RigidBody2D body:
+                    m_bodiesWithCustomProperties.Add(body);
+                    break;
+                case CollisionShape2D fixture:
+                    m_fixturesWithCustomProperties.Add(fixture);
+                    break;
+                case Constraint2D joint:
+                    m_jointsWithCustomProperties.Add(joint);
+                    break;
+                case B2dJsonImage image:
+                    m_imagesWithCustomProperties.Add(image);
+                    break;
+                case PhysicsWorld2D world:
+                    m_worldsWithCustomProperties.Add(world);
+                    break;
+                default:
+                    break;
+            }
 
-        public int getCustomInt(object item, string propertyName, int defaultVal = 0) { }
-        public float getCustomFloat(object item, string propertyName, float defaultVal = 0) { }
-        public string getCustomString(object item, string propertyName, string defaultVal = "") { }
-        public Vector2 getCustomVector(object item, string propertyName, Vector2 defaultVal = Vector2(0, 0)) { }
-        public bool getCustomBool(object item, string propertyName, bool defaultVal = false) { }
-        public B2dJsonColor4 getCustomColor(object item, string propertyName, B2dJsonColor4 defaultVal = B2dJsonColor4()) { }
+            B2dJsonCustomProperties properties = getCustomPropertiesForItem(item, true);
+            properties.GetCustomPropertyMapFromType<T>()[propertyName] = val;
+        }
 
-        // //this define saves us writing out 20 functions which are almost exactly the same
-        // #define DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(ucType, lcType)\
-        // int getBodiesByCustom##ucType(   string propertyName, lcType valueToMatch, List<RigidBody2D> bodies);\
-        //     int getFixturesByCustom##ucType( string propertyName, lcType valueToMatch, List<CollisionShape2D> fixtures);\
-        //     int getJointsByCustom##ucType(   string propertyName, lcType valueToMatch, List<Constraint2D> joints);\
-        //     int getImagesByCustom##ucType(   string propertyName, lcType valueToMatch, List<B2dJsonImage> images);
 
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Int, int)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Float, float)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(String, string)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Vector, Vector2)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_VECTOR(Bool, bool)
 
-        // //this define saves us writing out 20 functions which are almost exactly the same
-        // #define DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(ucType, lcType)\
-        //     RigidBody2D getBodyByCustom##ucType(    string propertyName, lcType valueToMatch);\
-        //     CollisionShape2D getFixtureByCustom##ucType( string propertyName, lcType valueToMatch);\
-        //     Constraint2D getJointByCustom##ucType(   string propertyName, lcType valueToMatch);\
-        //     B2dJsonImage getImageByCustom##ucType(   string propertyName, lcType valueToMatch);
+        public bool hasCustomInt(object item, string propertyName) { return hasCustomValueType<int>(item, propertyName); }
+        public bool hasCustomFloat(object item, string propertyName) { return hasCustomValueType<float>(item, propertyName); }
+        public bool hasCustomString(object item, string propertyName) { return hasCustomValueType<string>(item, propertyName); }
+        public bool hasCustomVector(object item, string propertyName) { return hasCustomValueType<Vector2>(item, propertyName); }
+        public bool hasCustomBool(object item, string propertyName) { return hasCustomValueType<bool>(item, propertyName); }
+        public bool hasCustomColor(object item, string propertyName) { return hasCustomValueType<B2dJsonColor4>(item, propertyName); }
 
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Int, int)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Float, float)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(String, string)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Vector, Vector2)
-        //     DECLARE_GET_BY_CUSTOM_PROPERTY_VALUE_FUNCTIONS_SINGLE(Bool, bool)
+        protected bool hasCustomValueType<T>(object item, string propertyName)
+        {
+            B2dJsonCustomProperties properties = getCustomPropertiesForItem(item, false);
+            return properties != null && properties.GetCustomPropertyMapFromType<T>().Count(property => property.Key == propertyName) > 0;
+        }
+
+
+        public int getCustomInt(object item, string propertyName, int defaultVal = 0) { return getCustomValueType(item, propertyName, defaultVal); }
+        public float getCustomFloat(object item, string propertyName, float defaultVal = 0) { return getCustomValueType(item, propertyName, defaultVal); }
+        public string getCustomString(object item, string propertyName, string defaultVal = "") { return getCustomValueType(item, propertyName, defaultVal); }
+        public Vector2 getCustomVector(object item, string propertyName, Vector2 defaultVal = default(Vector2)) { return getCustomValueType(item, propertyName, defaultVal); }
+        public bool getCustomBool(object item, string propertyName, bool defaultVal = false) { return getCustomValueType(item, propertyName, defaultVal); }
+        public B2dJsonColor4 getCustomColor(object item, string propertyName, B2dJsonColor4 defaultVal = default(B2dJsonColor4)) { return getCustomValueType(item, propertyName, defaultVal); }
+
+        protected T getCustomValueType<T>(object item, string propertyName, T defaultVal = default(T))
+        {
+            B2dJsonCustomProperties props = getCustomPropertiesForItem(item, false);
+            if (null == props) return defaultVal;
+
+            Dictionary<string, T> propertiesMap = props.GetCustomPropertyMapFromType<T>();
+
+            return propertiesMap.Any(property => property.Key == propertyName) ? propertiesMap.First(property => property.Key == propertyName).Value : defaultVal;
+        }
+
+
+
+
+        public IEnumerable<RigidBody2D> getBodiesByCustomValueType<T>(string propertyName, T valueToMatch)
+        {
+            return m_bodiesWithCustomProperties.Where(item => hasCustomValueType<T>(item, propertyName) &&  getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public IEnumerable<CollisionShape2D> getFixturesByCustomValueType<T>(string propertyName, T valueToMatch)
+        {
+            return m_fixturesWithCustomProperties.Where(item => hasCustomValueType<T>(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public IEnumerable<Constraint2D> getJointsByCustomValueType<T>(string propertyName, T valueToMatch)
+        {
+            return m_jointsWithCustomProperties.Where(item => hasCustomValueType<T>(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public IEnumerable<B2dJsonImage> getImagesByCustomValueType<T>(string propertyName, T valueToMatch)
+        {
+            return m_imagesWithCustomProperties.Where(item => hasCustomValueType<T>(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+
+
+        public RigidBody2D getBodyByCustomType<T>(string propertyName, T valueToMatch)
+        {
+            return m_bodiesWithCustomProperties.FirstOrDefault(item => hasCustomInt(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public CollisionShape2D getFixtureByCustomType<T>(string propertyName, T valueToMatch)
+        {
+            return m_fixturesWithCustomProperties.FirstOrDefault(item => hasCustomInt(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public Constraint2D getJointByCustomType<T>(string propertyName, T valueToMatch)
+        {
+            return m_jointsWithCustomProperties.FirstOrDefault(item => hasCustomInt(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+        public B2dJsonImage getImageByCustomType<T>(string propertyName, T valueToMatch)
+        {
+            return m_imagesWithCustomProperties.FirstOrDefault(item => hasCustomInt(item, propertyName) && getCustomValueType<T>(item, propertyName).Equals(valueToMatch));
+        }
+
+
+
+        public SortedSet<T> GetSetWithCustomPropertiesFromType<T>()
+        {
+            switch (typeof(T))
+            {
+                case Type bodyType when bodyType == typeof(RigidBody2D): return m_bodiesWithCustomProperties as SortedSet<T>;
+                case Type fixtureType when fixtureType == typeof(CollisionShape2D): return m_fixturesWithCustomProperties as SortedSet<T>;
+                case Type jointType when jointType == typeof(Constraint2D): return m_jointsWithCustomProperties as SortedSet<T>;
+                case Type imageType when imageType == typeof(B2dJsonImage): return m_imagesWithCustomProperties as SortedSet<T>;
+                case Type worldType when worldType == typeof(PhysicsWorld2D): return m_worldsWithCustomProperties as SortedSet<T>;
+            }
+
+            return new SortedSet<T>();
+        }
 
         #endregion [custom properties]
 
@@ -1563,26 +1647,70 @@ namespace Toolkit.UrhoSharp.B2dJson
         #region [static helpers]
 
         public static string floatToHex(float f)
-        {            
-            byte[] byteArray = BitConverter.GetBytes(argument);
-            string formatter = "{0,16:E7}{1,20}";
-            var res = string.Format(formatter, argument,
-                                    BitConverter.ToString(byteArray));
-            
-
-            char buf[16];
-            //sprintf(buf, "%08X", *((int*)(&f)) ); dereferencing type-punned pointer will break strict-aliasing rules
-            int* i = (int*)(&f);
-            sprintf(buf, "%08X", *i);
-            return std::string(buf);
-
-            return res;
-
+        {
+            byte[] bytes = BitConverter.GetBytes(f);
+            int i = BitConverter.ToInt32(bytes, 0);
+            return i.ToString("X");
         }
 
-        public static float hexToFloat(string str) { }
-        public static float jsonToFloat(string name, JObject value, int index = -1, float defaultValue = 0) { }
-        public static Vector2 jsonToVec(string name, JObject value, int index = -1, Vector2 defaultValue = Vector2(0, 0)) { }
+        public static float hexToFloat(string str)
+        {            
+            uint num = uint.Parse(str, System.Globalization.NumberStyles.AllowHexSpecifier);
+
+            byte[] floatVals = BitConverter.GetBytes(num);
+            float f = BitConverter.ToSingle(floatVals, 0);
+            return f;
+        }
+
+        public static float jsonToFloat(string name, JObject value, int index = -1, float defaultValue = 0)
+        {
+            if (null == value[name]) return defaultValue;
+
+            if (index > -1)
+            {
+                if (null == value[name][index]) return defaultValue;
+                else if (value[name][index].GetType() == typeof(int)) return (int)value[name][index]; // usually 0 or 1
+                else if (value[name][index].GetType() == typeof(string)) return hexToFloat((string)value[name][index]);
+                else return (float)value[name][index];
+            }
+            else
+            {
+                if (null == value[name]) return defaultValue;
+                else if (value[name].GetType() == typeof(int)) return (int)value[name]; // usually 0 or 1
+                else if (value[name].GetType() == typeof(string)) return hexToFloat((string)value[name]);
+                else return (float)value[name];
+            }
+        }
+
+        public static Vector2 jsonToVec(string name, JObject value, int index = -1, Vector2 defaultValue = default(Vector2))
+        {
+            Vector2 vec = null == defaultValue ? Vector2.Zero : defaultValue;
+
+            if (null == value[name]) return defaultValue;
+
+            if (index > -1)
+            {
+
+                if (value[name]["x"][index].GetType() == typeof(int)) vec.X = (int)value[name]["x"][index]; //usually 0 or 1
+                else if (value[name]["x"][index].GetType() == typeof(string)) vec.X = hexToFloat((string)value[name]["x"][index]);
+                else vec.X = (float)value[name]["x"][index];
+
+                if (value[name]["y"][index].GetType() == typeof(int)) vec.Y = (int)value[name]["y"][index]; //usually 0 or 1
+                else if (value[name]["y"][index].GetType() == typeof(string)) vec.Y = hexToFloat((string)value[name]["y"][index]);
+                else vec.Y = (float)value[name]["y"][index];
+            }
+            else
+            {
+                if (value[name].GetType() == typeof(int)) vec = Vector2.Zero; // zero vector
+                else
+                {
+                    vec.X = jsonToFloat("x", (JObject)value[name]);
+                    vec.Y = jsonToFloat("y", (JObject)value[name]);
+                }
+            }
+
+            return vec;
+        }
 
         #endregion [static helpers]
 
