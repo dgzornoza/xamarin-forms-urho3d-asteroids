@@ -24,7 +24,7 @@ namespace Toolkit.UrhoSharp.B2dJson
 
     public class B2dJsonColor4
     {
-        B2dJsonColor4() { R = G = B = A = 255; }
+        public B2dJsonColor4() { R = G = B = A = 255; }
 
         public int R { get; set; }
         public int G { get; set; }
@@ -1152,7 +1152,7 @@ namespace Toolkit.UrhoSharp.B2dJson
             B2dJsonImage img = new B2dJsonImage();
 
             int bodyIndex = imageValue["body"] == null ? -1 : (int)imageValue["body"];
-            if (-1 != bodyIndex) img.Body = lookupBodyFromIndex((uint)bodyIndex);
+            if (-1 != bodyIndex) img.Body = lookupBodyFromIndex(bodyIndex);
 
             string imageName = imageValue["name"]?.ToString();
             if (null != imageName)
@@ -1343,20 +1343,218 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         #region [member helpers]
 
-        protected void vecToJson(string name, uint v, JObject value, int index = -1) { }
-        protected void vecToJson(string name, float v, JObject value, int index = -1) { }
-        protected void vecToJson(string name, Vector2 vec, JObject value, int index = -1) { }
-        protected void floatToJson(string name, float f, JObject value) { }
-        protected RigidBody2D lookupBodyFromIndex(uint index) { }
-        protected int lookupBodyIndex(RigidBody2D body) { }
-        protected int lookupJointIndex(Constraint2D joint) { }
+        protected void vecToJson(string name, uint v, JObject value, int index = -1)
+        {
+            if (index > -1)
+                value[name][index] = v;
+            else
+                value[name] = v;
+        }
+        protected void vecToJson(string name, float v, JObject value, int index = -1)
+        {
+            if (index > -1)
+            {
+                if (m_useHumanReadableFloats)
+                {
+                    value[name][index] = v;
+                }
+                else
+                {
+                    if (v == 0)
+                        value[name][index] = 0;
+                    else if (v == 1)
+                        value[name][index] = 1;
+                    else
+                        value[name][index] = floatToHex(v);
+                }
+            }
+            else
+                floatToJson(name, v, value);
+        }
+        protected void vecToJson(string name, Vector2 vec, JObject value, int index = -1)
+        {
+            if (index > -1)
+            {
+                if (m_useHumanReadableFloats)
+                {
+                    value[name]["x"][index] = vec.X;
+                    value[name]["y"][index] = vec.Y;
+                }
+                else
+                {
+                    if (vec.X == 0)
+                        value[name]["x"][index] = 0;
+                    else if (vec.X == 1)
+                        value[name]["x"][index] = 1;
+                    else
+                        value[name]["x"][index] = floatToHex(vec.X);
+                    if (vec.Y == 0)
+                        value[name]["y"][index] = 0;
+                    else if (vec.Y == 1)
+                        value[name]["y"][index] = 1;
+                    else
+                        value[name]["y"][index] = floatToHex(vec.Y);
+                }
+            }
+            else
+            {
+                if (vec.X == 0 && vec.Y == 0)
+                    value[name] = 0; // cut down on file space for common values
+                else
+                {
+                    JObject vecValue = new JObject();
+                    floatToJson("x", vec.X, vecValue);
+                    floatToJson("y", vec.Y, vecValue);
+                    value[name] = vecValue;
+                }
+            }
+        }
 
-        protected JArray writeCustomPropertiesToJson(object item) { }
-        protected void readCustomPropertiesFromJson(RigidBody2D item, JObject value) { }
-        protected void readCustomPropertiesFromJson(CollisionShape2D item, JObject value) { }
-        protected void readCustomPropertiesFromJson(Constraint2D item, JObject value) { }
-        protected void readCustomPropertiesFromJson(B2dJsonImage item, JObject value) { }
-        protected void readCustomPropertiesFromJson(PhysicsWorld2D item, JObject value) { }
+        protected void floatToJson(string name, float f, JObject value)
+        {
+            // cut down on file space for common values
+            if (f == 0) value[name] = 0;
+            else if (f == 1) value[name] = 1;
+            else
+            {
+                if (m_useHumanReadableFloats)
+                    value[name] = f;
+                else
+                    value[name] = floatToHex(f);
+            }
+        }
+
+        protected RigidBody2D lookupBodyFromIndex(int index) { return m_indexToBodyMap.ContainsKey(index) ? m_indexToBodyMap[index] : null; }
+
+        protected int lookupBodyIndex(RigidBody2D body)
+        {
+            int? val = m_bodyToIndexMap[body];
+            return null != val ? val.Value : -1;
+        }
+
+        protected int lookupJointIndex(Constraint2D joint)
+        {
+            int? val = m_jointToIndexMap[joint];
+            return null != val ? val.Value : -1;
+        }
+
+        protected JArray writeCustomPropertiesToJson(object item)
+        {
+            JArray customPropertiesValue = new JArray();
+            if (null == item) return customPropertiesValue;
+
+            B2dJsonCustomProperties props = getCustomPropertiesForItem(item, false);
+            if (null == props) return customPropertiesValue;
+
+
+            foreach (var customProp in props.m_customPropertyMap_int)
+            {
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key,
+                    ["int"] = customProp.Value
+                };
+                customPropertiesValue.Add(proValue);
+            }
+
+            foreach (var customProp in props.m_customPropertyMap_string)
+            {
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key,
+                    ["string"] = customProp.Value
+                };
+                customPropertiesValue.Add(proValue);
+            }
+
+            foreach (var customProp in props.m_customPropertyMap_bool)
+            {
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key,
+                    ["bool"] = customProp.Value
+                };
+                customPropertiesValue.Add(proValue);
+            }
+
+            foreach (var customProp in props.m_customPropertyMap_float)
+            {
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key,
+                    ["float"] = customProp.Value
+                };
+                customPropertiesValue.Add(proValue);
+            }
+
+            foreach (var customProp in props.m_customPropertyMap_b2Vec2)
+            {
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key
+                };
+                vecToJson("vec2", customProp.Value, proValue);
+                customPropertiesValue.Add(proValue);
+            }
+
+            foreach (var customProp in props.m_customPropertyMap_color)
+            {
+                JArray jColorArray = new JArray();
+                jColorArray.Add(customProp.Value.R);
+                jColorArray.Add(customProp.Value.G);
+                jColorArray.Add(customProp.Value.B);
+                jColorArray.Add(customProp.Value.A);
+
+                JObject proValue = new JObject
+                {
+                    ["name"] = customProp.Key,
+                    ["color"] = jColorArray
+                };
+
+                customPropertiesValue.Add(proValue);
+            }
+
+            return customPropertiesValue;
+        }
+
+        protected void readCustomPropertiesFromJson(RigidBody2D item, JObject value) { readCustomPropertiesFromJson<RigidBody2D>(item, value); }
+        protected void readCustomPropertiesFromJson(CollisionShape2D item, JObject value) { readCustomPropertiesFromJson<CollisionShape2D>(item, value); }
+        protected void readCustomPropertiesFromJson(Constraint2D item, JObject value) { readCustomPropertiesFromJson<Constraint2D>(item, value); }
+        protected void readCustomPropertiesFromJson(B2dJsonImage item, JObject value) { readCustomPropertiesFromJson<B2dJsonImage>(item, value); }
+        protected void readCustomPropertiesFromJson(PhysicsWorld2D item, JObject value) { readCustomPropertiesFromJson<PhysicsWorld2D>(item, value); }
+
+        protected void readCustomPropertiesFromJson<T>(T item, JObject value)
+        {
+            JArray propValues = (JArray)value["customProperties"];
+            if (null == item || null == propValues) return;            
+            
+            for (int i = 0; i < propValues.Count; i++)
+            {
+                JObject propValue = (JObject)propValues[i];
+                string propertyName = propValue["name"].ToString();
+                if (propValue["int"] != null) setCustomInt(item, propertyName, (int)propValue["int"]);
+                if (propValue["float"] != null) setCustomFloat(item, propertyName, (float)propValue["float"]);
+                if (propValue["string"] != null) setCustomString(item, propertyName, propValue["string"].ToString());
+                if (propValue["vec2"] != null) setCustomVector(item, propertyName, jsonToVec("vec2", propValue));
+                if (propValue["bool"] != null) setCustomBool(item, propertyName, (bool)propValue["bool"]);
+                if (propValue["color"] != null)
+                {
+                    JArray colorJArray = (JArray)propValue["color"];
+                    if (null != colorJArray && colorJArray.Count > 3)
+                    {
+                        B2dJsonColor4 color4 = new B2dJsonColor4
+                        {
+                            R = (int)colorJArray[0],
+                            G = (int)colorJArray[1],
+                            B = (int)colorJArray[2],
+                            A = (int)colorJArray[3],
+                        };
+                        
+                        setCustomColor(item, propertyName, color4);
+                    }
+                }
+            }            
+        }
 
         #endregion [member helpers]
 
@@ -1364,7 +1562,24 @@ namespace Toolkit.UrhoSharp.B2dJson
 
         #region [static helpers]
 
-        public static string floatToHex(float f) { }
+        public static string floatToHex(float f)
+        {            
+            byte[] byteArray = BitConverter.GetBytes(argument);
+            string formatter = "{0,16:E7}{1,20}";
+            var res = string.Format(formatter, argument,
+                                    BitConverter.ToString(byteArray));
+            
+
+            char buf[16];
+            //sprintf(buf, "%08X", *((int*)(&f)) ); dereferencing type-punned pointer will break strict-aliasing rules
+            int* i = (int*)(&f);
+            sprintf(buf, "%08X", *i);
+            return std::string(buf);
+
+            return res;
+
+        }
+
         public static float hexToFloat(string str) { }
         public static float jsonToFloat(string name, JObject value, int index = -1, float defaultValue = 0) { }
         public static Vector2 jsonToVec(string name, JObject value, int index = -1, Vector2 defaultValue = Vector2(0, 0)) { }
