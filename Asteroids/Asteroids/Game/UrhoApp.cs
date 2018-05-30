@@ -76,7 +76,7 @@ namespace Asteroids.Game
             // this._camera.OrthoSize = graphics.Width / (((graphics.Width / graphics.Height) * 2) * 32);
 
             this._camera.OrthoSize = (float)graphics.Height * PixelSize;
-            // establecer el zoom segun la resolucion de diseño para asegurar visibilidad completa (zomm (1.0) para completa visibildiad en una resolucion 3:2 1920X1280)
+            // establecer el zoom segun la resolucion de diseño para asegurar visibilidad completa (zomm (1.0) para completa visibildiad en una resolucion 3:2 1080X720)
             this._camera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1080.0f, (float)graphics.Height / 720.0f);
         }
 
