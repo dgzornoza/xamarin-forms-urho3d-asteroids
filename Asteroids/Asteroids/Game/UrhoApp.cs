@@ -1,5 +1,4 @@
-﻿using Asteroids.Game.Components;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -55,8 +54,10 @@ namespace Asteroids.Game
             this._subscribeToEvents();
 
 
-            Rube rube = new Rube();
-            rube.LoadWorld(this._scene);
+            // TEMP: load rube
+            string filePath = ResourceCache.GetResourceFileName("Urho2D/RubePhysics/documentA.json");
+            Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
+            b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
         }
 
 
