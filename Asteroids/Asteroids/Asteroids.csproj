@@ -11,8 +11,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Toolkit.Urho.Rube">
+      <HintPath>..\..\..\xf-urho3d-toolkit-rube\Urho3d.Rube\Toolkit\Toolkit.Urho.Rube\bin\Debug\netstandard2.0\Toolkit.Urho.Rube.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Game\Components\" />
   </ItemGroup>
 </Project>
