@@ -55,9 +55,20 @@ namespace Asteroids.Game
 
 
             // TEMP: load rube
-            string filePath = ResourceCache.GetResourceFileName("Urho2D/RubePhysics/documentA.json");
-            Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
+            //string filePath = ResourceCache.GetResourceFileName("Urho2D/RubePhysics/documentA.json");
+            //Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
+            //b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
+            var cache = ResourceCache;
+            Sprite2D sprite = cache.GetSprite2D("Textures/Ship.dds");
+            if (sprite == null) return;
+            Node spriteNode = this._scene.CreateChild("StaticSprite2D");            
+            StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
+            staticSprite.Color = Color.Green;
+            staticSprite.BlendMode = BlendMode.Alpha;            
+            staticSprite.Sprite = sprite;
+
+            spriteNode.RunActionsAsync(new Urho.Actions.TintTo(2, Color.Blue));
+
         }
 
 
@@ -124,7 +135,7 @@ namespace Asteroids.Game
                 // bones properly
                 if (_drawDebug)
                 {
-                    this._scene.GetComponent<PhysicsWorld2D>().DrawDebugGeometry();
+                    this._scene.GetComponent<PhysicsWorld2D>()?.DrawDebugGeometry();
                     Renderer.DrawDebugGeometry(false);
                 }
             };

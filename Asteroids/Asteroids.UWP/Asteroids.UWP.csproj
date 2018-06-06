@@ -104,6 +104,12 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\Assets\Textures\Ship.dds">
+      <Link>Data\Textures\Ship.dds</Link>
+    </Content>
+    <Content Include="..\..\Assets\Textures\Ship.png">
+      <Link>Data\Textures\Ship.png</Link>
+    </Content>
     <Content Include="..\..\Assets\Textures\stars.png">
       <Link>Assets\Data\Textures\stars.png</Link>
     </Content>
@@ -161,7 +167,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\Data\PostProcess\" />
+    <Folder Include="Data\PostProcess\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

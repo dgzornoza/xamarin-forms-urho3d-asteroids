@@ -29,9 +29,6 @@ namespace Asteroids
             string assetsFolder;
             switch (Device.RuntimePlatform)
             {
-                case Device.UWP:
-                    assetsFolder = "Assets/Data";
-                    break;
                 default:
                     assetsFolder = "Data";
                     break;
