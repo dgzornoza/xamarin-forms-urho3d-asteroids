@@ -7,22 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="UrhoSharp.Forms" Version="1.8.93" />
-    <PackageReference Include="Xamarin.Forms" Version="3.0.0.482510" />
+    <PackageReference Include="Xamarin.Forms" Version="3.0.0.550146" />
+    <PackageReference Include="Prism.Unity.Forms" Version="7.0.0.396" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Toolkit.Urho.Rube">
-      <HintPath>..\..\..\xf-urho3d-toolkit-rube\Urho3d.Rube\Toolkit\Toolkit.Urho.Rube\bin\Debug\netstandard2.0\Toolkit.Urho.Rube.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="GamePage.xaml.cs">
-      <DependentUpon>GamePage.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Game\Components\" />
-  </ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Prism;
+using Prism.Ioc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +23,15 @@ namespace Asteroids.UWP
         {
             this.InitializeComponent();
 
-            LoadApplication(new Asteroids.App());
+            LoadApplication(new Asteroids.App(new UwpInitializer()));
+        }
+    }
+
+    public class UwpInitializer : IPlatformInitializer
+    {
+        public void RegisterTypes(IContainerRegistry container)
+        {
+
         }
     }
 }
