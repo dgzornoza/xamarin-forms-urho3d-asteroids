@@ -85,7 +85,7 @@ namespace Asteroids.Game
         private void _createCamera()
         {
             // Create camera
-            Node CameraNode = _scene.CreateChild(GameConfig.mainCameraNodeName);
+            Node CameraNode = _scene.CreateChild(UrhoConfig.mainCameraNodeName);
             CameraNode.Position = (new Vector3(0.0f, 0.0f, -0.10f));
             this._camera = CameraNode.CreateComponent<Camera>();
             this._camera.Orthographic = true;

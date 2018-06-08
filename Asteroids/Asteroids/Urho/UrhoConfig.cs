@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Asteroids.Game
 {
-    public class GameConfig
+    public class UrhoConfig
     {
         public const string mainCameraNodeName = "MainCamera";
     }

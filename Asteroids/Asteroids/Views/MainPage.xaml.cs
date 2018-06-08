@@ -6,7 +6,7 @@ namespace Asteroids.Views
 	{
 		public MainPage ()
 		{
-			InitializeComponent ();
+			InitializeComponent ();            
 		}
     }
 }

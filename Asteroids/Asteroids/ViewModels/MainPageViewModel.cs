@@ -14,7 +14,7 @@ namespace Asteroids.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
 
-        private UrhoSurface _urho;
+        private UrhoSurface _urhoView;
 
 
         public MainPageViewModel(INavigationService navigationService) 
@@ -24,34 +24,6 @@ namespace Asteroids.ViewModels
         }
 
 
-
-
-
-        public override void OnNavigatedFrom(NavigationParameters parameters)
-        {
-        }
-
-        public override void OnNavigatedTo(NavigationParameters parameters)
-        {
-            
-        }
-
-        public override void OnNavigatingTo(NavigationParameters parameters)
-        {
-
-        }
-        
-        public override void Destroy()
-        {
-            UrhoSurface.OnDestroy();
-        }
-
-
-        public UrhoSurface Urho
-        {
-            get => _urho;
-            private set => SetProperty(ref _urho, value);
-        }
 
 
 
@@ -65,22 +37,20 @@ namespace Asteroids.ViewModels
                     break;
             }
 
-            Urho = new UrhoSurface
-            {
-                VerticalOptions = LayoutOptions.FillAndExpand
-            };
 
-            
-            Device.StartTimer(TimeSpan.FromSeconds(5), () =>
-            {
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    await Urho.Show<Game.UrhoApp>(new Urho.ApplicationOptions(assetsFolder));
-                });
-                
-                return false;
-            });
-            
+            //Device.StartTimer(TimeSpan.FromSeconds(5), () =>
+            //{
+            //    Device.BeginInvokeOnMainThread(async () =>
+            //    {
+            //        await Urho.Show<Game.UrhoApp>(new Urho.ApplicationOptions(assetsFolder));
+            //    });
+
+            //    return false;
+            //});
+
+
+            //Task.Run(() => { UrhoView.Show<Game.UrhoApp>(new Urho.ApplicationOptions("Data")); }).Wait();
+
         }
 
     }
