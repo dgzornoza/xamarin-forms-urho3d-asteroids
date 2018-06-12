@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Urho.Forms;
 using Xamarin.Forms;
-using Asteroids.Helpers;
 
 namespace Asteroids.Controls
 {
@@ -32,21 +31,19 @@ namespace Asteroids.Controls
 
         #region [Binding]
 
-        ///// <summary>
-        ///// Definicion de la propiedad enlazada con el timeline
-        ///// </summary>
-        //public static readonly BindableProperty TimelineProperty = BindableProperty.Create(
-        //    nameof(Timeline),
-        //    typeof(TimelineModel),
-        //    typeof(UrhoSurfaceView),
-        //    propertyChanged: (bindable, oldValue, newValue) =>
-        //    {
-        //        // eliminar el contenido si se elimina el timeline
-        //        if (null == newValue) (bindable as SlidesViewer).Reset();
-        //    }
-        //);
-
-
+        /// <summary>
+        /// Property for set Urho App
+        /// </summary>
+        public static readonly BindableProperty UrhoAppProperty = BindableProperty.Create(
+            nameof(UrhoApp),
+            typeof(Urho.Application),
+            typeof(UrhoSurfaceView),
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                // destroy urho app if not exists new value
+                if (null == newValue) (bindable as UrhoSurfaceView)._destroy();
+            }
+        );
 
 
         #endregion [Binding]
@@ -56,14 +53,14 @@ namespace Asteroids.Controls
 
         #region [Propiedades]
 
-        ///// <summary>
-        ///// Propiedad para obtener o establecer el timeline
-        ///// </summary>
-        //public TimelineModel Timeline
-        //{
-        //    get { return (TimelineModel)GetValue(TimelineProperty); }
-        //    set { SetValue(TimelineProperty, value); }
-        //}
+        /// <summary>
+        /// Property with Urho App
+        /// </summary>
+        public Urho.Application UrhoApp
+        {
+            get { return (Urho.Application)GetValue(UrhoAppProperty); }
+            set { SetValue(UrhoAppProperty, value); }
+        }
 
 
 
@@ -92,10 +89,10 @@ namespace Asteroids.Controls
 
             if (null == Parent)
             {
-                // destroy UrhoSurface
-                OnDestroy();
+                this._destroy();
             }
         }
+
 
     }
 }
