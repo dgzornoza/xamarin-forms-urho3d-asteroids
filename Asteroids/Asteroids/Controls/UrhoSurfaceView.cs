@@ -1,15 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using Urho;
 using Urho.Forms;
 using Xamarin.Forms;
 
 namespace Asteroids.Controls
 {
+    /// <summary>
+    /// Enum with Urho Surface
+    /// </summary>
+    public enum EnumUrhoSurfaceState
+    {
+        NONE = 0,
+        RUN,
+        PAUSE,
+        STOP
+    }
+
     public class UrhoSurfaceView : UrhoSurface
     {
-        private Page _parentPage;
-        private bool _isInitialized;
+
 
         /// <summary>
         /// default constructor
@@ -21,11 +33,6 @@ namespace Asteroids.Controls
 
             this.SizeChanged += _sizeChanged;
         }
-
-
-
-
-
 
 
 
@@ -41,10 +48,31 @@ namespace Asteroids.Controls
             propertyChanged: (bindable, oldValue, newValue) =>
             {
                 // destroy urho app if not exists new value
-                if (null == newValue) (bindable as UrhoSurfaceView)._destroy();
+                if (null == newValue) (bindable as UrhoSurfaceView)._destroyUrhoApp();
             }
         );
 
+        /// <summary>
+        /// Property for set UrhoSurface state
+        /// </summary>
+        public static readonly BindableProperty StateProperty = BindableProperty.Create(
+            nameof(State),
+            typeof(EnumUrhoSurfaceState),
+            typeof(UrhoSurfaceView),
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                UrhoSurfaceView instance = (bindable as UrhoSurfaceView);
+
+                if (null == newValue || !instance.IsUrhoAppActive) return;
+
+                switch ((EnumUrhoSurfaceState)newValue)
+                {
+                    case EnumUrhoSurfaceState.RUN: OnResume(); break;
+                    case EnumUrhoSurfaceState.PAUSE: OnPause(); break;
+                    case EnumUrhoSurfaceState.STOP: instance._destroyUrhoApp(); break;                    
+                }
+            }
+        );
 
         #endregion [Binding]
 
@@ -52,6 +80,8 @@ namespace Asteroids.Controls
 
 
         #region [Propiedades]
+
+        public bool IsUrhoAppActive => Urho.Application.HasCurrent && Urho.Application.Current.IsActive;
 
         /// <summary>
         /// Property with Urho App
@@ -62,6 +92,14 @@ namespace Asteroids.Controls
             set { SetValue(UrhoAppProperty, value); }
         }
 
+        /// <summary>
+        /// Property with UrhoSurface state
+        /// </summary>
+        public EnumUrhoSurfaceState State
+        {
+            get { return (EnumUrhoSurfaceState)GetValue(StateProperty); }
+            set { SetValue(StateProperty, value); }
+        }
 
 
         #endregion [Propiedades]
@@ -80,7 +118,7 @@ namespace Asteroids.Controls
 
                 // do not repeat
                 return false;
-            });
+            });            
         }
 
         protected override void OnParentSet()
@@ -89,8 +127,14 @@ namespace Asteroids.Controls
 
             if (null == Parent)
             {
-                this._destroy();
+                this._destroyUrhoApp();
             }
+        }
+
+
+        private void _destroyUrhoApp()
+        {
+            OnDestroy();
         }
 
 
