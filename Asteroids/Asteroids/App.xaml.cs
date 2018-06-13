@@ -31,6 +31,7 @@ namespace Asteroids
         {
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage>();
+            containerRegistry.RegisterForNavigation<MainPage2>();
         }
     }
 }

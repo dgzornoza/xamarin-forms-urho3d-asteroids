@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Asteroids.ViewModels
+namespace Asteroids.ViewModels.Base
 {
     public class ViewModelBase : BindableBase, INavigationAware, IDestructible
     {

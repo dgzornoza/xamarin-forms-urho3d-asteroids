@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Asteroids.Views.MainPage"
+             x:Class="Asteroids.Views.MainPage2"
              NavigationPage.HasNavigationBar="False"             
              Title="{Binding Title}">
 
@@ -9,8 +9,7 @@
         
         <!-- Urho Surface -->
         <ContentView Content="{Binding UrhoSurfaceInstance}" />
-
-        <Button VerticalOptions="Start" HorizontalOptions="Start" BackgroundColor="White" WidthRequest="50" HeightRequest="50" Text="go" Command="{Binding Go}" />
-    </Grid> 
+        
+    </Grid>
 
 </ContentPage>
