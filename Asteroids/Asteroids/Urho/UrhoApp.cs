@@ -5,12 +5,15 @@ using System.Text;
 using Urho;
 using Urho.Gui;
 using Urho.Urho2D;
+using XamarinForms.Toolkit.Helpers;
 
 namespace Asteroids.Game
 {
     public class UrhoApp : Application
     {
+#if DEBUG
         private MonoDebugHud _monoDebugHud;
+#endif
 
         private Scene _scene;
         private Camera _camera;
@@ -38,7 +41,8 @@ namespace Asteroids.Game
 
         protected override void Start()
         {
-            Log.LogMessage += e => Debug.WriteLine($"[{e.Level}] {e.Message}");
+            Log.LogMessage += e => $"[{e.Level}] {e.Message}".RegisterLog();
+            
             base.Start();
 
 #if DEBUG

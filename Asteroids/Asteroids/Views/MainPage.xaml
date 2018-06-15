@@ -9,8 +9,6 @@
         
         <!-- Urho Surface -->
         <ContentView Content="{Binding UrhoSurfaceInstance}" />
-
-        <Button VerticalOptions="Start" HorizontalOptions="Start" BackgroundColor="White" WidthRequest="50" HeightRequest="50" Text="go" Command="{Binding Go}" />
     </Grid> 
 
 </ContentPage>

@@ -16,10 +16,4 @@
     <ProjectReference Include="..\..\..\xf-urho3d-toolkit-rube\Urho3d.Rube\Toolkit\Toolkit.Urho.Rube\Toolkit.Urho.Rube.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Views\MainPage2.xaml.cs">
-      <DependentUpon>MainPage2.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>
