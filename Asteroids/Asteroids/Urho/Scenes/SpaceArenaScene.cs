@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Asteroids.Game.Components;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Urho;
@@ -7,6 +8,8 @@ namespace Asteroids.Game.Scenes
 {
     public class SpaceArenaScene : Component
     {
+        private Node _rootNode;
+
         public SpaceArenaScene() { }
 
         public override void OnSceneSet(Scene scene)
@@ -16,12 +19,14 @@ namespace Asteroids.Game.Scenes
             // attach to scene
             if (null != scene)
             {
-
+                this._rootNode = Node.CreateChild(nameof(SpaceArenaScene));
+                this._create();
             }
             // dettach from scene
             else
             {
-
+                Node.RemoveChild(this._rootNode);
+                this._rootNode = null;
             }
         }
 
@@ -33,7 +38,8 @@ namespace Asteroids.Game.Scenes
             //Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
             //b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
 
-
+            // create ship
+            this._rootNode.CreateChild("ship").CreateComponent<Ship>();
         }
     }
 }

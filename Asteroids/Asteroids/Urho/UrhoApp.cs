@@ -73,16 +73,8 @@ namespace Asteroids.Game
             this._scene.CreateComponent<Octree>();
             this._scene.CreateComponent<DebugRenderer>();
 
-            var cache = ResourceCache;
-            Sprite2D sprite = cache.GetSprite2D("Textures/Ship.dds");
-            if (sprite == null) return;
-            Node spriteNode = this._scene.CreateChild("StaticSprite2D");
-            StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
-            staticSprite.Color = Color.Green;
-            staticSprite.BlendMode = BlendMode.Alpha;
-            staticSprite.Sprite = sprite;
-
-            spriteNode.RunActionsAsync(new Urho.Actions.TintTo(2, Color.Blue));
+            // scena principal
+            this._scene.CreateComponent<Scenes.SpaceArenaScene>();
         }
 
 

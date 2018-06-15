@@ -17,7 +17,7 @@ namespace Asteroids.Game.Components
             // attach to scene
             if (null != scene)
             {
-
+                this._create();
             }
             // dettach from scene
             else
