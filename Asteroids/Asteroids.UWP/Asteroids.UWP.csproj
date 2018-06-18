@@ -110,6 +110,9 @@
     <Content Include="..\..\Assets\Textures\stars.png">
       <Link>Data\Textures\stars.png</Link>
     </Content>
+    <Content Include="..\..\Assets\Urho2D\Sprites\ship.png">
+      <Link>Data\Textures\ship.png</Link>
+    </Content>
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -144,6 +147,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Assets\Urho2D\RubePhysics\ship.json">
+      <Link>Data\RubePhysics\ship.json</Link>
+    </None>
     <None Include="Asteroids.UWP_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

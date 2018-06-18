@@ -74,7 +74,7 @@ namespace Asteroids.Game
             this._scene.CreateComponent<DebugRenderer>();
 
             // scena principal
-            this._scene.CreateComponent<Scenes.SpaceArenaScene>();
+            this._scene.CreateChild(nameof(Scenes.SpaceArenaScene)).CreateComponent<Scenes.SpaceArenaScene>();
         }
 
 
