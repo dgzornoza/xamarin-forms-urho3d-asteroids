@@ -225,14 +225,20 @@ namespace Asteroids.Game.Components
         private void _createShip()
         {
 
-            var cache = Application.ResourceCache;
-            Sprite2D sprite = cache.GetSprite2D("Textures/Ship.dds");
-            if (sprite == null) return;
-            Node spriteNode = Scene.CreateChild("StaticSprite2D");
-            StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
-            staticSprite.Color = Color.Green;
-            staticSprite.BlendMode = BlendMode.Alpha;
-            staticSprite.Sprite = sprite;
+            string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
+            Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
+            b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
+            
+
+
+            //var cache = Application.ResourceCache;
+            //Sprite2D sprite = cache.GetSprite2D("Textures/Ship.dds");
+            //if (sprite == null) return;
+            //Node spriteNode = Scene.CreateChild("StaticSprite2D");
+            //StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
+            //staticSprite.Color = Color.Green;
+            //staticSprite.BlendMode = BlendMode.Alpha;
+            //staticSprite.Sprite = sprite;
 
             //spriteNode.RunActionsAsync(new Urho.Actions.TintTo(2, Color.Blue));
 
