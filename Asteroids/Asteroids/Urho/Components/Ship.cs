@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Urho;
 using Urho.Physics;
@@ -229,10 +230,8 @@ namespace Asteroids.Game.Components
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
             b2dJson.ReadIntoNodeFromFile(filePath, node, false, out string errorMsg);
 
-            Urho.Resources.XmlElement element = new Urho.Resources.XmlElement();
-            string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            this.Scene.SaveXml($"{folder}/scene.xml");
-
+            temp(b2dJson);
+            
 
             //var cache = Application.ResourceCache;
             //Sprite2D sprite = cache.GetSprite2D("Urho2D/Sprites/Ship.png");
@@ -244,13 +243,38 @@ namespace Asteroids.Game.Components
             //staticSprite.Sprite = sprite;
 
             //spriteNode.RunActionsAsync(new Urho.Actions.TintTo(2, Color.Blue));
-
-            // float points[4][2] = { { -10, 10 }, { 0, -20 }, { 10, 10 }, {0, 0} };
-            //setPoints(4, points);
-            //setColors();
-            //setPosition(((float) scene()->window()->getCenter().x) - 10, ((float) scene()->window()->getCenter().y) - 10);
-            //createBody(scene()->physics()->world(), b2_dynamicBody, 0.5f, 10.0f, 5.0f);
         }
 
+        private void temp(Toolkit.Urho.Rube.B2dJson json)
+        {
+            // crear un vector con todas las imagenes de la escena del editor RUBE
+            IEnumerable<Toolkit.Urho.Rube.B2dJsonImage> b2dImages = json.GetAllImages();
+            var cache = Application.ResourceCache;
+
+            // recorrer el vector, crear los sprites para cada imagen y almacenarla en el array con imagenes asociadas a cuerpos fisicos
+            foreach (var img in b2dImages)
+            {
+                // si la imagen no tiene un nodo asociado y el flag indica que no se cargue, se continua con la siguiente
+                if (null == img.Body) continue;
+
+                // probar a cargar la imagen del sprite, ignorar si falla
+                string fullPath = Path.GetFullPath(img.Path ?? "Urho2D/RubePhysics/" + img.File);                
+                Sprite2D sprite = cache.GetSprite2D(fullPath.Substring(fullPath.IndexOf("Urho2D")));
+                if (sprite == null) continue;
+
+                // añadir el sprite al nodo de fisicas y establecer el orden de renderizado
+                StaticSprite2D staticSprite = img.Body.Node.CreateComponent<StaticSprite2D>();
+                staticSprite.Sprite = sprite;
+                staticSprite.OrderInLayer = (int)img.RenderOrder;
+                
+                // calcular tamaño de la imagen
+                //img.Heig
+                // establecer propiedades del sprite
+                staticSprite.FlipX = img.Flip;
+                staticSprite.Color = Color.FromByteFormat((byte)img.ColorTint[0], (byte)img.ColorTint[1], (byte)img.ColorTint[2], (byte)img.ColorTint[3]);
+                staticSprite.Alpha = 0.2f; // 0.2f; // img.Opacity;
+                staticSprite.BlendMode = BlendMode.Alpha;                
+            }
+        }
     }
 }

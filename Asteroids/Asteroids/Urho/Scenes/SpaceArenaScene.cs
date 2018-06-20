@@ -42,7 +42,7 @@ namespace Asteroids.Game.Scenes
             // create world
             PhysicsWorld2D physicsWorld2D = this.Scene.GetOrCreateComponent<PhysicsWorld2D>();
             physicsWorld2D.Gravity = Vector2.Zero;
-
+            
             // create ship
             this.Node.CreateChild(nameof(Ship)).CreateComponent<Ship>();
         }
