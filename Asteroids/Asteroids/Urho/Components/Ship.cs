@@ -8,10 +8,10 @@ using Urho.Urho2D;
 
 namespace Asteroids.Game.Components
 {
-    public class Ship : LogicComponent
+    public class Ship : Component
     {
-        private const float ACCELERATION = 20.0f;
-        private const float ROTATION = 5.0f;
+        private const float ACCELERATION = 5.0f;
+        private const float ROTATION = .05f;
         private const int FIRE_DELAY = 30;
         private const int START_DELAY = 400;
         private const int BLINK_DELAY = 25;
@@ -44,6 +44,8 @@ namespace Asteroids.Game.Components
             // _Thruster.init();
             _isThrusting = false;
             _thrustSwitch = false;
+
+            this.ReceiveSceneUpdates = true;
         }
 
         public override void OnSceneSet(Scene scene)
@@ -66,9 +68,9 @@ namespace Asteroids.Game.Components
 
 
 
-
-        protected override void OnFixedUpdate(PhysicsPreStepEventArgs e)
+        protected override void OnUpdate(float timeStep)
         {
+            base.OnUpdate(timeStep);
 
             if (_thumpTime >= (THUMP_DELAY + (_lives * 15)))
             {
@@ -141,34 +143,39 @@ namespace Asteroids.Game.Components
 
         private void _handleInput()
         {
-            //Input input = this.Application.Input;
+            RigidBody2D body = this.Node.GetChild(0).GetComponent<RigidBody2D>();
+            if (null == body) return;
 
-            //// forward
-            //if (input.GetKeyDown(Key.W))
-            //{
-            //    _isThrusting = true;
+            Input input = this.Application.Input;
+            
+            // forward
+            if (input.GetKeyDown(Key.W))
+            {
+                _isThrusting = true;
 
-            //    float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
-            //    float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
-            //    body()->ApplyForceToCenter(b2Vec2(velocityX, velocityY), true);
-            //}
-            //else
-            //{
-            //    _isThrusting = false;
-            //}
+                float velocityX = body.Mass * ACCELERATION * (float)Math.Sin(body.Node.Rotation2D);
+                float velocityY = body.Mass * ACCELERATION * (float)Math.Cos(body.Node.Rotation2D); 
+                // float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
+                //float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
+                body.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);                
+            }
+            else
+            {
+                _isThrusting = false;
+            }
 
-            //// Rotate CCW (left)
-            //if (input.GetKeyDown(Key.A))
-            //{
-            //    applyTorque(-ROTATION);
-            //}
+            // Rotate CCW (left)
+            if (input.GetKeyDown(Key.A))
+            {
+                body.ApplyTorque(ROTATION, true);
+            }
 
 
-            //// Rotate CW (right)
-            //if (input.GetKeyDown(Key.D))
-            //{
-            //    applyTorque(ROTATION);
-            //}
+            // Rotate CW (right)
+            if (input.GetKeyDown(Key.D))
+            {
+                body.ApplyTorque(-ROTATION, true);
+            }
 
 
             // Fire Bullet
@@ -224,11 +231,9 @@ namespace Asteroids.Game.Components
 
         private void _createShip()
         {
-            Urho.Node node = this.Node.CreateChild();
-
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, node, false, out string errorMsg);
+            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, false, out string errorMsg);
 
             temp(b2dJson);
             
