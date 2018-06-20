@@ -227,11 +227,11 @@ namespace Asteroids.Game.Components
 
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, node, out string errorMsg);
+            b2dJson.ReadIntoNodeFromFile(filePath, node, false, out string errorMsg);
 
             Urho.Resources.XmlElement element = new Urho.Resources.XmlElement();
-            node.SaveXml(element);
-            var a = element.Value;
+            string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            this.Scene.SaveXml($"{folder}/scene.xml");
 
 
             //var cache = Application.ResourceCache;

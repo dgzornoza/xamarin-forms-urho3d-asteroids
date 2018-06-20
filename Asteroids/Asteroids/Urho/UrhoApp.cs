@@ -71,7 +71,9 @@ namespace Asteroids.Game
             // create scene
             this._scene = new Scene();
             this._scene.CreateComponent<Octree>();
+#if DEBUG
             this._scene.CreateComponent<DebugRenderer>();
+#endif
 
             // scena principal
             this._scene.CreateChild(nameof(Scenes.SpaceArenaScene)).CreateComponent<Scenes.SpaceArenaScene>();
