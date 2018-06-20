@@ -25,14 +25,5 @@ namespace Asteroids.ViewModels
 
 
 
-        private ICommand _go;
-        public ICommand Go        {
-            get => _go = (_go ?? new DelegateCommand(async () =>
-            {
-                await this.NavigationService.NavigateAsync("MainPage2");
-            }));
-        }
-
-
     }
 }

@@ -29,27 +29,7 @@ namespace Asteroids.Game.Components
         private bool _isThrusting;
 
 
-        public Ship() { }
-
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            Input input = this.Application.Input;
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._create();
-            }
-            // dettach from scene
-            else
-            {
-            }
-        }
-
-
-        private void _create()
+        public Ship()
         {
             _fireDelay = 0;
             _blinkDelay = 0;
@@ -64,6 +44,25 @@ namespace Asteroids.Game.Components
             _isThrusting = false;
             _thrustSwitch = false;
         }
+
+        public override void OnSceneSet(Scene scene)
+        {
+            base.OnSceneSet(scene);
+
+            Input input = this.Application.Input;
+
+            // attach to scene
+            if (null != scene)
+            {
+                this._createShip();
+            }
+            // dettach from scene
+            else
+            {
+            }
+        }
+
+
 
 
 
@@ -98,10 +97,10 @@ namespace Asteroids.Game.Components
                 }
             }
 
-            if (!_isBlinking && isColliding())
-            {
-                _reset();
-            }
+            //if (!_isBlinking && isColliding())
+            //{
+            //    _reset();
+            //}
 
             // m_Thruster.set(getPosition(), getRotation());
         }
@@ -141,34 +140,34 @@ namespace Asteroids.Game.Components
 
         private void _handleInput()
         {
-            Input input = this.Application.Input;
+            //Input input = this.Application.Input;
 
-            // forward
-            if (input.GetKeyDown(Key.W))
-            {
-                _isThrusting = true;
+            //// forward
+            //if (input.GetKeyDown(Key.W))
+            //{
+            //    _isThrusting = true;
 
-                float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
-                float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
-                body()->ApplyForceToCenter(b2Vec2(velocityX, velocityY), true);
-            }
-            else
-            {
-                _isThrusting = false;
-            }
+            //    float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
+            //    float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
+            //    body()->ApplyForceToCenter(b2Vec2(velocityX, velocityY), true);
+            //}
+            //else
+            //{
+            //    _isThrusting = false;
+            //}
 
-            // Rotate CCW (left)
-            if (input.GetKeyDown(Key.A))
-            {
-                applyTorque(-ROTATION);
-            }
+            //// Rotate CCW (left)
+            //if (input.GetKeyDown(Key.A))
+            //{
+            //    applyTorque(-ROTATION);
+            //}
 
 
-            // Rotate CW (right)
-            if (input.GetKeyDown(Key.D))
-            {
-                applyTorque(ROTATION);
-            }
+            //// Rotate CW (right)
+            //if (input.GetKeyDown(Key.D))
+            //{
+            //    applyTorque(ROTATION);
+            //}
 
 
             // Fire Bullet
@@ -224,15 +223,19 @@ namespace Asteroids.Game.Components
 
         private void _createShip()
         {
+            Urho.Node node = this.Node.CreateChild();
 
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
-            
+            b2dJson.ReadIntoNodeFromFile(filePath, node, out string errorMsg);
+
+            Urho.Resources.XmlElement element = new Urho.Resources.XmlElement();
+            node.SaveXml(element);
+            var a = element.Value;
 
 
             //var cache = Application.ResourceCache;
-            //Sprite2D sprite = cache.GetSprite2D("Textures/Ship.dds");
+            //Sprite2D sprite = cache.GetSprite2D("Urho2D/Sprites/Ship.png");
             //if (sprite == null) return;
             //Node spriteNode = Scene.CreateChild("StaticSprite2D");
             //StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
