@@ -68,9 +68,8 @@
           
           {
             "density" : 1,
-            "friction" : 0.2,
             "id" : 1,
-            "name" : "fixture1",
+            "name" : "ship-fixture",
             "shapes" : 
             [
               
@@ -122,7 +121,7 @@
         "filter" : 1,
         "flip" : false,
         "id" : 2,
-        "name" : "image0",
+        "name" : "ship-image",
         "opacity" : 0.5,
         "scale" : 1.28
       }

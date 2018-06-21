@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Urho;
+using Urho.Gui;
 using Urho.Physics;
 using Urho.Urho2D;
 
@@ -10,8 +11,17 @@ namespace Asteroids.Game.Components
 {
     public class Ship : Component
     {
-        private const float ACCELERATION = 5.0f;
-        private const float ROTATION = 0.6f;
+        private Text _textElement;
+
+        private const float ACCELERATION = 15.0f;
+        private const float LINEAR_DAMPING = 0.5f;
+        private const float MAX_LINEAR_VELOCITY = 15.0f;
+
+        private const float ROTATION = 0.3f;
+        private const float MAX_ANGULAR_VELOCITY = 5.0f;
+        private const float ANGULAR_DAMPING = 3.0f;
+
+
         private const int FIRE_DELAY = 30;
         private const int START_DELAY = 400;
         private const int BLINK_DELAY = 25;
@@ -100,12 +110,28 @@ namespace Asteroids.Game.Components
                 }
             }
 
+            _showData();
+            
+
             //if (!_isBlinking && isColliding())
             //{
             //    _reset();
             //}
 
             // m_Thruster.set(getPosition(), getRotation());
+        }
+
+        private void _showData()
+        {
+            RigidBody2D body = this.Node.GetChild(0).GetComponent<RigidBody2D>();
+            if (null == body) return;
+
+            this._textElement.Value = $"AngularDamping: {body.AngularDamping}\r\n" +
+                $"AngularVelocity: {body.AngularVelocity}\r\n" +
+                $"Inertia: {body.Inertia}\r\n" +
+                $"LinearVelocity: {body.LinearVelocity}\r\n" +
+                $"LinearDamping: {body.LinearDamping}\r\n" +
+                $"Mass: {body.Mass}\r\n";                
         }
 
         void render()
@@ -147,17 +173,18 @@ namespace Asteroids.Game.Components
             if (null == body) return;
 
             Input input = this.Application.Input;
-            
+
             // forward
             if (input.GetKeyDown(Key.W))
             {
                 _isThrusting = true;
+                
+                float velocityX = (body.LinearVelocity.X > MAX_LINEAR_VELOCITY || body.LinearVelocity.X < -MAX_LINEAR_VELOCITY) ?
+                    0 : body.Mass * ACCELERATION * -(float)Math.Sin(MathHelper.DegreesToRadians(body.Node.Rotation2D));
+                float velocityY = (body.LinearVelocity.Y > MAX_LINEAR_VELOCITY || body.LinearVelocity.Y < -MAX_LINEAR_VELOCITY ) ?
+                    0 : body.Mass * ACCELERATION * (float)Math.Cos(MathHelper.DegreesToRadians(body.Node.Rotation2D));
 
-                float velocityX = body.Mass * ACCELERATION * -(float)Math.Sin(MathHelper.DegreesToRadians(body.Node.Rotation2D));
-                float velocityY = body.Mass * ACCELERATION * (float)Math.Cos(MathHelper.DegreesToRadians(body.Node.Rotation2D)); 
-                // float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
-                //float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
-                body.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);                
+                if (0f != velocityX || 0f != velocityY) body.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
             }
             else
             {
@@ -165,18 +192,34 @@ namespace Asteroids.Game.Components
             }
 
             // Rotate CCW (left)
-            if (input.GetKeyDown(Key.A))
+            if (input.GetKeyDown(Key.A) && body.AngularVelocity < MAX_ANGULAR_VELOCITY)
             {
                 body.ApplyTorque(ROTATION, true);
             }
 
 
             // Rotate CW (right)
-            if (input.GetKeyDown(Key.D))
+            if (input.GetKeyDown(Key.D) && body.AngularVelocity > -MAX_ANGULAR_VELOCITY)
             {
-                body.ApplyTorque(-ROTATION, true);
+                body.ApplyTorque(-ROTATION, true);                
             }
 
+            if (input.GetKeyDown(Key.N1))
+            {
+                body.AngularDamping += 0.01f;
+            }
+            if (input.GetKeyDown(Key.N2))
+            {
+                body.AngularDamping -= 0.01f;
+            }
+            if (input.GetKeyDown(Key.N3))
+            {
+                body.LinearDamping += 0.01f;
+            }
+            if (input.GetKeyDown(Key.N4))
+            {
+                body.LinearDamping -= 0.01f;
+            }
 
             // Fire Bullet
             //if (input.GetKeyDown(Key.Space))
@@ -200,33 +243,19 @@ namespace Asteroids.Game.Components
             Camera camera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
             Vector2 position = camera.WorldToScreenPoint(node.Position);
             Vector3 screenMin = camera.ScreenToWorldPoint(new Vector3(0, 0, 0));
-            Vector3 screenMax = camera.ScreenToWorldPoint(new Vector3(graphics.Width * Urho.Application.PixelSize, graphics.Height * Urho.Application.PixelSize, 0));
+            Vector3 screenMax = camera.ScreenToWorldPoint(new Vector3(1.0f, 1.0f, 0));
 
-            if (position.X > graphics.Width * Urho.Application.PixelSize)
-                node.SetTransform2D(new Vector2(screenMin.X, node.Position.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+            if (position.X > 1.0f)
+                node.SetTransform2D(new Vector2(screenMin.X, node.Position.Y), node.Rotation2D);
 
             if (position.X < 0)
-                node.SetTransform2D(new Vector2(screenMax.X, node.Position.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+                node.SetTransform2D(new Vector2(screenMax.X, node.Position.Y), node.Rotation2D);
 
-            if (position.Y > graphics.Height * Urho.Application.PixelSize)
-                node.SetTransform2D(new Vector2(node.Position.X, screenMin.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+            if (position.Y > 1.0f)
+                node.SetTransform2D(new Vector2(node.Position.X, screenMin.Y), node.Rotation2D);
 
             if (position.Y < 0)
-                node.SetTransform2D(new Vector2(node.Position.X, screenMax.Y), MathHelper.DegreesToRadians(node.Rotation2D));            
-
-            //Vector2 position = new Vector2(body.Node.Position2D.X * Physics::Scale, body.Node.Position2D.Y * Physics::Scale);
-
-            //if (position.x > scene()->window()->getWidth())
-            //    body()->SetTransform(b2Vec2(0, position.y / Physics::Scale), body()->GetAngle());
-
-            //if (position.x < 0)
-            //    body()->SetTransform(b2Vec2(scene()->window()->getWidth() / Physics::Scale, position.y / Physics::Scale), body()->GetAngle());
-
-            //if (position.y > scene()->window()->getHeight())
-            //    body()->SetTransform(b2Vec2(position.x / Physics::Scale, 0), body()->GetAngle());
-
-            //if (position.y < 0)
-            //    body()->SetTransform(b2Vec2(position.x / Physics::Scale, scene()->window()->getHeight() / Physics::Scale), body()->GetAngle());
+                node.SetTransform2D(new Vector2(node.Position.X, screenMax.Y), node.Rotation2D);
         }
 
         private void _reset()
@@ -254,10 +283,26 @@ namespace Asteroids.Game.Components
         {
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, out string errorMsg);
+            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, false, out string errorMsg);
 
             temp(b2dJson);
-            
+
+            RigidBody2D body = this.Node.GetChild(0).GetComponent<RigidBody2D>();
+            if (null == body) return;
+            body.LinearDamping = LINEAR_DAMPING;
+            body.AngularDamping = ANGULAR_DAMPING;
+
+            // Temp text 
+            this._textElement = new Text()
+            {
+                Value = "asdf",
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top                
+            };
+            this._textElement.SetColor(Color.White);
+            _textElement.SetFont(this.Application.ResourceCache.GetFont("Fonts/Anonymous Pro.ttf"), 15);
+
+            this.Application.UI.Root.AddChild(_textElement);
 
             //var cache = Application.ResourceCache;
             //Sprite2D sprite = cache.GetSprite2D("Urho2D/Sprites/Ship.png");
@@ -284,7 +329,7 @@ namespace Asteroids.Game.Components
                 if (null == img.Body) continue;
 
                 // probar a cargar la imagen del sprite, ignorar si falla
-                string fullPath = Path.GetFullPath(img.Path ?? "Urho2D/RubePhysics/" + img.File);                
+                string fullPath = Path.GetFullPath(img.Path ?? "Urho2D/RubePhysics/" + img.File);
                 Sprite2D sprite = cache.GetSprite2D(fullPath.Substring(fullPath.IndexOf("Urho2D")));
                 if (sprite == null) continue;
 
@@ -292,14 +337,14 @@ namespace Asteroids.Game.Components
                 StaticSprite2D staticSprite = img.Body.Node.CreateComponent<StaticSprite2D>();
                 staticSprite.Sprite = sprite;
                 staticSprite.OrderInLayer = (int)img.RenderOrder;
-                
+
                 // calcular tamaño de la imagen
                 //img.Heig
                 // establecer propiedades del sprite
                 staticSprite.FlipX = img.Flip;
                 staticSprite.Color = Color.FromByteFormat((byte)img.ColorTint[0], (byte)img.ColorTint[1], (byte)img.ColorTint[2], (byte)img.ColorTint[3]);
                 staticSprite.Alpha = 0.2f; // 0.2f; // img.Opacity;
-                staticSprite.BlendMode = BlendMode.Alpha;                
+                staticSprite.BlendMode = BlendMode.Alpha;
             }
         }
     }

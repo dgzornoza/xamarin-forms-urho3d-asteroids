@@ -144,6 +144,9 @@
     <Content Include="..\..\Assets\Urho2D\RubePhysics\ship.json">
       <Link>Data\Urho2D\RubePhysics\ship.json</Link>
     </Content>
+    <Content Include="..\..\Assets\Fonts\Anonymous Pro.ttf">
+      <Link>Data\Fonts\Anonymous Pro.ttf</Link>
+    </Content>
     <None Include="Asteroids.UWP_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
