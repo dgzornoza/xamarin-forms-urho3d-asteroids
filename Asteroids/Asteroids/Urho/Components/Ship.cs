@@ -11,7 +11,7 @@ namespace Asteroids.Game.Components
     public class Ship : Component
     {
         private const float ACCELERATION = 5.0f;
-        private const float ROTATION = .05f;
+        private const float ROTATION = 0.6f;
         private const int FIRE_DELAY = 30;
         private const int START_DELAY = 400;
         private const int BLINK_DELAY = 25;
@@ -153,8 +153,8 @@ namespace Asteroids.Game.Components
             {
                 _isThrusting = true;
 
-                float velocityX = body.Mass * ACCELERATION * (float)Math.Sin(body.Node.Rotation2D);
-                float velocityY = body.Mass * ACCELERATION * (float)Math.Cos(body.Node.Rotation2D); 
+                float velocityX = body.Mass * ACCELERATION * -(float)Math.Sin(MathHelper.DegreesToRadians(body.Node.Rotation2D));
+                float velocityY = body.Mass * ACCELERATION * (float)Math.Cos(MathHelper.DegreesToRadians(body.Node.Rotation2D)); 
                 // float velocityX = body()->GetMass() * ACCELERATION * glm::sin(body()->GetAngle());
                 //float velocityY = body()->GetMass() * ACCELERATION * -glm::cos(body()->GetAngle());
                 body.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);                
@@ -193,7 +193,28 @@ namespace Asteroids.Game.Components
 
         void checkOffscreen()
         {
-            //b2Vec2 position(body()->GetPosition().x* Physics::Scale, body()->GetPosition().y * Physics::Scale);
+            Node node = this.Node.GetChild(0);
+            if (null == node) return;
+
+            Graphics graphics = this.Application.Graphics;
+            Camera camera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
+            Vector2 position = camera.WorldToScreenPoint(node.Position);
+            Vector3 screenMin = camera.ScreenToWorldPoint(new Vector3(0, 0, 0));
+            Vector3 screenMax = camera.ScreenToWorldPoint(new Vector3(graphics.Width * Urho.Application.PixelSize, graphics.Height * Urho.Application.PixelSize, 0));
+
+            if (position.X > graphics.Width * Urho.Application.PixelSize)
+                node.SetTransform2D(new Vector2(screenMin.X, node.Position.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+
+            if (position.X < 0)
+                node.SetTransform2D(new Vector2(screenMax.X, node.Position.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+
+            if (position.Y > graphics.Height * Urho.Application.PixelSize)
+                node.SetTransform2D(new Vector2(node.Position.X, screenMin.Y), MathHelper.DegreesToRadians(node.Rotation2D));
+
+            if (position.Y < 0)
+                node.SetTransform2D(new Vector2(node.Position.X, screenMax.Y), MathHelper.DegreesToRadians(node.Rotation2D));            
+
+            //Vector2 position = new Vector2(body.Node.Position2D.X * Physics::Scale, body.Node.Position2D.Y * Physics::Scale);
 
             //if (position.x > scene()->window()->getWidth())
             //    body()->SetTransform(b2Vec2(0, position.y / Physics::Scale), body()->GetAngle());
@@ -233,7 +254,7 @@ namespace Asteroids.Game.Components
         {
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, false, out string errorMsg);
+            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, out string errorMsg);
 
             temp(b2dJson);
             
