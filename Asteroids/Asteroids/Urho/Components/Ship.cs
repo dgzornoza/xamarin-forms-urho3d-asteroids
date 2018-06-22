@@ -6,6 +6,7 @@ using Urho;
 using Urho.Gui;
 using Urho.Physics;
 using Urho.Urho2D;
+using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.Game.Components
 {
@@ -251,7 +252,7 @@ namespace Asteroids.Game.Components
         private void _initialize()
         {
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
-            Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
+            B2dJson b2dJson = new B2dJson();
             b2dJson.ReadIntoNodeFromFile(filePath, this.Node, false, out string errorMsg);
 
             this._shipBody = b2dJson.GetBodyByName(RUBE_BODY_NAME);            
@@ -265,22 +266,12 @@ namespace Asteroids.Game.Components
 
 
             this.Node.CreateComponent<NodeTextInfo>();
-            //var cache = Application.ResourceCache;
-            //Sprite2D sprite = cache.GetSprite2D("Urho2D/Sprites/Ship.png");
-            //if (sprite == null) return;
-            //Node spriteNode = Scene.CreateChild("StaticSprite2D");
-            //StaticSprite2D staticSprite = spriteNode.CreateComponent<StaticSprite2D>();
-            //staticSprite.Color = Color.Green;
-            //staticSprite.BlendMode = BlendMode.Alpha;
-            //staticSprite.Sprite = sprite;
-
-            //spriteNode.RunActionsAsync(new Urho.Actions.TintTo(2, Color.Blue));
         }
 
-        private void temp(Toolkit.Urho.Rube.B2dJson json)
+        private void temp(B2dJson json)
         {
             // crear un vector con todas las imagenes de la escena del editor RUBE
-            IEnumerable<Toolkit.Urho.Rube.B2dJsonImage> b2dImages = json.GetAllImages();
+            IEnumerable<B2dJsonImage> b2dImages = json.GetAllImages();
             var cache = Application.ResourceCache;
 
             // recorrer el vector, crear los sprites para cada imagen y almacenarla en el array con imagenes asociadas a cuerpos fisicos
