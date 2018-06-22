@@ -14,7 +14,10 @@ namespace Asteroids.Game.Components
 
         RigidBody2D _rigidBody;
 
-        public NodeTextInfo() { }
+        public NodeTextInfo()
+        {
+            this.ReceiveSceneUpdates = true;
+        }
 
         public override void OnSceneSet(Scene scene)
         {

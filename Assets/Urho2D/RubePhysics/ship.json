@@ -7,13 +7,37 @@
 		
 		{
 			"angle" : 0,
+			"angularDamping" : 3,
 			"angularVelocity" : 0,
 			"awake" : true,
+			"customProperties" : 
+			[
+				
+				{
+					"float" : 15.0,
+					"name" : "_acceleration"
+				},
+				
+				{
+					"float" : 5,
+					"name" : "_maxAngularVelocity"
+				},
+				
+				{
+					"float" : 15.0,
+					"name" : "_maxLinearVelocity"
+				},
+				
+				{
+					"float" : 0.3,
+					"name" : "_rotation"
+				}
+			],
 			"fixture" : 
 			[
 				
 				{
-					"density" : 1,
+					"density" : 0.6296434402465820,
 					"name" : "ship-fixture",
 					"polygon" : 
 					{
@@ -26,7 +50,7 @@
 				},
 				
 				{
-					"density" : 1,
+					"density" : 0.6296434402465820,
 					"name" : "ship-fixture",
 					"polygon" : 
 					{
@@ -38,15 +62,16 @@
 					}
 				}
 			],
+			"linearDamping" : 0.5,
 			"linearVelocity" : 0,
-			"massData-I" : 0.02638385444879532,
+			"massData-I" : 0.01661242172122002,
 			"massData-center" : 
 			{
-				"x" : -0.002138122217729688,
+				"x" : -0.002138123614713550,
 				"y" : -0.1119051054120064
 			},
-			"massData-mass" : 0.3176400959491730,
-			"name" : "body0",
+			"massData-mass" : 0.2,
+			"name" : "ship-body",
 			"position" : 0,
 			"type" : 2
 		}
