@@ -10,9 +10,7 @@ using Urho.Urho2D;
 namespace Asteroids.Game.Components
 {
     public class Ship : Component
-    {
-        private Text _textElement;
-
+    {        
         private const float ACCELERATION = 15.0f;
         private const float LINEAR_DAMPING = 0.5f;
         private const float MAX_LINEAR_VELOCITY = 15.0f;
@@ -67,7 +65,7 @@ namespace Asteroids.Game.Components
             // attach to scene
             if (null != scene)
             {
-                this._createShip();
+                this._initialize();
             }
             // dettach from scene
             else
@@ -108,9 +106,7 @@ namespace Asteroids.Game.Components
                     Enabled = true;
                     _isBlinking = false;
                 }
-            }
-
-            _showData();
+            }            
             
 
             //if (!_isBlinking && isColliding())
@@ -121,18 +117,6 @@ namespace Asteroids.Game.Components
             // m_Thruster.set(getPosition(), getRotation());
         }
 
-        private void _showData()
-        {
-            RigidBody2D body = this.Node.GetChild(0).GetComponent<RigidBody2D>();
-            if (null == body) return;
-
-            this._textElement.Value = $"AngularDamping: {body.AngularDamping}\r\n" +
-                $"AngularVelocity: {body.AngularVelocity}\r\n" +
-                $"Inertia: {body.Inertia}\r\n" +
-                $"LinearVelocity: {body.LinearVelocity}\r\n" +
-                $"LinearDamping: {body.LinearDamping}\r\n" +
-                $"Mass: {body.Mass}\r\n";                
-        }
 
         void render()
         {
@@ -279,7 +263,7 @@ namespace Asteroids.Game.Components
             }
         }
 
-        private void _createShip()
+        private void _initialize()
         {
             string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
             Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
@@ -292,17 +276,6 @@ namespace Asteroids.Game.Components
             body.LinearDamping = LINEAR_DAMPING;
             body.AngularDamping = ANGULAR_DAMPING;
 
-            // Temp text 
-            this._textElement = new Text()
-            {
-                Value = "asdf",
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top                
-            };
-            this._textElement.SetColor(Color.White);
-            _textElement.SetFont(this.Application.ResourceCache.GetFont("Fonts/Anonymous Pro.ttf"), 15);
-
-            this.Application.UI.Root.AddChild(_textElement);
 
             //var cache = Application.ResourceCache;
             //Sprite2D sprite = cache.GetSprite2D("Urho2D/Sprites/Ship.png");

@@ -26,7 +26,7 @@ namespace Asteroids.Game.Components
         }
 
 
-        private void _create()
+        private void _initialize()
         {
         }
     }
