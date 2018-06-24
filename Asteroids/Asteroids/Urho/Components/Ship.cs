@@ -6,6 +6,7 @@ using Urho;
 using Urho.Gui;
 using Urho.Physics;
 using Urho.Urho2D;
+using XamarinForms.Toolkit.Urho3D;
 using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.Game.Components
@@ -14,6 +15,7 @@ namespace Asteroids.Game.Components
     {
         private const string RUBE_BODY_NAME = "ship-body";
 
+        Camera _mainCamera;
         RigidBody2D _shipBody;
 
         private float _acceleration;
@@ -91,7 +93,9 @@ namespace Asteroids.Game.Components
             _thumpTime++;
 
             this._handleInput();
-            checkOffscreen();
+
+            this._mainCamera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
+            this._shipBody?.Node.MirrorIfExitScreen(this._mainCamera);
 
             if (_fireDelay > 0) _fireDelay--;
 
@@ -204,30 +208,6 @@ namespace Asteroids.Game.Components
         }
 
 
-        void checkOffscreen()
-        {
-            Node node = this._shipBody?.Node;
-            if (null == node) return;
-
-            Graphics graphics = this.Application.Graphics;
-            Camera camera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
-            Vector2 position = camera.WorldToScreenPoint(node.Position);
-            Vector3 screenMin = camera.ScreenToWorldPoint(new Vector3(0, 0, 0));
-            Vector3 screenMax = camera.ScreenToWorldPoint(new Vector3(1.0f, 1.0f, 0));
-
-            if (position.X > 1.0f)
-                node.SetTransform2D(new Vector2(screenMin.X, node.Position.Y), node.Rotation2D);
-
-            if (position.X < 0)
-                node.SetTransform2D(new Vector2(screenMax.X, node.Position.Y), node.Rotation2D);
-
-            if (position.Y > 1.0f)
-                node.SetTransform2D(new Vector2(node.Position.X, screenMin.Y), node.Rotation2D);
-
-            if (position.Y < 0)
-                node.SetTransform2D(new Vector2(node.Position.X, screenMax.Y), node.Rotation2D);
-        }
-
         private void _reset()
         {
             if (_lives <= 1)
@@ -251,53 +231,18 @@ namespace Asteroids.Game.Components
 
         private void _initialize()
         {
-            string filePath = this.Application.ResourceCache.GetResourceFileName("Urho2D/RubePhysics/ship.json");
-            B2dJson b2dJson = new B2dJson();
-            b2dJson.ReadIntoNodeFromFile(filePath, this.Node, false, out string errorMsg);
+            // create from rube json format
+            B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/ship.json", this.Node, false);
 
-            this._shipBody = b2dJson.GetBodyByName(RUBE_BODY_NAME);            
+            this._shipBody = b2dJson.GetBodyByName(RUBE_BODY_NAME);
             this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
             this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
             this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
             this._maxAngularVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxAngularVelocity));
 
-
-            temp(b2dJson);
-
-
+            // node text info
             this.Node.CreateComponent<NodeTextInfo>();
         }
 
-        private void temp(B2dJson json)
-        {
-            // crear un vector con todas las imagenes de la escena del editor RUBE
-            IEnumerable<B2dJsonImage> b2dImages = json.GetAllImages();
-            var cache = Application.ResourceCache;
-
-            // recorrer el vector, crear los sprites para cada imagen y almacenarla en el array con imagenes asociadas a cuerpos fisicos
-            foreach (var img in b2dImages)
-            {
-                // si la imagen no tiene un nodo asociado y el flag indica que no se cargue, se continua con la siguiente
-                if (null == img.Body) continue;
-
-                // probar a cargar la imagen del sprite, ignorar si falla
-                string fullPath = Path.GetFullPath(img.Path ?? "Urho2D/RubePhysics/" + img.File);
-                Sprite2D sprite = cache.GetSprite2D(fullPath.Substring(fullPath.IndexOf("Urho2D")));
-                if (sprite == null) continue;
-
-                // añadir el sprite al nodo de fisicas y establecer el orden de renderizado
-                StaticSprite2D staticSprite = img.Body.Node.CreateComponent<StaticSprite2D>();
-                staticSprite.Sprite = sprite;
-                staticSprite.OrderInLayer = (int)img.RenderOrder;
-
-                // calcular tamaño de la imagen
-                //img.Heig
-                // establecer propiedades del sprite
-                staticSprite.FlipX = img.Flip;
-                staticSprite.Color = Color.FromByteFormat((byte)img.ColorTint[0], (byte)img.ColorTint[1], (byte)img.ColorTint[2], (byte)img.ColorTint[3]);
-                staticSprite.Alpha = 0.2f; // 0.2f; // img.Opacity;
-                staticSprite.BlendMode = BlendMode.Alpha;
-            }
-        }
     }
 }

@@ -43,8 +43,15 @@
     
     {
       "class" : "body",
-      "displayName" : "MaxAngularVelocity",
-      "name" : "_maxAngularVelocity",
+      "displayName" : "Acceleration",
+      "name" : "_acceleration",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "body",
+      "displayName" : "MaxLinearVelocity",
+      "name" : "_maxLinearVelocity",
       "type" : "float"
     },
     
@@ -57,15 +64,8 @@
     
     {
       "class" : "body",
-      "displayName" : "Acceleration",
-      "name" : "_acceleration",
-      "type" : "float"
-    },
-    
-    {
-      "class" : "body",
-      "displayName" : "MaxLinearVelocity",
-      "name" : "_maxLinearVelocity",
+      "displayName" : "MaxAngularVelocity",
+      "name" : "_maxAngularVelocity",
       "type" : "float"
     }
   ],
