@@ -1,11 +1,11 @@
-﻿using Asteroids.Game.Components;
+﻿using Asteroids.UrhoGame.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Urho;
 using Urho.Urho2D;
 
-namespace Asteroids.Game.Scenes
+namespace Asteroids.UrhoGame.Scenes
 {
     public class SpaceArenaScene : Component
     {

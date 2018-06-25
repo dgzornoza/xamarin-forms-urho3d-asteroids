@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Text;
 using Urho.Forms;
 using Xamarin.Forms;
+using Urho3D = Urho;
 
 namespace Asteroids.ViewModels.Base
 {
-    public class UrhoViewModelBase<TUrhoApp> : ViewModelBase where TUrhoApp : Urho.Application
+    public class UrhoViewModelBase<TUrhoApp> : ViewModelBase where TUrhoApp : Urho3D.Application
     {
         private UrhoSurface _urhoSurfaceInstance;
 
@@ -74,7 +75,7 @@ namespace Asteroids.ViewModels.Base
                     assetsFolder = "Data";
                     break;
             }
-            Urho.ApplicationOptions options = new Urho.ApplicationOptions(assetsFolder);
+            Urho3D.ApplicationOptions options = new Urho3D.ApplicationOptions(assetsFolder);
 
             // ensure initialization app
             Device.StartTimer(TimeSpan.FromMilliseconds(250), () =>

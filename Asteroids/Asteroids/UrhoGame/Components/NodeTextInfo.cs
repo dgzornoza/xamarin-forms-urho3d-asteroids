@@ -6,7 +6,7 @@ using Urho;
 using Urho.Gui;
 using Urho.Urho2D;
 
-namespace Asteroids.Game.Components
+namespace Asteroids.UrhoGame.Components
 {
     public class NodeTextInfo : Component
     {

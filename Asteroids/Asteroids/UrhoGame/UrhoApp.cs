@@ -7,7 +7,7 @@ using Urho.Gui;
 using Urho.Urho2D;
 using XamarinForms.Toolkit.Helpers;
 
-namespace Asteroids.Game
+namespace Asteroids.UrhoGame
 {
     public class UrhoApp : Application
     {

@@ -9,13 +9,14 @@ using Urho.Urho2D;
 using XamarinForms.Toolkit.Urho3D;
 using XamarinForms.Toolkit.Urho3D.Rube;
 
-namespace Asteroids.Game.Components
+namespace Asteroids.UrhoGame.Components
 {
     public class Ship : Component
     {
         private const string RUBE_BODY_NAME = "ship-body";
 
         Camera _mainCamera;
+        Thruster _thruster;
         RigidBody2D _shipBody;
 
         private float _acceleration;
@@ -46,14 +47,12 @@ namespace Asteroids.Game.Components
         {
             _fireDelay = 0;
             _blinkDelay = 0;
-            _blinkTime = 0;
-            // setVisible(false);
+            _blinkTime = 0;            
             _isBlinking = true;
             _lives = 3;
             _thumpTime = 0;
             _thumpSwitch = true;
-
-            // _Thruster.init();
+            
             _isThrusting = false;
             _thrustSwitch = false;
 
@@ -84,6 +83,8 @@ namespace Asteroids.Game.Components
         {
             base.OnUpdate(timeStep);
 
+            if (null == this._shipBody?.Node) return;
+
             if (_thumpTime >= (THUMP_DELAY + (_lives * 15)))
             {
                 _thumpSwitch = !_thumpSwitch;
@@ -95,7 +96,7 @@ namespace Asteroids.Game.Components
             this._handleInput();
 
             this._mainCamera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
-            this._shipBody?.Node.MirrorIfExitScreen(this._mainCamera);
+            this._shipBody.Node.MirrorIfExitScreen(this._mainCamera);
 
             if (_fireDelay > 0) _fireDelay--;
 
@@ -112,15 +113,15 @@ namespace Asteroids.Game.Components
                     Enabled = true;
                     _isBlinking = false;
                 }
-            }            
-            
+            }
+
 
             //if (!_isBlinking && isColliding())
             //{
             //    _reset();
             //}
 
-            // m_Thruster.set(getPosition(), getRotation());
+            // this._thruster.Node.SetTransform2D(this._shipBody.Node.Position2D, this._shipBody.Node.Rotation2D);
         }
 
 
@@ -239,6 +240,9 @@ namespace Asteroids.Game.Components
             this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
             this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
             this._maxAngularVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxAngularVelocity));
+
+            // thruster
+            this._thruster = this.Node.CreateComponent<Thruster>();
 
             // node text info
             this.Node.CreateComponent<NodeTextInfo>();

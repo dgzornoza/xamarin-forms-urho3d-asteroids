@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Asteroids.Game
+namespace Asteroids.UrhoGame
 {
     public class UrhoConfig
     {

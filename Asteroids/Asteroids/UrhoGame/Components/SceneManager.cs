@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Urho;
 
-namespace Asteroids.Game.Components
+namespace Asteroids.UrhoGame.Components
 {
     public class SceneManager : Component
     {

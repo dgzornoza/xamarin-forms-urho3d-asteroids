@@ -13,7 +13,7 @@ using Xamarin.Forms;
 
 namespace Asteroids.ViewModels
 {
-    public class MainPageViewModel : UrhoViewModelBase<Game.UrhoApp>
+    public class MainPageViewModel : UrhoViewModelBase<UrhoGame.UrhoApp>
     {
 
 
