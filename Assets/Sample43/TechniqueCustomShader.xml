@@ -1,4 +1,0 @@
-﻿<!--Sample23CustomShader.glsl-->
-<technique vs="Sample43CustomShader" ps="Sample43CustomShader" vsdefines="NOUV" >
-    <pass name="alpha" depthwrite="false" blend="alpha" />
-</technique>

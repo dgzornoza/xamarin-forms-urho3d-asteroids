@@ -17,6 +17,7 @@ namespace Asteroids.UrhoGame.Components
 
         Camera _mainCamera;
         Thruster _thruster;
+        Node _shipNode;
         RigidBody2D _shipBody;
 
         private float _acceleration;
@@ -40,7 +41,6 @@ namespace Asteroids.UrhoGame.Components
         private bool _thumpSwitch;
 
         private bool _thrustSwitch;
-        private bool _isThrusting;
 
 
         public Ship()
@@ -53,7 +53,6 @@ namespace Asteroids.UrhoGame.Components
             _thumpTime = 0;
             _thumpSwitch = true;
             
-            _isThrusting = false;
             _thrustSwitch = false;
 
             this.ReceiveSceneUpdates = true;
@@ -83,7 +82,7 @@ namespace Asteroids.UrhoGame.Components
         {
             base.OnUpdate(timeStep);
 
-            if (null == this._shipBody?.Node) return;
+            if (null == this._shipNode) return;
 
             if (_thumpTime >= (THUMP_DELAY + (_lives * 15)))
             {
@@ -121,7 +120,7 @@ namespace Asteroids.UrhoGame.Components
             //    _reset();
             //}
 
-            // this._thruster.Node.SetTransform2D(this._shipBody.Node.Position2D, this._shipBody.Node.Rotation2D);
+            this._thruster.SetParametersFromBody(this._shipBody);
         }
 
 
@@ -167,8 +166,6 @@ namespace Asteroids.UrhoGame.Components
             // forward
             if (input.GetKeyDown(Key.W))
             {
-                _isThrusting = true;
-                
                 float velocityX = (this._shipBody.LinearVelocity.X > this._maxLinearVelocity || this._shipBody.LinearVelocity.X < -this._maxLinearVelocity) ?
                     0 : this._shipBody.Mass * this._acceleration * -(float)Math.Sin(MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
                 float velocityY = (this._shipBody.LinearVelocity.Y > this._maxLinearVelocity || this._shipBody.LinearVelocity.Y < -this._maxLinearVelocity) ?
@@ -176,10 +173,7 @@ namespace Asteroids.UrhoGame.Components
 
                 if (0f != velocityX || 0f != velocityY) this._shipBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
             }
-            else
-            {
-                _isThrusting = false;
-            }
+
 
             // Rotate CCW (left)
             if (input.GetKeyDown(Key.A) && this._shipBody.AngularVelocity < this._maxAngularVelocity)
@@ -234,15 +228,18 @@ namespace Asteroids.UrhoGame.Components
         {
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/ship.json", this.Node, false);
-
+            
             this._shipBody = b2dJson.GetBodyByName(RUBE_BODY_NAME);
             this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
             this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
             this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
             this._maxAngularVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxAngularVelocity));
 
+            this._shipNode = this._shipBody.Node;
+
             // thruster
-            this._thruster = this.Node.CreateComponent<Thruster>();
+            this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
+            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.5f));            
 
             // node text info
             this.Node.CreateComponent<NodeTextInfo>();

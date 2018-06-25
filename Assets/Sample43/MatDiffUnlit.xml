@@ -1,4 +1,0 @@
-﻿<material>
-	<technique name="Techniques/DiffUnlit.xml" quality="0" />
-	<texture unit="diffuse" name="Sample43/Earth.jpg" />
-</material>
