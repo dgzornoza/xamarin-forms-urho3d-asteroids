@@ -128,7 +128,7 @@ namespace Asteroids.UrhoGame
                 if (_drawDebug)
                 {
                     this._scene.GetComponent<PhysicsWorld2D>()?.DrawDebugGeometry();
-                    Renderer.DrawDebugGeometry(false);
+                    // Renderer.DrawDebugGeometry(false);                    
                 }
             };
         }

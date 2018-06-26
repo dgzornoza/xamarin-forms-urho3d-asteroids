@@ -134,7 +134,7 @@
 			"glTexCoordPointer" : [ 0.0, 0.0, 1, 0.0, 1, 1, 0.0, 1 ],
 			"glVertexPointer" : [ -0.64, -0.64, 0.64, -0.64, 0.64, 0.64, -0.64, 0.64 ],
 			"name" : "ship-image",
-			"opacity" : 0.5,
+			"opacity" : 1,
 			"scale" : 1.28
 		}
 	],

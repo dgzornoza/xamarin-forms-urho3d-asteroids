@@ -167,9 +167,9 @@ namespace Asteroids.UrhoGame.Components
             if (input.GetKeyDown(Key.W))
             {
                 float velocityX = (this._shipBody.LinearVelocity.X > this._maxLinearVelocity || this._shipBody.LinearVelocity.X < -this._maxLinearVelocity) ?
-                    0 : this._shipBody.Mass * this._acceleration * -(float)Math.Sin(MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
+                    0 : this._shipBody.Mass * this._acceleration * -(float)System.Math.Sin(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
                 float velocityY = (this._shipBody.LinearVelocity.Y > this._maxLinearVelocity || this._shipBody.LinearVelocity.Y < -this._maxLinearVelocity) ?
-                    0 : this._shipBody.Mass * this._acceleration * (float)Math.Cos(MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
+                    0 : this._shipBody.Mass * this._acceleration * (float)System.Math.Cos(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
 
                 if (0f != velocityX || 0f != velocityY) this._shipBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
             }
@@ -239,7 +239,7 @@ namespace Asteroids.UrhoGame.Components
 
             // thruster
             this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
-            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.5f));            
+            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));            
 
             // node text info
             this.Node.CreateComponent<NodeTextInfo>();
