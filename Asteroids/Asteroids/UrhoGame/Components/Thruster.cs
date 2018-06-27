@@ -39,6 +39,7 @@ namespace Asteroids.UrhoGame.Components
             this.Node.Rotation2D = body.Node.Rotation2D - 90;
             Vector2 rotation2D = MathExtensions.DegreeToVector2(this.Node.Rotation2D) * 5;
             this._particleEmitter.Effect.ConstantForce = new Vector3(rotation2D);
+            this._particleEmitter.Effect.SizeAdd = (body.LinearVelocity.LengthFast * 15) / 15;
         }
 
         private void _initialize()
