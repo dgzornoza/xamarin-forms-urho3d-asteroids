@@ -13,6 +13,7 @@ namespace Asteroids.UrhoGame.Components
         private Text _textElement;
 
         RigidBody2D _rigidBody;
+        ParticleEmitter _particleEmitter;
 
         public NodeTextInfo()
         {
@@ -35,6 +36,20 @@ namespace Asteroids.UrhoGame.Components
             }
         }
 
+        public HorizontalAlignment HorizontalTextAlignment
+        {
+            get => this._textElement.HorizontalAlignment;
+            set => this._textElement.HorizontalAlignment = value;
+        }
+
+        public VerticalAlignment VerticalTextAlignment
+        {
+            get => this._textElement.VerticalAlignment;
+            set => this._textElement.VerticalAlignment = value;
+        }
+
+
+
 
 
         protected override void OnUpdate(float timeStep)
@@ -49,14 +64,11 @@ namespace Asteroids.UrhoGame.Components
 
         private void _initialize()
         {
-            _rigidBody = this.Node.GetComponent<RigidBody2D>(true);
+            this._rigidBody = this.Node.GetComponent<RigidBody2D>(true);
+            this._particleEmitter = this.Node.GetComponent<ParticleEmitter>(true);
 
             // text for show node info
-            this._textElement = new Text()
-            {                
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top
-            };
+            this._textElement = new Text();
             this._textElement.SetColor(Color.White);
             _textElement.SetFont(this.Application.ResourceCache.GetFont("Fonts/Anonymous Pro.ttf"), 15);
 
@@ -73,15 +85,33 @@ namespace Asteroids.UrhoGame.Components
 
         private void _showDebugInfo()
         {
-            
-            if (null == _rigidBody) return;
+            // RigidBody2D
+            if (null != this._rigidBody)
+            {
+                this._textElement.Value = $"RigidBody2D:\r\n" +
+                    $"AngularDamping: {this._rigidBody.AngularDamping}\r\n" +
+                    $"AngularVelocity: {this._rigidBody.AngularVelocity}\r\n" +
+                    $"Inertia: {this._rigidBody.Inertia}\r\n" +
+                    $"LinearVelocity: {this._rigidBody.LinearVelocity}\r\n" +
+                    $"LinearDamping: {this._rigidBody.LinearDamping}\r\n" +
+                    $"Mass: {this._rigidBody.Mass}\r\n" +
+                    $"\r\n\r\n";
+            }
 
-            this._textElement.Value = $"AngularDamping: {_rigidBody.AngularDamping}\r\n" +
-                $"AngularVelocity: {_rigidBody.AngularVelocity}\r\n" +
-                $"Inertia: {_rigidBody.Inertia}\r\n" +
-                $"LinearVelocity: {_rigidBody.LinearVelocity}\r\n" +
-                $"LinearDamping: {_rigidBody.LinearDamping}\r\n" +
-                $"Mass: {_rigidBody.Mass}\r\n";
+            // ParticleEmitter
+            if (null != this._particleEmitter)
+            {
+                this._textElement.Value = $"ParticleEmitter:\r\n" +
+                    $"NumParticles: {this._particleEmitter.NumParticles}\r\n" +
+                        $"\tParticleEffect:\r\n" +
+                        $"\tDampingForce: {this._particleEmitter.Effect.DampingForce}\r\n" +
+                        $"\tParticleSize: {this._particleEmitter.Effect.MinParticleSize} {this._particleEmitter.Effect.MaxParticleSize}\r\n" +
+                        $"\tVelocity: {this._particleEmitter.Effect.MinVelocity} {this._particleEmitter.Effect.MaxVelocity}\r\n" +
+                        $"\tEmissionRate: {this._particleEmitter.Effect.MinEmissionRate} {this._particleEmitter.Effect.MaxEmissionRate}\r\n" +
+                        $"\tTimeToLive: {this._particleEmitter.Effect.MinTimeToLive} {this._particleEmitter.Effect.MaxTimeToLive}\r\n" +
+                        $"\tSize: Add:{this._particleEmitter.Effect.SizeAdd} Mul:{this._particleEmitter.Effect.SizeMul}\r\n" +
+                        $"\r\n\r\n";
+            }
         }
     }
 }

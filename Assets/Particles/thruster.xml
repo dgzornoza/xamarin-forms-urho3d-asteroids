@@ -16,7 +16,7 @@
 	<activetime value="0" />
 	<inactivetime value="0" />
 	<emissionrate min="40" max="50" />
-	<particlesize min="0.4 0.2" max="0.4 0.2" />
+	<particlesize min="0.2 0.2" max="0.2 0.2" />
 	<timetolive min="0.2" max="0.4" />
 	<velocity min="0.5" max="1" />
 	<rotation min="0" max="0" />
