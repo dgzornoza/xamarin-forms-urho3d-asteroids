@@ -10,7 +10,7 @@ namespace Asteroids.UrhoGame.Components
     public class Thruster : Component
     {
         private ParticleEmitter _particleEmitter;
-        private float _offset = 20;
+        private float _offset = 1;
 
         public Thruster()
         {
@@ -34,11 +34,20 @@ namespace Asteroids.UrhoGame.Components
 
         public void SetParametersFromBody(RigidBody2D body)
         {
-            // this.Node.Rotation2D = body.Node.Rotation2D - 90;
-            // Vector2 rotation2D = MathExtensions.DegreeToVector2(this.Node.Rotation2D) * 5;
-            // this._particleEmitter.Effect.ConstantForce = new Vector3(rotation2D);
+            float maxlength = 15.0f;
+            this.Node.Rotation2D = this.Node.Parent.Rotation2D - 90;//  body.Node.Rotation2D - 90;
+            Vector2 rotation2D = MathExtensions.DegreeToVector2(this.Node.Rotation2D);
+            Vector2 forceVector = (rotation2D * ((body.LinearVelocity.LengthFast * 5) / maxlength));            
 
-            this._particleEmitter.Effect.SizeAdd = (body.LinearVelocity.LengthFast * _offset) / 15;
+            this._particleEmitter.Effect.ConstantForce = new Vector3(forceVector);
+            this._particleEmitter.Effect.MinDirection = new Vector3(rotation2D);
+            // this._particleEmitter.Effect.MaxDirection = new Vector3(rotation2D);
+
+            // this._particleEmitter.Effect.MinParticleSize = this._particleEmitter.Effect.MaxParticleSize = rotation2D;
+            this._particleEmitter.Effect.MinEmissionRate = (body.LinearVelocity.LengthFast * 80) / maxlength - 2;
+            // this._particleEmitter.Effect.SizeAdd = (body.LinearVelocity.LengthFast * _offset) / maxlength;
+
+            this._particleEmitter.Effect.SizeAdd = _offset;
         }
 
         private void _initialize()
@@ -50,7 +59,7 @@ namespace Asteroids.UrhoGame.Components
             this._particleEmitter = this.Node.CreateComponent<ParticleEmitter>();
             this._particleEmitter.Effect = particleEffect;
 
-
+            this.Node.SetScale(1.5f);
             // node text info
             NodeTextInfo nodeInfo = this.Node.CreateComponent<NodeTextInfo>();
             nodeInfo.VerticalTextAlignment = Urho.Gui.VerticalAlignment.Bottom;
@@ -86,41 +95,24 @@ namespace Asteroids.UrhoGame.Components
                     this._particleEmitter.Effect.MaxEmissionRate -= 1;
                 }
 
-                // VELOCITY
-                else if(obj.Key == Key.G)
+                // MinParticleSize
+                else if (obj.Key == Key.G)
                 {
-                    this._particleEmitter.Effect.MinVelocity += 1;
+                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X, this._particleEmitter.Effect.MinDirection.Y + 0.1f, this._particleEmitter.Effect.MinDirection.Z);
                 }
                 else if (obj.Key == Key.B)
                 {
-                    this._particleEmitter.Effect.MinVelocity -= 1;
+                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X, this._particleEmitter.Effect.MinDirection.Y - 0.1f, this._particleEmitter.Effect.MinDirection.Z);
                 }
                 else if (obj.Key == Key.N5)
                 {
-                    this._particleEmitter.Effect.MaxVelocity += 1;
+                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X + 0.1f, this._particleEmitter.Effect.MinDirection.Y, this._particleEmitter.Effect.MinDirection.Z);
                 }
                 else if (obj.Key == Key.T)
                 {
-                    this._particleEmitter.Effect.MaxVelocity -= 1;
+                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X - 0.1f, this._particleEmitter.Effect.MinDirection.Y, this._particleEmitter.Effect.MinDirection.Z);
                 }
 
-                // timetolive
-                else if (obj.Key == Key.H)
-                {
-                    this._particleEmitter.Effect.MinTimeToLive += .05f;
-                }
-                else if (obj.Key == Key.N)
-                {
-                    this._particleEmitter.Effect.MinTimeToLive -= .05f;
-                }
-                else if (obj.Key == Key.N6)
-                {
-                    this._particleEmitter.Effect.MaxTimeToLive += .05f;
-                }
-                else if (obj.Key == Key.Y)
-                {
-                    this._particleEmitter.Effect.MaxTimeToLive -= .05f;
-                }
             };
         }
 

@@ -110,6 +110,8 @@ namespace Asteroids.UrhoGame.Components
                         $"\tEmissionRate: {this._particleEmitter.Effect.MinEmissionRate} {this._particleEmitter.Effect.MaxEmissionRate}\r\n" +
                         $"\tTimeToLive: {this._particleEmitter.Effect.MinTimeToLive} {this._particleEmitter.Effect.MaxTimeToLive}\r\n" +
                         $"\tSize: Add:{this._particleEmitter.Effect.SizeAdd} Mul:{this._particleEmitter.Effect.SizeMul}\r\n" +
+                        $"\tDirection: {this._particleEmitter.Effect.MinDirection} {this._particleEmitter.Effect.MaxDirection}\r\n" +
+                        $"\tForce: {this._particleEmitter.Effect.ConstantForce}\r\n" +
                         $"\r\n\r\n";
             }
         }
