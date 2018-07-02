@@ -9,8 +9,7 @@ namespace Asteroids.UrhoGame.Components
 {
     public class Thruster : Component
     {
-        private ParticleEmitter _particleEmitter;
-        private float _offset = 0;
+        private ParticleEmitter _particleEmitter;        
 
         public Thruster()
         {
@@ -32,38 +31,23 @@ namespace Asteroids.UrhoGame.Components
             }
         }
 
-        public void SetParametersFromBody(RigidBody2D body)
+        /// <summary>
+        /// Function for set dynamic thruster parameters
+        /// </summary>
+        /// <param name="thrust">thrust for configure dynamic particles</param>
+        /// <param name="thrustLimit">limit thrust for configure dynamic particles</param>
+        public void SetParameters(float thrust, float thrustLimit)
         {
-            float velocityLimit = 15.0f;
-            float minParticleSizeLimit = 0.4f;
-            float maxParticleSizeLimit = 0.8f;
-            float velocity = body.LinearVelocity.LengthFast / velocityLimit;
+            float velocity = thrust / thrustLimit;
 
-            // Vector2 rotation = MathExtensions.DegreeToVector2(this.Node.WorldRotation2D - 180.0f);
-            // Vector2 perpendicularRotation = MathExtensions.DegreeToVector2(this.Node.WorldRotation2D - 90);
+            // particles rotation with node
             this._particleEmitter.Effect.MinRotation = this._particleEmitter.Effect.MaxRotation = -this.Node.WorldRotation2D;
 
-
-
-            // Vector2 forceVector = rotation * ((body.LinearVelocity.LengthFast * 5) / maxlength);            
-
-            // this._particleEmitter.Effect.ConstantForce = new Vector3(forceVector);
-            //this._particleEmitter.Effect.MinDirection = new Vector3(rotation2D);
-            // this._particleEmitter.Effect.MaxDirection = new Vector3(rotation2D);
-
+            // size particles increment with thrust in Y coodinates (for line effect on lower thruster)
             float minParticleSize = (velocity * 0.3f) + 0.1f;
             float maxParticleSize = (velocity * 0.7f) + 0.1f;
             this._particleEmitter.Effect.MinParticleSize = new Vector2(this._particleEmitter.Effect.MinParticleSize.X, minParticleSize);
             this._particleEmitter.Effect.MaxParticleSize = new Vector2(this._particleEmitter.Effect.MaxParticleSize.X, maxParticleSize);
-            // this._particleEmitter.Effect.MinParticleSize = perpendicularRotation;
-            // this._particleEmitter.Effect.MaxParticleSize = perpendicularRotation;
-
-
-            // this._particleEmitter.Effect.MinEmissionRate = (body.LinearVelocity.LengthFast * 40) / maxlength - 2;
-            // this._particleEmitter.Effect.SizeAdd = (body.LinearVelocity.LengthFast * _offset) / maxlength;
-
-
-            this._particleEmitter.Effect.SizeAdd = _offset;
         }
 
         private void _initialize()
@@ -74,34 +58,23 @@ namespace Asteroids.UrhoGame.Components
 
             this._particleEmitter = this.Node.CreateComponent<ParticleEmitter>();
             this._particleEmitter.Effect = particleEffect;
-
-            // node text info
-            NodeTextInfo nodeInfo = this.Node.CreateComponent<NodeTextInfo>();
-            nodeInfo.VerticalTextAlignment = Urho.Gui.VerticalAlignment.Bottom;
-
-
-            this.Application.Input.KeyDown += (obj) =>
-            {
-                // OFFSET SIZEADD
-                if (obj.Key == Key.N1)
-                {
-                    _offset += 1;
-                }
-                else if (obj.Key == Key.N2)
-                {
-                    _offset -= 1;
-                }
-
-                // recargar
-                else if (obj.Key == Key.F)
-                {
-                    cache.ReleaseAllResources(true);
-                    this._particleEmitter.Effect = cache.GetParticleEffect("Particles/thruster.xml");
-                }
-
-
-            };
         }
+
+
+        ///// <summary>
+        ///// http://gizma.com/easing/
+        /////  t = time, b = startvalue, c = change in value, d = duration:
+        ///// </summary>
+        ///// <param name="t">time</param>
+        ///// <param name="b">start value</param>
+        ///// <param name="c">Change in value</param>
+        ///// <param name="d">duration</param>
+        ///// <returns></returns>
+        //private float _easeInCubic(float t, float b, float c, float d)
+        //{
+        //    t /= d;
+        //    return c * t * t * t + b;
+        //}
 
     }
 }

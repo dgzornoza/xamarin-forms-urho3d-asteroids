@@ -120,7 +120,7 @@ namespace Asteroids.UrhoGame.Components
             //    _reset();
             //}
 
-            this._thruster.SetParametersFromBody(this._shipBody);
+            this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
         }
 
 
@@ -241,8 +241,6 @@ namespace Asteroids.UrhoGame.Components
             this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
             this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));
 
-            // node text info
-            this._shipNode.CreateComponent<NodeTextInfo>();
         }
 
     }
