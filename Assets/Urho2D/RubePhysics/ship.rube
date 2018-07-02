@@ -43,15 +43,8 @@
     
     {
       "class" : "body",
-      "displayName" : "Acceleration",
-      "name" : "_acceleration",
-      "type" : "float"
-    },
-    
-    {
-      "class" : "body",
-      "displayName" : "MaxLinearVelocity",
-      "name" : "_maxLinearVelocity",
+      "displayName" : "MaxAngularVelocity",
+      "name" : "_maxAngularVelocity",
       "type" : "float"
     },
     
@@ -64,8 +57,15 @@
     
     {
       "class" : "body",
-      "displayName" : "MaxAngularVelocity",
-      "name" : "_maxAngularVelocity",
+      "displayName" : "Acceleration",
+      "name" : "_acceleration",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "body",
+      "displayName" : "MaxLinearVelocity",
+      "name" : "_maxLinearVelocity",
       "type" : "float"
     }
   ],
@@ -136,17 +136,17 @@
             {
               "x" : 
               [
-                0.4022910892963409,
+                0.4022909998893738,
                 -0.001324109965935350,
-                -0.4072901606559753,
-                -0.0009033253882080317
+                -0.4072900116443634,
+                -0.0009033249807544053
               ],
               "y" : 
               [
-                -0.4868068695068359,
-                0.4678968787193298,
-                -0.4868068695068359,
-                -0.3168053328990936
+                -0.4868069887161255,
+                0.4678969979286194,
+                -0.4868069887161255,
+                -0.3168050050735474
               ]
             }
           }
@@ -154,11 +154,11 @@
         "id" : 2,
         "linearDamping" : 0.5,
         "linearVelocity" : 0,
-        "massData-I" : 0.01661242172122002,
+        "massData-I" : 0.01661240682005882,
         "massData-center" : 
         {
-          "x" : -0.002138123614713550,
-          "y" : -0.1119051054120064
+          "x" : -0.002138095675036311,
+          "y" : -0.1119049936532974
         },
         "massData-mass" : 0.2,
         "name" : "ship-body",

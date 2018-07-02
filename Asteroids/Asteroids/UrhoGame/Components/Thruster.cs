@@ -10,7 +10,7 @@ namespace Asteroids.UrhoGame.Components
     public class Thruster : Component
     {
         private ParticleEmitter _particleEmitter;
-        private float _offset = 1;
+        private float _offset = 0;
 
         public Thruster()
         {
@@ -34,18 +34,34 @@ namespace Asteroids.UrhoGame.Components
 
         public void SetParametersFromBody(RigidBody2D body)
         {
-            float maxlength = 15.0f;
-            this.Node.Rotation2D = this.Node.Parent.Rotation2D - 90;//  body.Node.Rotation2D - 90;
-            Vector2 rotation2D = MathExtensions.DegreeToVector2(this.Node.Rotation2D);
-            Vector2 forceVector = (rotation2D * ((body.LinearVelocity.LengthFast * 5) / maxlength));            
+            float velocityLimit = 15.0f;
+            float minParticleSizeLimit = 0.4f;
+            float maxParticleSizeLimit = 0.8f;
+            float velocity = body.LinearVelocity.LengthFast / velocityLimit;
 
-            this._particleEmitter.Effect.ConstantForce = new Vector3(forceVector);
-            this._particleEmitter.Effect.MinDirection = new Vector3(rotation2D);
+            // Vector2 rotation = MathExtensions.DegreeToVector2(this.Node.WorldRotation2D - 180.0f);
+            // Vector2 perpendicularRotation = MathExtensions.DegreeToVector2(this.Node.WorldRotation2D - 90);
+            this._particleEmitter.Effect.MinRotation = this._particleEmitter.Effect.MaxRotation = -this.Node.WorldRotation2D;
+
+
+
+            // Vector2 forceVector = rotation * ((body.LinearVelocity.LengthFast * 5) / maxlength);            
+
+            // this._particleEmitter.Effect.ConstantForce = new Vector3(forceVector);
+            //this._particleEmitter.Effect.MinDirection = new Vector3(rotation2D);
             // this._particleEmitter.Effect.MaxDirection = new Vector3(rotation2D);
 
-            // this._particleEmitter.Effect.MinParticleSize = this._particleEmitter.Effect.MaxParticleSize = rotation2D;
-            this._particleEmitter.Effect.MinEmissionRate = (body.LinearVelocity.LengthFast * 80) / maxlength - 2;
+            float minParticleSize = (velocity * 0.3f) + 0.1f;
+            float maxParticleSize = (velocity * 0.7f) + 0.1f;
+            this._particleEmitter.Effect.MinParticleSize = new Vector2(this._particleEmitter.Effect.MinParticleSize.X, minParticleSize);
+            this._particleEmitter.Effect.MaxParticleSize = new Vector2(this._particleEmitter.Effect.MaxParticleSize.X, maxParticleSize);
+            // this._particleEmitter.Effect.MinParticleSize = perpendicularRotation;
+            // this._particleEmitter.Effect.MaxParticleSize = perpendicularRotation;
+
+
+            // this._particleEmitter.Effect.MinEmissionRate = (body.LinearVelocity.LengthFast * 40) / maxlength - 2;
             // this._particleEmitter.Effect.SizeAdd = (body.LinearVelocity.LengthFast * _offset) / maxlength;
+
 
             this._particleEmitter.Effect.SizeAdd = _offset;
         }
@@ -59,7 +75,6 @@ namespace Asteroids.UrhoGame.Components
             this._particleEmitter = this.Node.CreateComponent<ParticleEmitter>();
             this._particleEmitter.Effect = particleEffect;
 
-            this.Node.SetScale(1.5f);
             // node text info
             NodeTextInfo nodeInfo = this.Node.CreateComponent<NodeTextInfo>();
             nodeInfo.VerticalTextAlignment = Urho.Gui.VerticalAlignment.Bottom;
@@ -77,41 +92,13 @@ namespace Asteroids.UrhoGame.Components
                     _offset -= 1;
                 }
 
-                // EMISIONRATE
+                // recargar
                 else if (obj.Key == Key.F)
                 {
-                    this._particleEmitter.Effect.MinEmissionRate += 1;
-                }
-                else if (obj.Key == Key.V)
-                {
-                    this._particleEmitter.Effect.MinEmissionRate -= 1;
-                }
-                else if(obj.Key == Key.N4)
-                {
-                    this._particleEmitter.Effect.MaxEmissionRate += 1;
-                }
-                else if (obj.Key == Key.R)
-                {
-                    this._particleEmitter.Effect.MaxEmissionRate -= 1;
+                    cache.ReleaseAllResources(true);
+                    this._particleEmitter.Effect = cache.GetParticleEffect("Particles/thruster.xml");
                 }
 
-                // MinParticleSize
-                else if (obj.Key == Key.G)
-                {
-                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X, this._particleEmitter.Effect.MinDirection.Y + 0.1f, this._particleEmitter.Effect.MinDirection.Z);
-                }
-                else if (obj.Key == Key.B)
-                {
-                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X, this._particleEmitter.Effect.MinDirection.Y - 0.1f, this._particleEmitter.Effect.MinDirection.Z);
-                }
-                else if (obj.Key == Key.N5)
-                {
-                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X + 0.1f, this._particleEmitter.Effect.MinDirection.Y, this._particleEmitter.Effect.MinDirection.Z);
-                }
-                else if (obj.Key == Key.T)
-                {
-                    this._particleEmitter.Effect.MinDirection = new Vector3(this._particleEmitter.Effect.MinDirection.X - 0.1f, this._particleEmitter.Effect.MinDirection.Y, this._particleEmitter.Effect.MinDirection.Z);
-                }
 
             };
         }

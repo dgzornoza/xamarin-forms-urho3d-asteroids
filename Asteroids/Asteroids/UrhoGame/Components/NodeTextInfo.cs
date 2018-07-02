@@ -64,8 +64,8 @@ namespace Asteroids.UrhoGame.Components
 
         private void _initialize()
         {
-            this._rigidBody = this.Node.GetComponent<RigidBody2D>(true);
-            this._particleEmitter = this.Node.GetComponent<ParticleEmitter>(true);
+            this._rigidBody = this.Node.GetComponent<RigidBody2D>();
+            this._particleEmitter = this.Node.GetComponent<ParticleEmitter>();
 
             // text for show node info
             this._textElement = new Text();

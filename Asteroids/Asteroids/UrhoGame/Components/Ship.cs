@@ -239,10 +239,10 @@ namespace Asteroids.UrhoGame.Components
 
             // thruster
             this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
-            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));            
+            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));
 
             // node text info
-            this.Node.CreateComponent<NodeTextInfo>();
+            this._shipNode.CreateComponent<NodeTextInfo>();
         }
 
     }
