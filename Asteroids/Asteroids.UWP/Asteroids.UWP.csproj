@@ -119,6 +119,9 @@
     <Content Include="..\..\Assets\Urho2D\Particles\thruster.png">
       <Link>Data\Urho2D\Particles\thruster.png</Link>
     </Content>
+    <Content Include="..\..\Assets\Urho2D\Sprites\Bullet.png">
+      <Link>Data\Urho2D\Sprites\Bullet.png</Link>
+    </Content>
     <Content Include="..\..\Assets\Urho2D\Sprites\ship.png">
       <Link>Data\Urho2D\Sprites\ship.png</Link>
     </Content>
@@ -164,6 +167,9 @@
     </Content>
     <Content Include="..\..\Assets\Urho2D\Particles\thruster.pex">
       <Link>Data\Urho2D\Particles\thruster.pex</Link>
+    </Content>
+    <Content Include="..\..\Assets\Urho2D\RubePhysics\bullet.json">
+      <Link>Data\Urho2D\RubePhysics\bullet.json</Link>
     </Content>
     <None Include="Asteroids.UWP_TemporaryKey.pfx" />
   </ItemGroup>

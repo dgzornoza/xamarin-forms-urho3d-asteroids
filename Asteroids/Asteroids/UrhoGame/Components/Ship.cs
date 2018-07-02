@@ -12,13 +12,14 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 namespace Asteroids.UrhoGame.Components
 {
     public class Ship : Component
-    {
-        private const string RUBE_BODY_NAME = "ship-body";
-
+    {     
         Camera _mainCamera;
-        Thruster _thruster;
         Node _shipNode;
         RigidBody2D _shipBody;
+
+        Thruster _thruster;
+        Bullet _bullet;
+
 
         private float _acceleration;
         private float _maxLinearVelocity;
@@ -94,7 +95,7 @@ namespace Asteroids.UrhoGame.Components
 
             this._handleInput();
 
-            this._mainCamera = this.Scene.GetChild(UrhoConfig.mainCameraNodeName).GetComponent<Camera>();
+            this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>();
             this._shipBody.Node.MirrorIfExitScreen(this._mainCamera);
 
             if (_fireDelay > 0) _fireDelay--;
@@ -188,18 +189,15 @@ namespace Asteroids.UrhoGame.Components
                 this._shipBody.ApplyTorque(-this._rotation, true);                
             }
 
-
-
             // Fire Bullet
-            //if (input.GetKeyDown(Key.Space))
-            //{
-            //    if (_fireDelay == 0)
-            //    {
-            //        _fireDelay = FIRE_DELAY;                    
-
-            //        scene()->addObject<Bullet>()->get()->set(body()->GetPosition(), body()->GetAngle());
-            //    }
-            //}
+            if (input.GetKeyDown(Key.Space))
+            {
+                if (_fireDelay == 0)
+                {
+                    _fireDelay = FIRE_DELAY;
+                    this._bullet.Fire(this._shipNode.Position2D, this._shipNode.Rotation2D);
+                }
+            }
         }
 
 
@@ -229,7 +227,7 @@ namespace Asteroids.UrhoGame.Components
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/ship.json", this.Node, false);
             
-            this._shipBody = b2dJson.GetBodyByName(RUBE_BODY_NAME);
+            this._shipBody = b2dJson.GetBodyByName(UrhoConfig.RUBE_SHIP_BODY_NAME);
             this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
             this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
             this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
@@ -241,6 +239,8 @@ namespace Asteroids.UrhoGame.Components
             this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
             this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));
 
+            // bullet node
+            this._bullet = this.Node.CreateChild(nameof(Bullet)).CreateComponent<Bullet>();
         }
 
     }

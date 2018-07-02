@@ -5,9 +5,9 @@ using Urho;
 
 namespace Asteroids.UrhoGame.Components
 {
-    public class AsteroidScene : Component
+    public class Asteroid : Component
     {
-        public AsteroidScene() { }
+        public Asteroid() { }
 
         public override void OnSceneSet(Scene scene)
         {
