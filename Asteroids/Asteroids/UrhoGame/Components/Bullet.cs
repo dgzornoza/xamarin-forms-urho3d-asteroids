@@ -16,6 +16,7 @@ namespace Asteroids.UrhoGame.Components
         Camera _mainCamera;
 
         private Node _bulletDefinition;
+        private Node _bullets;
         private int _lifeTime;
         
 
@@ -48,9 +49,10 @@ namespace Asteroids.UrhoGame.Components
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/bullet.json", this.Node, false);
             this._bulletDefinition = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME).Node;
-            // this._bulletDefinition.Enabled = false;
+            this._bulletDefinition.Enabled = false;
 
-
+            // create bullets node
+            this._bullets = this.Node.CreateChild("bullets");
         }
 
 
@@ -61,7 +63,7 @@ namespace Asteroids.UrhoGame.Components
             Node bullet = this._bulletDefinition.Clone();
             RigidBody2D bulletBody = bullet.GetComponent<RigidBody2D>();
             bullet.Enabled = true;
-            this.Node.AddChild(bullet);
+            this._bullets.AddChild(bullet);
 
 
             // position.X += (float)Math.Sin(angle);
