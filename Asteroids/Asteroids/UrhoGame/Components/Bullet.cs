@@ -10,7 +10,7 @@ namespace Asteroids.UrhoGame.Components
 {
     public class Bullet : Component
     {
-        private const int BULLET_SPEED = 20;
+        private const int BULLET_SPEED = 10;
         private const int BULLET_LIFETIME = 400;
 
         Camera _mainCamera;
@@ -48,7 +48,9 @@ namespace Asteroids.UrhoGame.Components
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/bullet.json", this.Node, false);
             this._bulletDefinition = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME).Node;
-            this._bulletDefinition.Enabled = false;
+            // this._bulletDefinition.Enabled = false;
+
+
         }
 
 
@@ -62,8 +64,8 @@ namespace Asteroids.UrhoGame.Components
             this.Node.AddChild(bullet);
 
 
-            position.X += (float)Math.Sin(angle);
-            position.Y -= (float)Math.Cos(angle);
+            // position.X += (float)Math.Sin(angle);
+            // position.Y -= (float)Math.Cos(angle);
             bullet.SetTransform2D(position, angle);
 
             
@@ -83,7 +85,7 @@ namespace Asteroids.UrhoGame.Components
 
                 node.MirrorIfExitScreen(this._mainCamera);
 
-                if (_lifeTime > BULLET_LIFETIME) node.Remove();
+                // if (_lifeTime > BULLET_LIFETIME) node.Remove();
 
                 //if (_lifeTime > BULLET_LIFETIME || isColliding())
                 //{

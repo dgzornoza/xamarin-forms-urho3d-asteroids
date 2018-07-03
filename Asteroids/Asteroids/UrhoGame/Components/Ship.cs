@@ -195,7 +195,7 @@ namespace Asteroids.UrhoGame.Components
                 if (_fireDelay == 0)
                 {
                     _fireDelay = FIRE_DELAY;
-                    this._bullet.Fire(this._shipNode.Position2D, this._shipNode.Rotation2D);
+                    this._bullet.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
                 }
             }
         }
