@@ -44,7 +44,7 @@ namespace Asteroids.UrhoGame.Scenes
             physicsWorld2D.Gravity = Vector2.Zero;
             
             // create ship
-            this.Node.CreateChild(nameof(Ship)).CreateComponent<Ship>();
+            this.Node.CreateChild($"{nameof(Ship)}-node").CreateComponent<Ship>();
         }
     }
 }

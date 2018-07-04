@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Urho;
 using Urho.Urho2D;
@@ -8,9 +9,10 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.UrhoGame.Components
 {
+
     public class Bullet : Component
     {
-        private const int BULLET_SPEED = 10;
+        private const int BULLET_SPEED = 1;
         private const int BULLET_LIFETIME = 400;
 
         Camera _mainCamera;
@@ -24,7 +26,7 @@ namespace Asteroids.UrhoGame.Components
         {
             this._lifeTime = 0;
 
-            this.ReceiveSceneUpdates = true;
+            // this.ReceiveSceneUpdates = true;
         }
 
         public override void OnSceneSet(Scene scene)
@@ -49,7 +51,7 @@ namespace Asteroids.UrhoGame.Components
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/bullet.json", this.Node, false);
             this._bulletDefinition = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME).Node;
-            this._bulletDefinition.Enabled = false;
+            this._bulletDefinition.Enabled = true;
 
             // create bullets node
             this._bullets = this.Node.CreateChild("bullets");
@@ -64,16 +66,18 @@ namespace Asteroids.UrhoGame.Components
             RigidBody2D bulletBody = bullet.GetComponent<RigidBody2D>();
             bullet.Enabled = true;
             this._bullets.AddChild(bullet);
-
+            
 
             // position.X += (float)Math.Sin(angle);
             // position.Y -= (float)Math.Cos(angle);
             bullet.SetTransform2D(position, angle);
 
-            
-            float velocityX = (float)Math.Sin(angle) * BULLET_SPEED * bulletBody.Mass;
-            float velocityY = (float)-Math.Cos(angle) * BULLET_SPEED * bulletBody.Mass;
-            bulletBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
+
+            // float velocityX = (float)Math.Sin(angle) * BULLET_SPEED * bulletBody.Mass;
+            // float velocityY = (float)-Math.Cos(angle) * BULLET_SPEED * bulletBody.Mass;
+            // bulletBody.ApplyForceToCenter(new Vector2(1.0f, 1.0f), true);
+            string a = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            this.Scene.SaveXml(Path.Combine(a, "test.xml"));            
         }
 
         protected override void OnUpdate(float timeStep)
@@ -81,10 +85,8 @@ namespace Asteroids.UrhoGame.Components
             _lifeTime++;
             this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>();
             
-            foreach (var node in this.Node.Children)
+            foreach (var node in this._bullets.Children)
             {
-                if (!node.Enabled) continue;
-
                 node.MirrorIfExitScreen(this._mainCamera);
 
                 // if (_lifeTime > BULLET_LIFETIME) node.Remove();

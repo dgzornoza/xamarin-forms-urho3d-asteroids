@@ -104,14 +104,14 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Assets\Materials\Particle.xml">
-      <Link>Data\Materials\Particle.xml</Link>
+    <Content Include="..\..\Assets\Materials\particle.xml">
+      <Link>Data\Materials\particle.xml</Link>
     </Content>
     <Content Include="..\..\Assets\Particles\thruster.xml">
       <Link>Data\Particles\thruster.xml</Link>
     </Content>
-    <Content Include="..\..\Assets\Textures\Flare.dds">
-      <Link>Data\Textures\Flare.dds</Link>
+    <Content Include="..\..\Assets\Textures\flare.dds">
+      <Link>Data\Textures\flare.dds</Link>
     </Content>
     <Content Include="..\..\Assets\Textures\stars.png">
       <Link>Data\Textures\stars.png</Link>
@@ -119,8 +119,8 @@
     <Content Include="..\..\Assets\Urho2D\Particles\thruster.png">
       <Link>Data\Urho2D\Particles\thruster.png</Link>
     </Content>
-    <Content Include="..\..\Assets\Urho2D\Sprites\Bullet.png">
-      <Link>Data\Urho2D\Sprites\Bullet.png</Link>
+    <Content Include="..\..\Assets\Urho2D\Sprites\bullet.png">
+      <Link>Data\Urho2D\Sprites\bullet.png</Link>
     </Content>
     <Content Include="..\..\Assets\Urho2D\Sprites\ship.png">
       <Link>Data\Urho2D\Sprites\ship.png</Link>
@@ -172,6 +172,9 @@
       <Link>Data\Urho2D\RubePhysics\bullet.json</Link>
     </Content>
     <None Include="Asteroids.UWP_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\Scenes\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

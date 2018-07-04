@@ -74,7 +74,10 @@ namespace Asteroids.UrhoGame.Components
             else
             {
             }
+            
         }
+
+        public override string TypeName => Ship.TypeNameStatic;
 
 
 
@@ -175,7 +178,7 @@ namespace Asteroids.UrhoGame.Components
                 if (0f != velocityX || 0f != velocityY) this._shipBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
             }
 
-
+            
             // Rotate CCW (left)
             if (input.GetKeyDown(Key.A) && this._shipBody.AngularVelocity < this._maxAngularVelocity)
             {
@@ -236,11 +239,11 @@ namespace Asteroids.UrhoGame.Components
             this._shipNode = this._shipBody.Node;
 
             // thruster
-            this._thruster = this._shipNode.CreateChild(nameof(Thruster)).CreateComponent<Thruster>();
+            this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}-node").CreateComponent<Thruster>();
             this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));
 
             // bullet node
-            this._bullet = this.Node.CreateChild(nameof(Bullet)).CreateComponent<Bullet>();
+            this._bullet = this.Node.CreateChild($"{nameof(Bullet)}-node").CreateComponent<Bullet>();
         }
 
     }
