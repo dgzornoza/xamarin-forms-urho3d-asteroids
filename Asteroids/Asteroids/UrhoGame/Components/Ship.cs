@@ -170,9 +170,9 @@ namespace Asteroids.UrhoGame.Components
             // forward
             if (input.GetKeyDown(Key.W))
             {
-                float velocityX = (this._shipBody.LinearVelocity.X > this._maxLinearVelocity || this._shipBody.LinearVelocity.X < -this._maxLinearVelocity) ?
-                    0 : this._shipBody.Mass * this._acceleration * -(float)System.Math.Sin(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
-                float velocityY = (this._shipBody.LinearVelocity.Y > this._maxLinearVelocity || this._shipBody.LinearVelocity.Y < -this._maxLinearVelocity) ?
+                float velocityY = (this._shipBody.LinearVelocity.X > this._maxLinearVelocity || this._shipBody.LinearVelocity.X < -this._maxLinearVelocity) ?
+                    0 : this._shipBody.Mass * this._acceleration * (float)System.Math.Sin(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
+                float velocityX = (this._shipBody.LinearVelocity.Y > this._maxLinearVelocity || this._shipBody.LinearVelocity.Y < -this._maxLinearVelocity) ?
                     0 : this._shipBody.Mass * this._acceleration * (float)System.Math.Cos(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
 
                 if (0f != velocityX || 0f != velocityY) this._shipBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
@@ -197,7 +197,7 @@ namespace Asteroids.UrhoGame.Components
             {
                 if (_fireDelay == 0)
                 {
-                    _fireDelay = FIRE_DELAY;
+                    _fireDelay = FIRE_DELAY;                    
                     this._bullet.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
                 }
             }
@@ -240,7 +240,7 @@ namespace Asteroids.UrhoGame.Components
 
             // thruster
             this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}-node").CreateComponent<Thruster>();
-            this._thruster.Node.SetPosition2D(new Vector2(0.0f, -0.55f));
+            this._thruster.Node.SetPosition2D(new Vector2(-0.55f, 0.0f));
 
             // bullet node
             this._bullet = this.Node.CreateChild($"{nameof(Bullet)}-node").CreateComponent<Bullet>();

@@ -46,8 +46,8 @@ namespace Asteroids.UrhoGame.Components
             // size particles increment with thrust in Y coodinates (for line effect on lower thruster)
             float minParticleSize = (velocity * 0.3f) + 0.1f;
             float maxParticleSize = (velocity * 0.7f) + 0.1f;
-            this._particleEmitter.Effect.MinParticleSize = new Vector2(this._particleEmitter.Effect.MinParticleSize.X, minParticleSize);
-            this._particleEmitter.Effect.MaxParticleSize = new Vector2(this._particleEmitter.Effect.MaxParticleSize.X, maxParticleSize);
+            this._particleEmitter.Effect.MinParticleSize = new Vector2(minParticleSize, this._particleEmitter.Effect.MinParticleSize.Y);
+            this._particleEmitter.Effect.MaxParticleSize = new Vector2(maxParticleSize, this._particleEmitter.Effect.MaxParticleSize.Y);
         }
 
         private void _initialize()
