@@ -12,7 +12,13 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 namespace Asteroids.UrhoGame.Components
 {
     public class Ship : Component
-    {     
+    {
+        private const int FIRE_DELAY = 100;
+        private const int START_DELAY = 400;
+        private const int BLINK_DELAY = 25;
+        private const int THUMP_DELAY = 65;
+
+
         Camera _mainCamera;
         Node _shipNode;
         RigidBody2D _shipBody;
@@ -26,12 +32,6 @@ namespace Asteroids.UrhoGame.Components
         private float _rotation;
         private float _maxAngularVelocity;
 
-
-        private const int FIRE_DELAY = 30;
-        private const int START_DELAY = 400;
-        private const int BLINK_DELAY = 25;
-        private const int THUMP_DELAY = 65;
-        private const int THRUST_DELAY = 5;
 
         private int _fireDelay;
         private int _blinkDelay;
@@ -59,6 +59,13 @@ namespace Asteroids.UrhoGame.Components
             this.ReceiveSceneUpdates = true;
         }
 
+        /// <summary>
+        /// Property for get camera
+        /// </summary>
+        private Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>());
+
+
+
         public override void OnSceneSet(Scene scene)
         {
             base.OnSceneSet(scene);
@@ -76,9 +83,6 @@ namespace Asteroids.UrhoGame.Components
             }
             
         }
-
-        public override string TypeName => Ship.TypeNameStatic;
-
 
 
 
@@ -98,9 +102,9 @@ namespace Asteroids.UrhoGame.Components
 
             this._handleInput();
 
-            this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>();
-            this._shipBody.Node.MirrorIfExitScreen(this._mainCamera);
+            this._shipBody.Node.MirrorIfExitScreen(this.Camera);
 
+            // update delays
             if (_fireDelay > 0) _fireDelay--;
 
             if (_blinkDelay > 0) _blinkDelay--;
@@ -125,38 +129,6 @@ namespace Asteroids.UrhoGame.Components
             //}
 
             this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
-        }
-
-
-        void render()
-        {
-            //if (m_isThrusting)
-            //{
-            //    m_thrustSwitch = !m_thrustSwitch;
-            //    if (m_thrustSwitch)
-            //    {
-            //        scene()->draw(m_Thruster);
-            //    }
-            //}
-
-            //float currentX = getPosition().x;
-            //float currentY = getPosition().y;
-            //float mirrorX = (currentX < scene()->window()->getCenter().x) ? currentX + scene()->window()->getWidth() : currentX - scene()->window()->getWidth();
-            //float mirrorY = (currentY < scene()->window()->getCenter().y) ? currentY + scene()->window()->getHeight() : currentY - scene()->window()->getHeight();
-
-            //RenderableObject::setPosition(mirrorX, currentY);
-            //renderObject();
-            //RenderableObject::setPosition(currentX, mirrorY);
-            //renderObject();
-
-            //RenderableObject::setRotation(0);
-            //RenderableObject::setScale(0.75, 0.75);
-            //for (int i = 0; i < m_lives; i++)
-            //{
-            //    RenderableObject::setPosition((float)130 + (i * 22), (float)30);
-            //    renderObject();
-            //}
-            //RenderableObject::setScale(1, 1);
         }
 
 

@@ -13,42 +13,33 @@ namespace Asteroids.UrhoGame.Components
 
     public class Bullet : Component
     {
-        private const int BULLET_SPEED = 10;
+        private const int BULLET_SPEED = 20;
         private const int BULLET_LIFETIME = 400;
 
-        Camera _mainCamera;
+        private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
+
+        private Camera _mainCamera;
 
         private JObject _bulletDefinition;
         private Node _bullets;
-        private int _lifeTime;
         
 
         public Bullet()
-        {
-            this._lifeTime = 0;
-
+        {            
             this.ReceiveSceneUpdates = true;
-        }
-
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._initialize();
-            }
-            // dettach from scene
-            else
-            {                
-            }
         }
 
         /// <summary>
         /// Radial distance multiplier for adjust distance from fire position center
         /// </summary>
         public float RadialDistance { get; set; } = 1.0f;
+
+        /// <summary>
+        /// Property for get camera
+        /// </summary>
+        private Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>());
+
+
 
         /// <summary>
         /// Function for fire bullet
@@ -60,6 +51,7 @@ namespace Asteroids.UrhoGame.Components
             // Create bullet from rube format
             B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(this._bulletDefinition, this._bullets, false, "Urho2D/RubePhysics/");
             RigidBody2D bulletBody = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME);
+            bulletBody.Node.SetVar(_lifeTimeVarStringHash, "0");
 
             // get radial position
             Vector2 radialPosition = MathExtensions.DegreeToVector2(angle) * RadialDistance;
@@ -76,16 +68,33 @@ namespace Asteroids.UrhoGame.Components
         }
 
 
-        protected override void OnUpdate(float timeStep)
-        {
-            _lifeTime++;
-            this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>();
 
+        public override void OnSceneSet(Scene scene)
+        {
+            base.OnSceneSet(scene);
+
+            // attach to scene
+            if (null != scene)
+            {
+                this._initialize();
+            }
+            // dettach from scene
+            else
+            {
+            }
+        }
+
+
+        protected override void OnUpdate(float timeStep)
+        {            
             foreach (var node in this._bullets.Children)
             {
-                node.MirrorIfExitScreen(this._mainCamera);
+                int lifeTime = Convert.ToInt32(node.GetVar(_lifeTimeVarStringHash));
+                node.SetVar(_lifeTimeVarStringHash, (++lifeTime).ToString());
 
-                // if (_lifeTime > BULLET_LIFETIME) node.Remove();
+                node.MirrorIfExitScreen(this.Camera);
+
+                if (lifeTime > BULLET_LIFETIME) node.Remove();
 
                 //if (_lifeTime > BULLET_LIFETIME || isColliding())
                 //{
@@ -105,6 +114,7 @@ namespace Asteroids.UrhoGame.Components
 
         }
 
+        
 
         private void _initialize()
         {
