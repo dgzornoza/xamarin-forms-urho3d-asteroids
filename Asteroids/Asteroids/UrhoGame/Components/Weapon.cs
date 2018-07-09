@@ -11,20 +11,19 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 namespace Asteroids.UrhoGame.Components
 {
 
-    public class Bullet : Component
+    public class Weapon : Component
     {
         private const int BULLET_SPEED = 20;
         private const int BULLET_LIFETIME = 400;
 
+        private static JObject _bulletDefinition;
         private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
 
         private Camera _mainCamera;
-
-        private JObject _bulletDefinition;
         private Node _bullets;
         
 
-        public Bullet()
+        public Weapon()
         {            
             this.ReceiveSceneUpdates = true;
         }
@@ -49,7 +48,7 @@ namespace Asteroids.UrhoGame.Components
         public void Fire(Vector2 position, float angle)
         {
             // Create bullet from rube format
-            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(this._bulletDefinition, this._bullets, false, "Urho2D/RubePhysics/");
+            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_bulletDefinition, this._bullets, false, "Urho2D/RubePhysics/");
             RigidBody2D bulletBody = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME);
             bulletBody.Node.SetVar(_lifeTimeVarStringHash, "0");
 
@@ -119,7 +118,7 @@ namespace Asteroids.UrhoGame.Components
         private void _initialize()
         {
             // store JObject from rube file for create bullets
-            this._bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/bullet.json");
+            if (null == _bulletDefinition) _bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/bullet.json");
 
             // create bullets node
             this._bullets = this.Node.CreateChild("bullets");

@@ -24,7 +24,7 @@ namespace Asteroids.UrhoGame.Components
         RigidBody2D _shipBody;
 
         Thruster _thruster;
-        Bullet _bullet;
+        Weapon _weapon;
 
 
         private float _acceleration;
@@ -170,7 +170,7 @@ namespace Asteroids.UrhoGame.Components
                 if (_fireDelay == 0)
                 {
                     _fireDelay = FIRE_DELAY;                    
-                    this._bullet.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
+                    this._weapon.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
                 }
             }
         }
@@ -215,7 +215,7 @@ namespace Asteroids.UrhoGame.Components
             this._thruster.Node.SetPosition2D(new Vector2(-0.55f, 0.0f));
 
             // bullet node
-            this._bullet = this.Node.CreateChild($"{nameof(Bullet)}-node").CreateComponent<Bullet>();
+            this._weapon = this.Node.CreateChild($"{nameof(Weapon)}-node").CreateComponent<Weapon>();
         }
 
     }
