@@ -119,6 +119,12 @@
     <Content Include="..\..\Assets\Urho2D\Particles\thruster.png">
       <Link>Data\Urho2D\Particles\thruster.png</Link>
     </Content>
+    <Content Include="..\..\Assets\Urho2D\Sprites\Asteroids\asteroids.png">
+      <Link>Data\Urho2D\Sprites\Asteroids\asteroids.png</Link>
+    </Content>
+    <Content Include="..\..\Assets\Urho2D\Sprites\Asteroids\asteroids.xml">
+      <Link>Data\Urho2D\Sprites\Asteroids\asteroids.xml</Link>
+    </Content>
     <Content Include="..\..\Assets\Urho2D\Sprites\bullet.png">
       <Link>Data\Urho2D\Sprites\bullet.png</Link>
     </Content>

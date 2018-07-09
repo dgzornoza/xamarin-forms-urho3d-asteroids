@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Urho;
+using Urho.Urho2D;
 using XamarinForms.Toolkit.Helpers;
 using XamarinForms.Toolkit.Urho3D;
 using XamarinForms.Toolkit.Urho3D.Rube;
@@ -44,7 +45,7 @@ namespace Asteroids.UrhoGame.Components
 
 
         public void set(float scale, Vector2 position, float angle)
-        {
+        {            
             //setScale(scale);
 
             //setAsBox(60 / m_Scale, 60 / m_Scale);
@@ -103,7 +104,11 @@ namespace Asteroids.UrhoGame.Components
         private void _initialize()
         {
             // store JObject from rube file for create bullets
-            if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/asteroids.json");
+            // if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/asteroids.json");
+            var cache = Application.Current.ResourceCache;
+            SpriteSheet2D sprite = cache.GetSpriteSheet2D("urho2D/Sprites/Asteroids/asteroids.xml");
+            StaticSprite2D staticSprite = this.Node.CreateComponent<StaticSprite2D>();
+            staticSprite.Sprite = sprite.GetSprite("asteroid_01");            
         }
 
 

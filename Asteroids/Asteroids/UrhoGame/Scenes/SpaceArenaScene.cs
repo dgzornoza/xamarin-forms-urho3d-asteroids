@@ -45,6 +45,8 @@ namespace Asteroids.UrhoGame.Scenes
             
             // create ship
             this.Node.CreateChild($"{nameof(Ship)}-node").CreateComponent<Ship>();
+            // create asteroid
+            this.Node.CreateChild($"{nameof(Asteroid)}-node").CreateComponent<Asteroid>();
         }
     }
 }

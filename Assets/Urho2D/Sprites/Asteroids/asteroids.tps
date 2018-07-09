@@ -6,7 +6,7 @@
         <key>texturePackerVersion</key>
         <string>4.7.0</string>
         <key>fileName</key>
-        <string>D:/Projects/OpenSource/xamarin-forms-urho3d-asteroids/Assets/Textures/sprite_sheet.tps</string>
+        <string>D:/Projects/OpenSource/xamarin-forms-urho3d-asteroids/Assets/Urho2D/Sprites/asteroids/asteroids.tps</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -28,13 +28,13 @@
             </struct>
         </array>
         <key>allowRotation</key>
-        <false/>
+        <true/>
         <key>shapeDebug</key>
         <false/>
         <key>dpi</key>
         <uint>72</uint>
         <key>dataFormat</key>
-        <string>css-simple</string>
+        <string>sparrow</string>
         <key>textureFileName</key>
         <filename></filename>
         <key>flipPVR</key>
@@ -134,7 +134,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>asteroids.xml</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -171,7 +171,7 @@
             <key>trimMargin</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">None</enum>
+            <enum type="SpriteSettings::TrimMode">Trim</enum>
             <key>tracerTolerance</key>
             <int>200</int>
             <key>heuristicMask</key>
@@ -183,23 +183,53 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">Ship.png</key>
+            <key type="filename">images/asteroid_01.png</key>
+            <key type="filename">images/asteroid_02.png</key>
+            <key type="filename">images/asteroid_03.png</key>
+            <key type="filename">images/asteroid_04.png</key>
+            <key type="filename">images/asteroid_05.png</key>
+            <key type="filename">images/asteroid_06.png</key>
+            <key type="filename">images/asteroid_07.png</key>
+            <key type="filename">images/asteroid_08.png</key>
+            <key type="filename">images/asteroid_09.png</key>
+            <key type="filename">images/asteroid_10.png</key>
+            <key type="filename">images/asteroid_11.png</key>
+            <key type="filename">images/asteroid_12.png</key>
+            <key type="filename">images/asteroid_13.png</key>
+            <key type="filename">images/asteroid_14.png</key>
+            <key type="filename">images/asteroid_15.png</key>
+            <key type="filename">images/asteroid_16.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>32,32,64,64</rect>
+                <rect>128,128,256,256</rect>
                 <key>scale9Paddings</key>
-                <rect>32,32,64,64</rect>
+                <rect>128,128,256,256</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
         </map>
         <key>fileList</key>
         <array>
-            <filename>Ship.png</filename>
+            <filename>images/asteroid_01.png</filename>
+            <filename>images/asteroid_02.png</filename>
+            <filename>images/asteroid_03.png</filename>
+            <filename>images/asteroid_04.png</filename>
+            <filename>images/asteroid_05.png</filename>
+            <filename>images/asteroid_06.png</filename>
+            <filename>images/asteroid_07.png</filename>
+            <filename>images/asteroid_08.png</filename>
+            <filename>images/asteroid_09.png</filename>
+            <filename>images/asteroid_10.png</filename>
+            <filename>images/asteroid_11.png</filename>
+            <filename>images/asteroid_12.png</filename>
+            <filename>images/asteroid_13.png</filename>
+            <filename>images/asteroid_14.png</filename>
+            <filename>images/asteroid_15.png</filename>
+            <filename>images/asteroid_16.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
