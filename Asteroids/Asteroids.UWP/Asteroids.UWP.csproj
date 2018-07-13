@@ -171,6 +171,9 @@
     <Content Include="..\..\Assets\Urho2D\RubePhysics\bullet.json">
       <Link>Data\Urho2D\RubePhysics\bullet.json</Link>
     </Content>
+    <Content Include="..\..\Assets\Urho2D\RubePhysics\asteroids.json">
+      <Link>Data\Urho2D\RubePhysics\asteroids.json</Link>
+    </Content>
     <None Include="Asteroids.UWP_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

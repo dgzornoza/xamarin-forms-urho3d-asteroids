@@ -17,9 +17,9 @@ namespace Asteroids.UrhoGame.Components
 
         
 
-        private Camera _mainCamera;
-        private float _scale = 1.0f;
+        private Camera _mainCamera;        
         private Node _asteroids;
+        
 
         public Asteroid()
         {
@@ -27,15 +27,6 @@ namespace Asteroids.UrhoGame.Components
         }
 
 
-        public float Scale
-        {
-            get => _scale;
-            set
-            {
-                this._scale = value;
-                // setAsBox(60.0f / _scale, 60.0f / _scale);
-            }
-        }
 
         /// <summary>
         /// Property for get camera
@@ -44,41 +35,18 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        public void set(float scale, Vector2 position, float angle)
-        {            
-            //setScale(scale);
-
-            //setAsBox(60 / m_Scale, 60 / m_Scale);
-            //setColors();
-
-            //setPosition(pos.x, pos.y);
-
-            //createBody(scene()->physics()->world(), b2_dynamicBody, 0, 0, 5.0f);
-
-            //applyTorque((float)glm::linearRand(-2000, 2000));
-
-            ////float velocityX = (float)glm::linearRand(-5000, 5000);
-            ////float velocityY = (float)glm::linearRand(-5000, 5000);
-
-            //float velocityX = sin(glm::degrees(angle)) * m_Scale;
-            //float velocityY = cos(glm::degrees(angle)) * m_Scale;
-
-            //body()->ApplyForceToCenter(b2Vec2(velocityX, velocityY), true);
-        }
-
-        public void set(float scale)
-        {
-            //set(scale, getRandomPosition((int)scene()->window()->getWidth(), (int)scene()->window()->getHeight()), (float)glm::linearRand(0, 360));
-        }
 
         protected override void OnUpdate(float timeStep)
         {
-            this.Node.MirrorIfExitScreen(this.Camera);
+            foreach (var node in this._asteroids.Children)
+            {
+                node.MirrorIfExitScreen(this.Camera);
 
-            //if (isColliding<Bullet>())
-            //{
-            //    destroy();
-            //}
+                //if (isColliding<Bullet>())
+                //{
+                //    destroy();
+                //}
+            }
         }
 
 
@@ -103,22 +71,50 @@ namespace Asteroids.UrhoGame.Components
 
         private void _initialize()
         {
+            
+
             // store JObject from rube file for create bullets
-            // if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/asteroids.json");
-            var cache = Application.Current.ResourceCache;
-            SpriteSheet2D sprite = cache.GetSpriteSheet2D("urho2D/Sprites/Asteroids/asteroids.xml");
-            StaticSprite2D staticSprite = this.Node.CreateComponent<StaticSprite2D>();
-            staticSprite.Sprite = sprite.GetSprite("asteroid_01");            
+            if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/asteroids.json");
+
+            // create asteroids node
+            this._asteroids = this.Node.CreateChild("asteroids");
+
+            this._createAsteroid();
         }
 
 
-        private Vector2 _getRandomPosition(int with, int height)
+
+
+        private void _createAsteroid()
         {
             Graphics graphics = this.Application.Graphics;
-            return new Vector2(RandomHelpers.NextRandom(0, graphics.Width), RandomHelpers.NextRandom(0, graphics.Height));
+
+            // Create asteroid physics from rube format
+            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_asteroidsDefinitions, this._asteroids, false, "Urho2D/RubePhysics/");
+            // get asteroids spritesheet
+            var cache = Application.Current.ResourceCache;
+            SpriteSheet2D spriteSheet = cache.GetSpriteSheet2D("urho2D/Sprites/Asteroids/asteroids.xml");
+            // attach physics to sprite
+            string asteroidId = "01"; // RandomHelpers.NextRandom(1, 16).ToString("00");
+            RigidBody2D asteroidBody = b2dJson.GetBodyByName(string.Format(UrhoConfig.RUBE_ASTEROIDS_BODY_NAME, asteroidId));
+            StaticSprite2D asteroidSprite = asteroidBody.Node.CreateComponent<StaticSprite2D>();
+            asteroidSprite.Sprite = spriteSheet.GetSprite(string.Format(UrhoConfig.SPRITE_SHEET_ASTEROIDS_NAME, asteroidId));
+
+
+            // random position
+            Vector3 position = Camera.ScreenToWorldPoint(new Vector3(RandomHelpers.NextRandom(0.0f, 1.0f), RandomHelpers.NextRandom(0.0f, 1.0f), 0.0f));
+            float angle = RandomHelpers.NextRandom(0.0f, 360.0f);
+
+            // configure movement
+            asteroidBody.Node.SetTransform2D(new Vector2(position.X, position.Y), angle);
+
+            asteroidBody.AngularVelocity = RandomHelpers.NextRandom(-1.0f, 1.0f);
+
+            float velocityX = (float)Math.Sin(MathHelper.DegreesToRadians(angle));
+            float velocityY = (float)Math.Cos(MathHelper.DegreesToRadians(angle));
+
+            asteroidBody.SetLinearVelocity(new Vector2(velocityX, velocityY));
         }
-
-
 
 
     }

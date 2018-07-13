@@ -13,34 +13,22 @@
 			[
 				
 				{
-					"name" : "bullet-fixture",
-					"polygon" : 
+					"circle" : 
 					{
-						"vertices" : 
-						{
-							"x" : 
-							[
-								0.06896787881851196,
-								0.06896787881851196,
-								-0.06944900751113892,
-								-0.06944900751113892
-							],
-							"y" : 
-							[
-								-0.01133942790329456,
-								0.01361135113984346,
-								0.01361135113984346,
-								-0.01133942790329456
-							]
-						}
+						"center" : 0,
+						"radius" : 2.251641035079956
 					},
+					"density" : 6.278440952301025,
+					"name" : "asteroid_01-fixture",
 					"sensor" : true
 				}
 			],
 			"linearVelocity" : 0,
-			"name" : "bullet-body",
+			"massData-I" : 253.4943695068359,
+			"massData-mass" : 100.0,
+			"name" : "asteroid_01-body",
 			"position" : 0,
-			"type" : 1
+			"type" : 2
 		}
 	],
 	"collisionbitplanes" : 
@@ -92,21 +80,21 @@
 		
 		{
 			"aspectScale" : 1,
-			"body" : 0,
+			"body" : -1,
 			"center" : 0,
 			"corners" : 
 			{
-				"x" : [ -0.12, 0.12, 0.12, -0.12 ],
-				"y" : [ -0.12, -0.12, 0.12, 0.12 ]
+				"x" : [ -2.56, 2.56, 2.56, -2.56 ],
+				"y" : [ -2.56, -2.56, 2.56, 2.56 ]
 			},
-			"file" : "../Sprites/bullet.png",
+			"file" : "../Sprites/Asteroids/images/asteroid_01.png",
 			"filter" : 1,
 			"glDrawElements" : [ 0, 1, 2, 2, 3, 0 ],
 			"glTexCoordPointer" : [ 0.0, 0.0, 1, 0.0, 1, 1, 0.0, 1 ],
-			"glVertexPointer" : [ -0.12, -0.12, 0.12, -0.12, 0.12, 0.12, -0.12, 0.12 ],
+			"glVertexPointer" : [ -2.56, -2.56, 2.56, -2.56, 2.56, 2.56, -2.56, 2.56 ],
 			"name" : "image0",
-			"opacity" : 1,
-			"scale" : 0.24
+			"opacity" : 0.5,
+			"scale" : 5.12
 		}
 	],
 	"positionIterations" : 3,

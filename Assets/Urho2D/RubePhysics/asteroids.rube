@@ -71,39 +71,32 @@
         [
           
           {
-            "id" : 2,
-            "name" : "bullet-fixture",
+            "density" : 6.278440952301025,
+            "id" : 1,
+            "name" : "asteroid_01-fixture",
+            "sensor" : true,
             "shapes" : 
             [
               
               {
-                "type" : "polygon"
+                "radius" : 2.251641035079956,
+                "type" : "circle"
               }
             ],
             "vertices" : 
             {
-              "x" : 
-              [
-                0.1846920698881149,
-                0.1846920698881149,
-                -0.1983394324779511,
-                -0.1983394324779511
-              ],
-              "y" : 
-              [
-                -0.03524652123451233,
-                0.04271563887596130,
-                0.04271563887596130,
-                -0.03524652123451233
-              ]
+              "x" : [ 0.0 ],
+              "y" : [ 0.0 ]
             }
           }
         ],
         "id" : 1,
         "linearVelocity" : 0,
-        "name" : "bullet-body",
+        "massData-I" : 253.4943695068359,
+        "massData-mass" : 100.0,
+        "name" : "asteroid_01-body",
         "position" : 0,
-        "type" : "kinematic"
+        "type" : "dynamic"
       }
     ],
     "metaimage" : 
@@ -111,15 +104,14 @@
       
       {
         "aspectScale" : 1,
-        "body" : 1,
         "center" : 0,
-        "file" : "../Sprites/bullet.png",
+        "file" : "../Sprites/Asteroids/images/asteroid_01.png",
         "filter" : 1,
         "flip" : false,
         "id" : 1,
         "name" : "image0",
         "opacity" : 0.5,
-        "scale" : 0.64
+        "scale" : 5.12
       }
     ],
     "positionIterations" : 3,

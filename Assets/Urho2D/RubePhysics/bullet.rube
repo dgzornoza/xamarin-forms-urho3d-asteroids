@@ -73,6 +73,7 @@
           {
             "id" : 2,
             "name" : "bullet-fixture",
+            "sensor" : true,
             "shapes" : 
             [
               

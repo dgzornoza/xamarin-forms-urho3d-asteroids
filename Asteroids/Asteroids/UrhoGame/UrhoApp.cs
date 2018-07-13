@@ -56,6 +56,9 @@ namespace Asteroids.UrhoGame
 
 
             this._subscribeToEvents();
+
+            // scena principal
+            this._scene.CreateChild(nameof(Scenes.SpaceArenaScene)).CreateComponent<Scenes.SpaceArenaScene>();
         }
 
 
@@ -74,9 +77,6 @@ namespace Asteroids.UrhoGame
 #if DEBUG
             this._scene.CreateComponent<DebugRenderer>();
 #endif
-
-            // scena principal
-            this._scene.CreateChild(nameof(Scenes.SpaceArenaScene)).CreateComponent<Scenes.SpaceArenaScene>();
         }
 
 
