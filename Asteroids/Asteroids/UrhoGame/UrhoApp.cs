@@ -96,8 +96,8 @@ namespace Asteroids.UrhoGame
             // this._camera.OrthoSize = graphics.Width / (((graphics.Width / graphics.Height) * 2) * 32);
 
             this._camera.OrthoSize = (float)graphics.Height * PixelSize;
-            // set zoom with design resolution for view all sample (zomm (1.0) for view in 3:2 1080X720)
-            this._camera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1080.0f, (float)graphics.Height / 720.0f);
+            // set zoom with design resolution (zomm (1.0) for view in 16:9 1920X1080)
+            this._camera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1920, (float)graphics.Height / 1080);
         }
 
 

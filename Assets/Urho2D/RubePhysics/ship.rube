@@ -43,8 +43,8 @@
     
     {
       "class" : "body",
-      "displayName" : "MaxAngularVelocity",
-      "name" : "_maxAngularVelocity",
+      "displayName" : "Rotation",
+      "name" : "_rotation",
       "type" : "float"
     },
     
@@ -57,15 +57,15 @@
     
     {
       "class" : "body",
-      "displayName" : "Rotation",
-      "name" : "_rotation",
+      "displayName" : "MaxLinearVelocity",
+      "name" : "_maxLinearVelocity",
       "type" : "float"
     },
     
     {
       "class" : "body",
-      "displayName" : "MaxLinearVelocity",
-      "name" : "_maxLinearVelocity",
+      "displayName" : "MaxAngularVelocity",
+      "name" : "_maxAngularVelocity",
       "type" : "float"
     }
   ],
@@ -99,22 +99,22 @@
         [
           
           {
-            "float" : 15.0,
+            "float" : 10,
             "name" : "_acceleration"
           },
           
           {
-            "float" : 5,
+            "float" : 3,
             "name" : "_maxAngularVelocity"
           },
           
           {
-            "float" : 15.0,
+            "float" : 10,
             "name" : "_maxLinearVelocity"
           },
           
           {
-            "float" : 0.3,
+            "float" : 0.2,
             "name" : "_rotation"
           }
         ],
@@ -136,16 +136,16 @@
             {
               "x" : 
               [
-                -0.4739359021186829,
-                0.4579747021198273,
-                -0.4818625152111054,
-                -0.3076674938201904
+                -0.2581450343132019,
+                0.2342572063207626,
+                -0.2581450343132019,
+                -0.1636069864034653
               ],
               "y" : 
               [
-                -0.4020655155181885,
+                -0.2071601152420044,
                 0.0001240372657775879,
-                0.3995888829231262,
+                0.2216317802667618,
                 0.0001281201839447022
               ]
             }
@@ -154,13 +154,13 @@
         "id" : 2,
         "linearDamping" : 0.5,
         "linearVelocity" : 0,
-        "massData-I" : 0.01548182033002377,
+        "massData-I" : 0.001233898103237152,
         "massData-center" : 
         {
-          "x" : -0.1091928258538246,
-          "y" : -0.0007845071377232671
+          "x" : -0.06249827146530151,
+          "y" : 0.004864909686148167
         },
-        "massData-mass" : 0.1932314038276672,
+        "massData-mass" : 0.05370888113975525,
         "name" : "ship-body",
         "position" : 0,
         "type" : "dynamic"
@@ -179,7 +179,7 @@
         "id" : 2,
         "name" : "ship-image",
         "opacity" : 0.5,
-        "scale" : 1.28
+        "scale" : 0.64
       }
     ],
     "positionIterations" : 3,

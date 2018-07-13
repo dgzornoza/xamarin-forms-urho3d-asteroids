@@ -44,10 +44,10 @@ namespace Asteroids.UrhoGame.Components
             this._particleEmitter.Effect.MinRotation = this._particleEmitter.Effect.MaxRotation = -this.Node.WorldRotation2D;
 
             // size particles increment with thrust in Y coodinates (for line effect on lower thruster)
-            float minParticleSize = (velocity * 0.3f) + 0.1f;
-            float maxParticleSize = (velocity * 0.7f) + 0.1f;
-            this._particleEmitter.Effect.MinParticleSize = new Vector2(minParticleSize, this._particleEmitter.Effect.MinParticleSize.Y);
-            this._particleEmitter.Effect.MaxParticleSize = new Vector2(maxParticleSize, this._particleEmitter.Effect.MaxParticleSize.Y);
+            float minParticleSize = (velocity * 0.2f);
+            float maxParticleSize = (velocity * 0.5f);
+            this._particleEmitter.Effect.MinParticleSize = new Vector2(minParticleSize + 0.1f, 0.2f);
+            this._particleEmitter.Effect.MaxParticleSize = new Vector2(maxParticleSize + 0.1f, 0.2f);
         }
 
         private void _initialize()

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with TexturePacker https://www.codeandweb.com/texturepacker -->
-<!-- $TexturePacker:SmartUpdate:69ec0332e4ff86065d0ee72b7e6d8fe3:d0259a046e58bcf3c0646c0abd3d7880:b8997a6ffb68cdb06c44127de0be9d5e$ -->
-<TextureAtlas imagePath="asteroids.png" width="949" height="1386">
-    <SubTexture name="asteroid_01" x="480" y="1" width="468" height="461" frameX="-20" frameY="-26" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_02" x="480" y="464" width="464" height="447" frameX="-26" frameY="-21" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_03" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_04" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_05" x="1" y="1" rotated="true" width="477" height="472" frameX="-20" frameY="-15" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_06" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_07" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_08" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_09" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_10" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_11" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_12" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_13" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_14" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_15" x="1" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
-    <SubTexture name="asteroid_16" x="475" y="913" width="472" height="472" frameX="-20" frameY="-20" frameWidth="512" frameHeight="512"/>
+<!-- $TexturePacker:SmartUpdate:9b4271ddc9ef96aeaab2005e3173102e:3434cb9a03d5fe11214633ca7a993dff:b8997a6ffb68cdb06c44127de0be9d5e$ -->
+<TextureAtlas imagePath="asteroids.png" width="1936" height="1936">
+    <SubTexture name="asteroid_01" x="1" y="1" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_02" x="1" y="485" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_03" x="1" y="969" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_04" x="1" y="1453" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_05" x="485" y="1" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_06" x="969" y="1" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_07" x="1453" y="1" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_08" x="485" y="485" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_09" x="485" y="969" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_10" x="485" y="1453" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_11" x="969" y="485" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_12" x="1453" y="485" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_13" x="969" y="969" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_14" x="969" y="1453" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_15" x="1453" y="969" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
+    <SubTexture name="asteroid_16" x="1453" y="1453" width="482" height="482" frameX="-15" frameY="-15" frameWidth="512" frameHeight="512"/>
 </TextureAtlas>

@@ -212,7 +212,7 @@ namespace Asteroids.UrhoGame.Components
 
             // thruster
             this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}-node").CreateComponent<Thruster>();
-            this._thruster.Node.SetPosition2D(new Vector2(-0.55f, 0.0f));
+            this._thruster.Node.SetPosition2D(new Vector2(-0.25f, 0.0f));
 
             // bullet node
             this._weapon = this.Node.CreateChild($"{nameof(Weapon)}-node").CreateComponent<Weapon>();

@@ -6,7 +6,7 @@
         <key>texturePackerVersion</key>
         <string>4.7.0</string>
         <key>fileName</key>
-        <string>D:/Projects/OpenSource/xamarin-forms-urho3d-asteroids/Assets/Urho2D/Sprites/asteroids/asteroids.tps</string>
+        <string>D:/Projects/OpenSource/xamarin-forms-urho3d-asteroids/Assets/Urho2D/Sprites/Asteroids/asteroids.tps</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">

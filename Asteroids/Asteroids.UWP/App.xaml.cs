@@ -55,6 +55,10 @@ namespace Asteroids.UWP
                 Xamarin.Forms.Forms.Init(e);
                 Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(1080, 720);
                 Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
+                rootFrame.KeyDown += (object sender, KeyRoutedEventArgs eArgs) => 
+                {
+                    if (eArgs.Key == Windows.System.VirtualKey.F11) Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
+                };
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
@@ -75,6 +79,7 @@ namespace Asteroids.UWP
             // Ensure the current window is active
             Window.Current.Activate();
         }
+
 
         /// <summary>
         /// Invoked when Navigation to a certain page fails
