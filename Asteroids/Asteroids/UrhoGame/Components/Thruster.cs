@@ -53,7 +53,7 @@ namespace Asteroids.UrhoGame.Components
         private void _initialize()
         {
             var cache = this.Application.ResourceCache;
-            ParticleEffect particleEffect = cache.GetParticleEffect("Particles/thruster.xml");
+            ParticleEffect particleEffect = cache.GetParticleEffect(UrhoConfig.Assets.Particles.THRUSTER);
             if (particleEffect == null) return;
 
             this._particleEmitter = this.Node.CreateComponent<ParticleEmitter>();

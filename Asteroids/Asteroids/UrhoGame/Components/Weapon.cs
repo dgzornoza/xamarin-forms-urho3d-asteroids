@@ -11,7 +11,7 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 namespace Asteroids.UrhoGame.Components
 {
 
-    public class Weapon : Component
+    public class Weapon : BaseComponent
     {
         private const int BULLET_SPEED = 20;
         private const int BULLET_LIFETIME = 400;
@@ -19,7 +19,6 @@ namespace Asteroids.UrhoGame.Components
         private static JObject _bulletDefinition;
         private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
 
-        private Camera _mainCamera;
         private Node _bullets;
         
 
@@ -33,10 +32,6 @@ namespace Asteroids.UrhoGame.Components
         /// </summary>
         public float RadialDistance { get; set; } = 1.0f;
 
-        /// <summary>
-        /// Property for get camera
-        /// </summary>
-        private Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>());
 
 
 
@@ -48,9 +43,10 @@ namespace Asteroids.UrhoGame.Components
         public void Fire(Vector2 position, float angle)
         {
             // Create bullet from rube format
-            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_bulletDefinition, this._bullets, false, "Urho2D/RubePhysics/");
-            RigidBody2D bulletBody = b2dJson.GetBodyByName(UrhoConfig.RUBE_BULLET_BODY_NAME);
+            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_bulletDefinition, this._bullets, false, UrhoConfig.Assets.Urho2D.RubePhysics.PATH);
+            RigidBody2D bulletBody = b2dJson.GetBodyByName(UrhoConfig.Names.RUBE_BULLET_BODY);
             bulletBody.Node.SetVar(_lifeTimeVarStringHash, "0");
+            bulletBody.Node.NodeCollisionStart += _onNodeCollisionStart;
 
             // get radial position
             Vector2 radialPosition = MathExtensions.DegreeToVector2(angle) * RadialDistance;
@@ -93,24 +89,12 @@ namespace Asteroids.UrhoGame.Components
 
                 node.MirrorIfExitScreen(this.Camera);
 
-                if (lifeTime > BULLET_LIFETIME) node.Remove();
-
-                //if (_lifeTime > BULLET_LIFETIME || isColliding())
-                //{
-                //    if (isColliding<Rock>())
-                //    {
-                //        float scale = getCollider<Rock>()->getScale();
-                //        if (scale < 3)
-                //        {
-                //            scene()->addObject<Rock>()->get()->set(scale + 1, getCollider<Rock>()->getPosition(), body()->GetAngle());
-                //            scene()->addObject<Rock>()->get()->set(scale + 1, getCollider<Rock>()->getPosition(), -body()->GetAngle());
-                //        }
-                //    }
-
-                //    destroy();
-                //}
+                if (lifeTime > BULLET_LIFETIME)
+                {
+                    node.NodeCollisionStart -= _onNodeCollisionStart;
+                    node.Remove();
+                }
             }
-
         }
 
         
@@ -118,18 +102,17 @@ namespace Asteroids.UrhoGame.Components
         private void _initialize()
         {
             // store JObject from rube file for create bullets
-            if (null == _bulletDefinition) _bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/bullet.json");
+            if (null == _bulletDefinition) _bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.BULLET);
 
             // create bullets node
             this._bullets = this.Node.CreateChild("bullets");
         }
 
+        private void _onNodeCollisionStart(NodeCollisionStartEventArgs obj)
+        {
+            int a = 5;
+            int b = a / 5;
+        }
 
-
-
-
-
-
-        
     }
 }

@@ -7,7 +7,7 @@
 		
 		{
 			"angle" : 0,
-			"angularDamping" : 1.5,
+			"angularDamping" : 3,
 			"angularVelocity" : 0,
 			"awake" : true,
 			"customProperties" : 
@@ -29,7 +29,7 @@
 				},
 				
 				{
-					"float" : 0.2,
+					"float" : 0.15,
 					"name" : "_rotation"
 				}
 			],

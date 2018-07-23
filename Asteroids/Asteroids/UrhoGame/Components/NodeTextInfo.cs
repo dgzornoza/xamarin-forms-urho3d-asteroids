@@ -70,7 +70,7 @@ namespace Asteroids.UrhoGame.Components
             // text for show node info
             this._textElement = new Text();
             this._textElement.SetColor(Color.White);
-            _textElement.SetFont(this.Application.ResourceCache.GetFont("Fonts/Anonymous Pro.ttf"), 15);
+            _textElement.SetFont(this.Application.ResourceCache.GetFont(UrhoConfig.Assets.Fonts.FONT), 15);
 
             // add to ui layout
             this.Application.UI.Root.AddChild(_textElement);

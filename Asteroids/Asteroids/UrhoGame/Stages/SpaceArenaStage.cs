@@ -5,11 +5,11 @@ using System.Text;
 using Urho;
 using Urho.Urho2D;
 
-namespace Asteroids.UrhoGame.Scenes
+namespace Asteroids.UrhoGame.Stages
 {
-    public class SpaceArenaScene : Component
+    public class SpaceArenaStage : Component
     {
-        public SpaceArenaScene() { }
+        public SpaceArenaStage() { }
 
         public override void OnSceneSet(Scene scene)
         {            

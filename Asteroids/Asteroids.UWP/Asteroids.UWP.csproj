@@ -178,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\Scenes\" />
+    <Folder Include="Data\Sounds\" />
     <Folder Include="Data\Urho2D\Particles\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

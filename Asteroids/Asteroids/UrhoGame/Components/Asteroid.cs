@@ -10,28 +10,21 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.UrhoGame.Components
 {
-    public class Asteroid : Component
+    public class Asteroid : BaseComponent
     {
         private static JObject _asteroidsDefinitions;
         // private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
 
         
 
-        private Camera _mainCamera;        
+            
         private Node _asteroids;
         
 
         public Asteroid()
         {
-            this.ReceiveSceneUpdates = true;
+            this.ReceiveSceneUpdates = true;            
         }
-
-
-
-        /// <summary>
-        /// Property for get camera
-        /// </summary>
-        private Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>());
 
 
 
@@ -41,11 +34,6 @@ namespace Asteroids.UrhoGame.Components
             foreach (var node in this._asteroids.Children)
             {
                 node.MirrorIfExitScreen(this.Camera);
-
-                //if (isColliding<Bullet>())
-                //{
-                //    destroy();
-                //}
             }
         }
 
@@ -71,10 +59,8 @@ namespace Asteroids.UrhoGame.Components
 
         private void _initialize()
         {
-            
-
             // store JObject from rube file for create bullets
-            if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile("Urho2D/RubePhysics/asteroids.json");
+            if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.ASTEROIDS);
 
             // create asteroids node
             this._asteroids = this.Node.CreateChild("asteroids");
@@ -90,16 +76,17 @@ namespace Asteroids.UrhoGame.Components
             Graphics graphics = this.Application.Graphics;
 
             // Create asteroid physics from rube format
-            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_asteroidsDefinitions, this._asteroids, false, "Urho2D/RubePhysics/");
+            B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_asteroidsDefinitions, this._asteroids, false, UrhoConfig.Assets.Urho2D.RubePhysics.PATH);
             // get asteroids spritesheet
             var cache = Application.Current.ResourceCache;
-            SpriteSheet2D spriteSheet = cache.GetSpriteSheet2D("urho2D/Sprites/Asteroids/asteroids.xml");
+            SpriteSheet2D spriteSheet = cache.GetSpriteSheet2D(UrhoConfig.Assets.Urho2D.Sprites.ASTEROIDS_SHEET);
             // attach physics to sprite
             string asteroidId = "01"; // RandomHelpers.NextRandom(1, 16).ToString("00");
-            RigidBody2D asteroidBody = b2dJson.GetBodyByName(string.Format(UrhoConfig.RUBE_ASTEROIDS_BODY_NAME, asteroidId));
+            RigidBody2D asteroidBody = b2dJson.GetBodyByName(string.Format(UrhoConfig.Names.RUBE_ASTEROIDS_BODY, asteroidId));
             StaticSprite2D asteroidSprite = asteroidBody.Node.CreateComponent<StaticSprite2D>();
-            asteroidSprite.Sprite = spriteSheet.GetSprite(string.Format(UrhoConfig.SPRITE_SHEET_ASTEROIDS_NAME, asteroidId));
-
+            asteroidSprite.Sprite = spriteSheet.GetSprite(string.Format(UrhoConfig.Names.SPRITE_SHEET_ASTEROIDS, asteroidId));
+            
+            asteroidBody.Node.NodeCollisionStart += _onNodeCollisionStart;
 
             // random position
             Vector3 position = Camera.ScreenToWorldPoint(new Vector3(RandomHelpers.NextRandom(0.0f, 1.0f), RandomHelpers.NextRandom(0.0f, 1.0f), 0.0f));
@@ -116,6 +103,14 @@ namespace Asteroids.UrhoGame.Components
             asteroidBody.SetLinearVelocity(new Vector2(velocityX, velocityY));
         }
 
-
+        private void _onNodeCollisionStart(NodeCollisionStartEventArgs obj)
+        {
+            int a = 5;
+            int b = a / 5;
+            //var bulletNode = args.OtherNode;
+            //if (IsAlive && bulletNode.Name != null && bulletNode.Name.StartsWith(nameof(Weapon)) && args.Body.Node == Node)
+            //{
+            //}
+        }
     }
 }

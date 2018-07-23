@@ -9,6 +9,8 @@ using XamarinForms.Toolkit.Helpers;
 
 namespace Asteroids.UrhoGame
 {
+
+
     public class UrhoApp : Application
     {
 #if DEBUG
@@ -16,7 +18,7 @@ namespace Asteroids.UrhoGame
 #endif
 
         private Scene _scene;
-        private Camera _camera;
+        private Camera _mainCamera;
 
         private bool _drawDebug = true;
 
@@ -57,8 +59,8 @@ namespace Asteroids.UrhoGame
 
             this._subscribeToEvents();
 
-            // scena principal
-            this._scene.CreateChild(nameof(Scenes.SpaceArenaScene)).CreateComponent<Scenes.SpaceArenaScene>();
+            // pantalla principal
+            this._scene.CreateChild(nameof(Stages.SpaceArenaStage)).CreateComponent<Stages.SpaceArenaStage>();
         }
 
 
@@ -72,7 +74,7 @@ namespace Asteroids.UrhoGame
         private void _createScene()
         {
             // create scene
-            this._scene = new Scene();
+            this._scene = new Scene();            
             this._scene.CreateComponent<Octree>();
 #if DEBUG
             this._scene.CreateComponent<DebugRenderer>();
@@ -83,10 +85,10 @@ namespace Asteroids.UrhoGame
         private void _createCamera()
         {
             // Create camera
-            Node CameraNode = _scene.CreateChild(UrhoConfig.MAIN_CAMERA_NODE_NAME);
+            Node CameraNode = _scene.CreateChild(UrhoConfig.Names.MAIN_CAMERA_NODE);
             CameraNode.Position = (new Vector3(0.0f, 0.0f, -0.10f));
-            this._camera = CameraNode.CreateComponent<Camera>();
-            this._camera.Orthographic = true;
+            this._mainCamera = CameraNode.CreateComponent<Camera>();
+            this._mainCamera.Orthographic = true;
 
             var graphics = Graphics;
             // x = Screen Width (px)
@@ -95,9 +97,9 @@ namespace Asteroids.UrhoGame
             // Camera Size = x / ((( x / y ) * 2 ) * s ) = 10 sprites de 's'
             // this._camera.OrthoSize = graphics.Width / (((graphics.Width / graphics.Height) * 2) * 32);
 
-            this._camera.OrthoSize = (float)graphics.Height * PixelSize;
+            this._mainCamera.OrthoSize = (float)graphics.Height * PixelSize;
             // set zoom with design resolution (zomm (1.0) for view in 16:9 1920X1080)
-            this._camera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1920, (float)graphics.Height / 1080);
+            this._mainCamera.Zoom = 1.0f * Math.Min((float)graphics.Width / 1920, (float)graphics.Height / 1080);
         }
 
 
@@ -105,7 +107,7 @@ namespace Asteroids.UrhoGame
 
         private void _setupViewport()
         {
-            Viewport viewport = new Viewport(Context, this._scene, this._camera, null);
+            Viewport viewport = new Viewport(Context, this._scene, this._mainCamera, null);
             var renderer = Renderer;
 
             renderer.SetViewport(0, viewport);

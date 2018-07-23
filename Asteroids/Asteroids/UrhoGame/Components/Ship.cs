@@ -11,7 +11,7 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.UrhoGame.Components
 {
-    public class Ship : Component
+    public class Ship : BaseComponent
     {
         private const int FIRE_DELAY = 100;
         private const int START_DELAY = 400;
@@ -19,7 +19,6 @@ namespace Asteroids.UrhoGame.Components
         private const int THUMP_DELAY = 65;
 
 
-        Camera _mainCamera;
         Node _shipNode;
         RigidBody2D _shipBody;
 
@@ -58,11 +57,6 @@ namespace Asteroids.UrhoGame.Components
 
             this.ReceiveSceneUpdates = true;
         }
-
-        /// <summary>
-        /// Property for get camera
-        /// </summary>
-        private Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.MAIN_CAMERA_NODE_NAME).GetComponent<Camera>());
 
 
 
@@ -121,12 +115,6 @@ namespace Asteroids.UrhoGame.Components
                     _isBlinking = false;
                 }
             }
-
-
-            //if (!_isBlinking && isColliding())
-            //{
-            //    _reset();
-            //}
 
             this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
         }
@@ -200,9 +188,9 @@ namespace Asteroids.UrhoGame.Components
         private void _initialize()
         {
             // create from rube json format
-            B2dJson b2dJson = LoaderHelpers.LoadRubeJson("Urho2D/RubePhysics/ship.json", this.Node, false);
+            B2dJson b2dJson = LoaderHelpers.LoadRubeJson(UrhoConfig.Assets.Urho2D.RubePhysics.SHIP, this.Node, false);
             
-            this._shipBody = b2dJson.GetBodyByName(UrhoConfig.RUBE_SHIP_BODY_NAME);
+            this._shipBody = b2dJson.GetBodyByName(UrhoConfig.Names.RUBE_SHIP_BODY);
             this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
             this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
             this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));

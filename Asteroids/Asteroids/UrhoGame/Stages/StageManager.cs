@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using Urho;
 
-namespace Asteroids.UrhoGame.Components
+namespace Asteroids.UrhoGame.Stages
 {
-    public class SceneManager : Component
+    public class StageManager : Component
     {
-        public SceneManager() { }
+        public StageManager() { }
 
         public override void OnSceneSet(Scene scene)
         {            
