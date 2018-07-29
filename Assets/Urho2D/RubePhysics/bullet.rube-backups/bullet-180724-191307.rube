@@ -38,37 +38,6 @@
       "bitplane32"
     ]
   },
-  "customPropertyDefs" : 
-  [
-    
-    {
-      "class" : "body",
-      "displayName" : "MaxAngularVelocity",
-      "name" : "_maxAngularVelocity",
-      "type" : "float"
-    },
-    
-    {
-      "class" : "body",
-      "displayName" : "MaxLinearVelocity",
-      "name" : "_maxLinearVelocity",
-      "type" : "float"
-    },
-    
-    {
-      "class" : "body",
-      "displayName" : "Acceleration",
-      "name" : "_acceleration",
-      "type" : "float"
-    },
-    
-    {
-      "class" : "body",
-      "displayName" : "Rotation",
-      "name" : "_rotation",
-      "type" : "float"
-    }
-  ],
   "metaworld" : 
   {
     "allowSleep" : true,
@@ -86,47 +55,27 @@
       "useHumanReadableFloats" : true,
       "usePrettyPrint" : true
     },
-    "gravity" : 0,
+    "gravity" : 
+    {
+      "x" : 0,
+      "y" : -10
+    },
     "metabody" : 
     [
       
       {
         "angle" : 0,
-        "angularDamping" : 3,
         "angularVelocity" : 0,
         "awake" : true,
-        "customProperties" : 
-        [
-          
-          {
-            "float" : 8,
-            "name" : "_acceleration"
-          },
-          
-          {
-            "float" : 4,
-            "name" : "_maxAngularVelocity"
-          },
-          
-          {
-            "float" : 8,
-            "name" : "_maxLinearVelocity"
-          },
-          
-          {
-            "float" : 0.15,
-            "name" : "_rotation"
-          }
-        ],
         "fixture" : 
         [
           
           {
-            "density" : 0.6296434402465820,
-            "filter-categoryBits" : 2,
+            "filter-categoryBits" : 4,
             "filter-maskBits" : 65529,
-            "id" : 1,
-            "name" : "ship-fixture",
+            "id" : 2,
+            "name" : "bullet-fixture",
+            "sensor" : true,
             "shapes" : 
             [
               
@@ -138,34 +87,26 @@
             {
               "x" : 
               [
-                -0.2581450343132019,
-                0.2342572063207626,
-                -0.2581450343132019,
-                -0.1636069864034653
+                0.06896787881851196,
+                0.06896787881851196,
+                -0.06944900751113892,
+                -0.06944900751113892
               ],
               "y" : 
               [
-                -0.2071601152420044,
-                0.0001240372657775879,
-                0.2216317802667618,
-                0.0001281201839447022
+                -0.01133942790329456,
+                0.01361135113984346,
+                0.01361135113984346,
+                -0.01133942790329456
               ]
             }
           }
         ],
-        "id" : 2,
-        "linearDamping" : 0.5,
+        "id" : 1,
         "linearVelocity" : 0,
-        "massData-I" : 0.001233898103237152,
-        "massData-center" : 
-        {
-          "x" : -0.06249827146530151,
-          "y" : 0.004864909686148167
-        },
-        "massData-mass" : 0.05370888113975525,
-        "name" : "ship",
+        "name" : "bullet-body",
         "position" : 0,
-        "type" : "dynamic"
+        "type" : "kinematic"
       }
     ],
     "metaimage" : 
@@ -173,15 +114,15 @@
       
       {
         "aspectScale" : 1,
-        "body" : 2,
+        "body" : 1,
         "center" : 0,
-        "file" : "../Sprites/ship.png",
+        "file" : "../Sprites/bullet.png",
         "filter" : 1,
         "flip" : false,
-        "id" : 2,
-        "name" : "ship-image",
-        "opacity" : 0.5,
-        "scale" : 0.64
+        "id" : 1,
+        "name" : "image0",
+        "opacity" : 1,
+        "scale" : 0.24
       }
     ],
     "positionIterations" : 3,

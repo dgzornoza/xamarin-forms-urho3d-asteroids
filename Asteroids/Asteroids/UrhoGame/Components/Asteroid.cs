@@ -2,14 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Urho;
+using System.Linq;
 using Urho.Urho2D;
 using XamarinForms.Toolkit.Helpers;
 using XamarinForms.Toolkit.Urho3D;
 using XamarinForms.Toolkit.Urho3D.Rube;
+using XamarinForms.Toolkit.Urho3D.Helpers;
 
 namespace Asteroids.UrhoGame.Components
 {
+
+
+    /// <summary>
+    /// Component for game Asteroids
+    /// </summary>
     public class Asteroid : BaseComponent
     {
         private static JObject _asteroidsDefinitions;
@@ -28,18 +36,6 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-
-        protected override void OnUpdate(float timeStep)
-        {
-            foreach (var node in this._asteroids.Children)
-            {
-                node.MirrorIfExitScreen(this.Camera);
-            }
-        }
-
-
-
-
         public override void OnSceneSet(Scene scene)
         {
             base.OnSceneSet(scene);
@@ -52,7 +48,16 @@ namespace Asteroids.UrhoGame.Components
             // dettach from scene
             else
             {
+                _destroy();
+            }
+        }
 
+
+        protected override void OnUpdate(float timeStep)
+        {
+            foreach (var node in this._asteroids.Children)
+            {
+                node.MirrorIfExitScreen(this.Camera);
             }
         }
 
@@ -62,10 +67,18 @@ namespace Asteroids.UrhoGame.Components
             // store JObject from rube file for create bullets
             if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.ASTEROIDS);
 
-            // create asteroids node
+            // create asteroids node and asteroid
             this._asteroids = this.Node.CreateChild("asteroids");
-
             this._createAsteroid();
+
+            // attach physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
+        }
+
+        private void _destroy()
+        {
+            // remove physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
         }
 
 
@@ -86,15 +99,12 @@ namespace Asteroids.UrhoGame.Components
             StaticSprite2D asteroidSprite = asteroidBody.Node.CreateComponent<StaticSprite2D>();
             asteroidSprite.Sprite = spriteSheet.GetSprite(string.Format(UrhoConfig.Names.SPRITE_SHEET_ASTEROIDS, asteroidId));
             
-            asteroidBody.Node.NodeCollisionStart += _onNodeCollisionStart;
-
             // random position
             Vector3 position = Camera.ScreenToWorldPoint(new Vector3(RandomHelpers.NextRandom(0.0f, 1.0f), RandomHelpers.NextRandom(0.0f, 1.0f), 0.0f));
             float angle = RandomHelpers.NextRandom(0.0f, 360.0f);
 
             // configure movement
             asteroidBody.Node.SetTransform2D(new Vector2(position.X, position.Y), angle);
-
             asteroidBody.AngularVelocity = RandomHelpers.NextRandom(-1.0f, 1.0f);
 
             float velocityX = (float)Math.Sin(MathHelper.DegreesToRadians(angle));
@@ -103,11 +113,18 @@ namespace Asteroids.UrhoGame.Components
             asteroidBody.SetLinearVelocity(new Vector2(velocityX, velocityY));
         }
 
-        private void _onNodeCollisionStart(NodeCollisionStartEventArgs obj)
+
+        private void _onPhysicsBeginContact(PhysicsBeginContact2DEventArgs args)
         {
-            int a = 5;
-            int b = a / 5;
-            //var bulletNode = args.OtherNode;
+            Node otherObject;
+            Node asteroid = this._asteroids.Children.FirstOrDefault(item => item == args.NodeA);
+            if (null != asteroid) otherObject = args.NodeB;
+            asteroid = this._asteroids.Children.FirstOrDefault(item => item == args.NodeB);
+            if (null != asteroid) otherObject = args.NodeA;
+
+            bool isAsteroidNodeA = UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(args.NodeA.Name);
+            bool isAsteroidNodeB = UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(args.NodeB.Name);
+            
             //if (IsAlive && bulletNode.Name != null && bulletNode.Name.StartsWith(nameof(Weapon)) && args.Body.Node == Node)
             //{
             //}

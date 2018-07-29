@@ -6,11 +6,16 @@ using System.Text;
 using Urho;
 using Urho.Urho2D;
 using XamarinForms.Toolkit.Urho3D;
+using XamarinForms.Toolkit.Urho3D.Helpers;
 using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.UrhoGame.Components
 {
 
+
+    /// <summary>
+    /// Component for game Weapon
+    /// </summary>
     public class Weapon : BaseComponent
     {
         private const int BULLET_SPEED = 20;
@@ -27,13 +32,11 @@ namespace Asteroids.UrhoGame.Components
             this.ReceiveSceneUpdates = true;
         }
 
+
         /// <summary>
         /// Radial distance multiplier for adjust distance from fire position center
         /// </summary>
         public float RadialDistance { get; set; } = 1.0f;
-
-
-
 
         /// <summary>
         /// Function for fire bullet
@@ -49,7 +52,7 @@ namespace Asteroids.UrhoGame.Components
             bulletBody.Node.NodeCollisionStart += _onNodeCollisionStart;
 
             // get radial position
-            Vector2 radialPosition = MathExtensions.DegreeToVector2(angle) * RadialDistance;
+            Vector2 radialPosition = MathHelpers.DegreeToVector2(angle) * RadialDistance;
 
             // set bullet position
             position.X += radialPosition.X;

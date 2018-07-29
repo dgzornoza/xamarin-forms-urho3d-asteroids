@@ -7,16 +7,22 @@ using Urho.Gui;
 using Urho.Physics;
 using Urho.Urho2D;
 using XamarinForms.Toolkit.Urho3D;
+using XamarinForms.Toolkit.Urho3D.Helpers;
 using XamarinForms.Toolkit.Urho3D.Rube;
 
 namespace Asteroids.UrhoGame.Components
 {
+
+
+
+
+    /// <summary>
+    /// Component for game Ship
+    /// </summary>
     public class Ship : BaseComponent
     {
         private const int FIRE_DELAY = 100;
-        private const int START_DELAY = 400;
         private const int BLINK_DELAY = 25;
-        private const int THUMP_DELAY = 65;
 
 
         Node _shipNode;
@@ -31,33 +37,22 @@ namespace Asteroids.UrhoGame.Components
         private float _rotation;
         private float _maxAngularVelocity;
 
-
         private int _fireDelay;
         private int _blinkDelay;
-        private int _blinkTime;
-        private bool _isBlinking;
-        private int _lives;
-        private int _thumpTime;
-        private bool _thumpSwitch;
-
-        private bool _thrustSwitch;
 
 
         public Ship()
         {
             _fireDelay = 0;
             _blinkDelay = 0;
-            _blinkTime = 0;            
-            _isBlinking = true;
-            _lives = 3;
-            _thumpTime = 0;
-            _thumpSwitch = true;
-            
-            _thrustSwitch = false;
 
             this.ReceiveSceneUpdates = true;
         }
 
+        /// <summary>
+        /// Event called on ship destroy
+        /// </summary>
+        public event EventHandler OnShipDestroy;
 
 
         public override void OnSceneSet(Scene scene)
@@ -74,9 +69,12 @@ namespace Asteroids.UrhoGame.Components
             // dettach from scene
             else
             {
+                _destroy();
             }
-            
+
         }
+
+
 
 
 
@@ -86,39 +84,44 @@ namespace Asteroids.UrhoGame.Components
 
             if (null == this._shipNode) return;
 
-            if (_thumpTime >= (THUMP_DELAY + (_lives * 15)))
-            {
-                _thumpSwitch = !_thumpSwitch;
-                _thumpTime = 0;
-            }
-
-            _thumpTime++;
-
             this._handleInput();
 
             this._shipBody.Node.MirrorIfExitScreen(this.Camera);
 
             // update delays
             if (_fireDelay > 0) _fireDelay--;
-
             if (_blinkDelay > 0) _blinkDelay--;
-
-            if (_blinkDelay == 0 && _blinkTime < START_DELAY)
-            {
-                _blinkTime += BLINK_DELAY;
-                _blinkDelay = BLINK_DELAY;
-                Enabled = !Enabled;
-
-                if (_blinkTime >= START_DELAY)
-                {
-                    Enabled = true;
-                    _isBlinking = false;
-                }
-            }
-
+            
             this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
         }
 
+
+        private void _destroy()
+        {
+            // remove physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
+        }
+
+        private void _initialize()
+        {
+            // create from rube json format
+            B2dJson b2dJson = LoaderHelpers.LoadRubeJson(UrhoConfig.Assets.Urho2D.RubePhysics.SHIP, this.Node, false);
+
+            this._shipBody = b2dJson.GetBodyByName(UrhoConfig.Names.RUBE_SHIP_BODY);
+            this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
+            this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
+            this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
+            this._maxAngularVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxAngularVelocity));
+
+            this._shipNode = this._shipBody.Node;
+
+            // thruster
+            this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}").CreateComponent<Thruster>();
+            this._thruster.Node.SetPosition2D(new Vector2(-0.25f, 0.0f));
+
+            // bullet node
+            this._weapon = this.Node.CreateChild($"{nameof(Weapon)}").CreateComponent<Weapon>();
+        }
 
 
         private void _handleInput()
@@ -130,6 +133,7 @@ namespace Asteroids.UrhoGame.Components
             // forward
             if (input.GetKeyDown(Key.W))
             {
+
                 float velocityY = (this._shipBody.LinearVelocity.X > this._maxLinearVelocity || this._shipBody.LinearVelocity.X < -this._maxLinearVelocity) ?
                     0 : this._shipBody.Mass * this._acceleration * (float)System.Math.Sin(Urho.MathHelper.DegreesToRadians(this._shipBody.Node.Rotation2D));
                 float velocityX = (this._shipBody.LinearVelocity.Y > this._maxLinearVelocity || this._shipBody.LinearVelocity.Y < -this._maxLinearVelocity) ?
@@ -138,7 +142,7 @@ namespace Asteroids.UrhoGame.Components
                 if (0f != velocityX || 0f != velocityY) this._shipBody.ApplyForceToCenter(new Vector2(velocityX, velocityY), true);
             }
 
-            
+
             // Rotate CCW (left)
             if (input.GetKeyDown(Key.A) && this._shipBody.AngularVelocity < this._maxAngularVelocity)
             {
@@ -149,7 +153,7 @@ namespace Asteroids.UrhoGame.Components
             // Rotate CW (right)
             if (input.GetKeyDown(Key.D) && this._shipBody.AngularVelocity > -this._maxAngularVelocity)
             {
-                this._shipBody.ApplyTorque(-this._rotation, true);                
+                this._shipBody.ApplyTorque(-this._rotation, true);
             }
 
             // Fire Bullet
@@ -157,7 +161,7 @@ namespace Asteroids.UrhoGame.Components
             {
                 if (_fireDelay == 0)
                 {
-                    _fireDelay = FIRE_DELAY;                    
+                    _fireDelay = FIRE_DELAY;
                     this._weapon.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
                 }
             }
@@ -166,44 +170,25 @@ namespace Asteroids.UrhoGame.Components
 
         private void _reset()
         {
-            if (_lives <= 1)
-            {
-                this.Remove();
-            }
-            else
-            {
-                _lives--;
-                _blinkDelay = 0;
-                _blinkTime = 0;
-                this.Enabled = false;
-                // setVisible(false);
-                _isBlinking = true;
+            _blinkDelay = BLINK_DELAY;
+            this.Enabled = false;
+            // setVisible(false);
 
-                //body()->SetTransform(b2Vec2(((scene()->window()->getCenter().x - 10) / Physics::Scale), ((scene()->window()->getCenter().y - 10) / Physics::Scale)), 0);
-                //body()->SetLinearVelocity(b2Vec2_zero);
-                //body()->SetAngularVelocity(0);
-            }
+            //body()->SetTransform(b2Vec2(((scene()->window()->getCenter().x - 10) / Physics::Scale), ((scene()->window()->getCenter().y - 10) / Physics::Scale)), 0);
+            //body()->SetLinearVelocity(b2Vec2_zero);
+            //body()->SetAngularVelocity(0);
         }
 
-        private void _initialize()
+        private void _onPhysicsBeginContact(PhysicsBeginContact2DEventArgs args)
         {
-            // create from rube json format
-            B2dJson b2dJson = LoaderHelpers.LoadRubeJson(UrhoConfig.Assets.Urho2D.RubePhysics.SHIP, this.Node, false);
-            
-            this._shipBody = b2dJson.GetBodyByName(UrhoConfig.Names.RUBE_SHIP_BODY);
-            this._acceleration = b2dJson.GetCustomFloat(this._shipBody, nameof(_acceleration));
-            this._maxLinearVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxLinearVelocity));
-            this._rotation = b2dJson.GetCustomFloat(this._shipBody, nameof(_rotation));
-            this._maxAngularVelocity = b2dJson.GetCustomFloat(this._shipBody, nameof(_maxAngularVelocity));
+            Node otherObject = args.GetOther(this._shipNode);
+            if (null == otherObject) return;
 
-            this._shipNode = this._shipBody.Node;
-
-            // thruster
-            this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}-node").CreateComponent<Thruster>();
-            this._thruster.Node.SetPosition2D(new Vector2(-0.25f, 0.0f));
-
-            // bullet node
-            this._weapon = this.Node.CreateChild($"{nameof(Weapon)}-node").CreateComponent<Weapon>();
+            // Asteroid
+            if (UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(otherObject.Name))
+            {
+                OnShipDestroy?.Invoke(this, null);
+            }
         }
 
     }

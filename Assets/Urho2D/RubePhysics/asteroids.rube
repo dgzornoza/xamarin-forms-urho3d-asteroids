@@ -4,9 +4,9 @@
   {
     "names" : 
     [
-      "bitplane1",
-      "bitplane2",
-      "bitplane3",
+      "Asteroids",
+      "Ship",
+      "Bullet",
       "bitplane4",
       "bitplane5",
       "bitplane6",
@@ -72,6 +72,7 @@
           
           {
             "density" : 6.278440952301025,
+            "filter-maskBits" : 65534,
             "id" : 1,
             "name" : "asteroid_01-fixture",
             "sensor" : true,
@@ -94,7 +95,7 @@
         "linearVelocity" : 0,
         "massData-I" : 253.4943695068359,
         "massData-mass" : 100.0,
-        "name" : "asteroid_01-body",
+        "name" : "asteroid_01",
         "position" : 0,
         "type" : "dynamic"
       }

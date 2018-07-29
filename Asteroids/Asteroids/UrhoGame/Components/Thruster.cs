@@ -7,28 +7,19 @@ using XamarinForms.Toolkit.Urho3D;
 
 namespace Asteroids.UrhoGame.Components
 {
+
+
+
+
+    /// <summary>
+    /// Component for game Thuster
+    /// </summary>
     public class Thruster : Component
     {
         private ParticleEmitter _particleEmitter;        
 
         public Thruster()
         {
-        }
-
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._initialize();
-            }
-            // dettach from scene
-            else
-            {
-
-            }
         }
 
         /// <summary>
@@ -49,6 +40,26 @@ namespace Asteroids.UrhoGame.Components
             this._particleEmitter.Effect.MinParticleSize = new Vector2(minParticleSize + 0.1f, 0.2f);
             this._particleEmitter.Effect.MaxParticleSize = new Vector2(maxParticleSize + 0.1f, 0.2f);
         }
+
+
+
+        public override void OnSceneSet(Scene scene)
+        {
+            base.OnSceneSet(scene);
+
+            // attach to scene
+            if (null != scene)
+            {
+                this._initialize();
+            }
+            // dettach from scene
+            else
+            {
+
+            }
+        }
+
+
 
         private void _initialize()
         {

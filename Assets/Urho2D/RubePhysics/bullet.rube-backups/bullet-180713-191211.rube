@@ -4,9 +4,9 @@
   {
     "names" : 
     [
-      "Asteroids",
-      "Ship",
-      "Bullet",
+      "bitplane1",
+      "bitplane2",
+      "bitplane3",
       "bitplane4",
       "bitplane5",
       "bitplane6",
@@ -71,8 +71,6 @@
         [
           
           {
-            "filter-categoryBits" : 4,
-            "filter-maskBits" : 65529,
             "id" : 2,
             "name" : "bullet-fixture",
             "sensor" : true,
@@ -104,7 +102,7 @@
         ],
         "id" : 1,
         "linearVelocity" : 0,
-        "name" : "bullet",
+        "name" : "bullet-body",
         "position" : 0,
         "type" : "kinematic"
       }

@@ -13,6 +13,8 @@
 			[
 				
 				{
+					"filter-categoryBits" : 4,
+					"filter-maskBits" : 65529,
 					"name" : "bullet-fixture",
 					"polygon" : 
 					{
@@ -38,7 +40,7 @@
 				}
 			],
 			"linearVelocity" : 0,
-			"name" : "bullet-body",
+			"name" : "bullet",
 			"position" : 0,
 			"type" : 1
 		}
@@ -47,9 +49,9 @@
 	{
 		"names" : 
 		[
-			"bitplane1",
-			"bitplane2",
-			"bitplane3",
+			"Asteroids",
+			"Ship",
+			"Bullet",
 			"bitplane4",
 			"bitplane5",
 			"bitplane6",

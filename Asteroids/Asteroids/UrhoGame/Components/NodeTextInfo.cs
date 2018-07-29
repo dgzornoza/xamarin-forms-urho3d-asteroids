@@ -8,6 +8,9 @@ using Urho.Urho2D;
 
 namespace Asteroids.UrhoGame.Components
 {
+    /// <summary>
+    /// Component for show text with node info for debug purposes.
+    /// </summary>
     public class NodeTextInfo : Component
     {
         private Text _textElement;
@@ -36,12 +39,18 @@ namespace Asteroids.UrhoGame.Components
             }
         }
 
+        /// <summary>
+        /// Set text horizontal alignment
+        /// </summary>
         public HorizontalAlignment HorizontalTextAlignment
         {
             get => this._textElement.HorizontalAlignment;
             set => this._textElement.HorizontalAlignment = value;
         }
 
+        /// <summary>
+        /// Property for set text vertical alignment
+        /// </summary>
         public VerticalAlignment VerticalTextAlignment
         {
             get => this._textElement.VerticalAlignment;

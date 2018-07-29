@@ -4,9 +4,9 @@
   {
     "names" : 
     [
-      "Asteroids",
-      "Ship",
-      "Bullet",
+      "bitplane1",
+      "bitplane2",
+      "bitplane3",
       "bitplane4",
       "bitplane5",
       "bitplane6",
@@ -71,42 +71,32 @@
         [
           
           {
-            "filter-categoryBits" : 4,
-            "filter-maskBits" : 65529,
-            "id" : 2,
-            "name" : "bullet-fixture",
+            "density" : 6.278440952301025,
+            "id" : 1,
+            "name" : "asteroid_01-fixture",
             "sensor" : true,
             "shapes" : 
             [
               
               {
-                "type" : "polygon"
+                "radius" : 2.251641035079956,
+                "type" : "circle"
               }
             ],
             "vertices" : 
             {
-              "x" : 
-              [
-                0.06896787881851196,
-                0.06896787881851196,
-                -0.06944900751113892,
-                -0.06944900751113892
-              ],
-              "y" : 
-              [
-                -0.01133942790329456,
-                0.01361135113984346,
-                0.01361135113984346,
-                -0.01133942790329456
-              ]
+              "x" : [ 0.0 ],
+              "y" : [ 0.0 ]
             }
           }
         ],
         "id" : 1,
         "linearVelocity" : 0,
-        "name" : "bullet",
+        "massData-I" : 253.4943695068359,
+        "massData-mass" : 100.0,
+        "name" : "asteroid_01-body",
         "position" : 0,
-        "type" : "kinematic"
+        "type" : "dynamic"
       }
     ],
     "metaimage" : 
@@ -114,15 +104,14 @@
       
       {
         "aspectScale" : 1,
-        "body" : 1,
         "center" : 0,
-        "file" : "../Sprites/bullet.png",
+        "file" : "../Sprites/Asteroids/images/asteroid_01.png",
         "filter" : 1,
         "flip" : false,
         "id" : 1,
         "name" : "image0",
-        "opacity" : 1,
-        "scale" : 0.24
+        "opacity" : 0.5,
+        "scale" : 5.12
       }
     ],
     "positionIterations" : 3,

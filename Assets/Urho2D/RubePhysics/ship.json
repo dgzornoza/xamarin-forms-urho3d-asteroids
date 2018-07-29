@@ -38,6 +38,8 @@
 				
 				{
 					"density" : 0.6296434402465820,
+					"filter-categoryBits" : 2,
+					"filter-maskBits" : 65529,
 					"name" : "ship-fixture",
 					"polygon" : 
 					{
@@ -51,6 +53,8 @@
 				
 				{
 					"density" : 0.6296434402465820,
+					"filter-categoryBits" : 2,
+					"filter-maskBits" : 65529,
 					"name" : "ship-fixture",
 					"polygon" : 
 					{
@@ -71,7 +75,7 @@
 				"y" : 0.004864909686148167
 			},
 			"massData-mass" : 0.05370888113975525,
-			"name" : "ship-body",
+			"name" : "ship",
 			"position" : 0,
 			"type" : 2
 		}
@@ -80,9 +84,9 @@
 	{
 		"names" : 
 		[
-			"bitplane1",
-			"bitplane2",
-			"bitplane3",
+			"Asteroids",
+			"Ship",
+			"Bullet",
 			"bitplane4",
 			"bitplane5",
 			"bitplane6",

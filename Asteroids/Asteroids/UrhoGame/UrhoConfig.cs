@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Asteroids.UrhoGame
 {
@@ -10,9 +11,10 @@ namespace Asteroids.UrhoGame
         {
             public const string MAIN_CAMERA_NODE = "MainCamera";
 
-            public const string RUBE_BULLET_BODY = "bullet-body";
-            public const string RUBE_SHIP_BODY = "ship-body";
-            public const string RUBE_ASTEROIDS_BODY = "asteroid_{0}-body";
+            public const string RUBE_BULLET_BODY = "bullet";
+            public const string RUBE_SHIP_BODY = "ship";
+            public const string RUBE_ASTEROIDS_BODY = "asteroid_{0}";
+            public static readonly Regex RUBE_ASTEROIDS_BODY_REGEX = new Regex("^asteroid_{\\d+}$", RegexOptions.Compiled);
 
             public const string SPRITE_SHEET_ASTEROIDS = "asteroid_{0}";
         }
@@ -60,12 +62,9 @@ namespace Asteroids.UrhoGame
                 {
                     public const string BULLET = "Urho2D/Sprites/bullet.png";
                     public const string SHIP = "Urho2D/Sprites/ship.png";
-                    public const string ASTEROIDS_SHEET = "Urho2D/Sprites/Asteroids.xml";
+                    public const string ASTEROIDS_SHEET = "Urho2D/Sprites/Asteroids/Asteroids.xml";
                 }
             }
-
-
-
 
         }
     }

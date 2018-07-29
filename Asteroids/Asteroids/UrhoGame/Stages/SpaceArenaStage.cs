@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Urho;
 using Urho.Urho2D;
+using XamarinForms.Toolkit.Urho3D;
 
 namespace Asteroids.UrhoGame.Stages
 {
@@ -34,19 +35,14 @@ namespace Asteroids.UrhoGame.Stages
 
         private void _create()
         {
-            // TEMP: load rube
-            //string filePath = ResourceCache.GetResourceFileName("Urho2D/RubePhysics/documentA.json");
-            //Toolkit.Urho.Rube.B2dJson b2dJson = new Toolkit.Urho.Rube.B2dJson();
-            //b2dJson.ReadIntoNodeFromFile(filePath, this._scene.CreateChild("physicsNode"), out string errorMsg);
-
             // create world
             PhysicsWorld2D physicsWorld2D = this.Scene.GetOrCreateComponent<PhysicsWorld2D>();
             physicsWorld2D.Gravity = Vector2.Zero;
-            
+
             // create ship
-            this.Node.CreateChild($"{nameof(Ship)}-node").CreateComponent<Ship>();
+            this.Node.CreateChild($"{nameof(Ship)}").CreateComponent<Ship>();
             // create asteroid
-            this.Node.CreateChild($"{nameof(Asteroid)}-node").CreateComponent<Asteroid>();
+            this.Node.CreateChild($"{nameof(Asteroid)}").CreateComponent<Asteroid>();
         }
     }
 }
