@@ -71,7 +71,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        private void _initialize()
+        protected virtual void _initialize()
         {
             this._rigidBody = this.Node.GetComponent<RigidBody2D>();
             this._particleEmitter = this.Node.GetComponent<ParticleEmitter>();
@@ -85,7 +85,7 @@ namespace Asteroids.UrhoGame.Components
             this.Application.UI.Root.AddChild(_textElement);
         }
 
-        private void _destroy()
+        protected virtual void _destroy()
         {
             // remove from ui
             this.Application.UI.Root.RemoveChild(_textElement);

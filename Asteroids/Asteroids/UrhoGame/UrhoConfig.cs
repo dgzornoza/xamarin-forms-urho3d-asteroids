@@ -7,6 +7,15 @@ namespace Asteroids.UrhoGame
 {
     public class UrhoConfig
     {
+        public static class Data
+        {
+            public const int PLAYER_LIVES = 3;
+
+            public const int SHIP_FIRE_DELAY = 100;
+            public const int SHIP_BLINK_DELAY = 25;
+        }
+
+
         public static class Names
         {
             public const string MAIN_CAMERA_NODE = "MainCamera";

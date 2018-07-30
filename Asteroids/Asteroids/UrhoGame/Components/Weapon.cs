@@ -67,21 +67,6 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._initialize();
-            }
-            // dettach from scene
-            else
-            {
-            }
-        }
-
 
         protected override void OnUpdate(float timeStep)
         {            
@@ -100,9 +85,9 @@ namespace Asteroids.UrhoGame.Components
             }
         }
 
-        
 
-        private void _initialize()
+
+        protected override void _initialize()
         {
             // store JObject from rube file for create bullets
             if (null == _bulletDefinition) _bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.BULLET);

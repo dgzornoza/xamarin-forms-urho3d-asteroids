@@ -13,18 +13,11 @@ using XamarinForms.Toolkit.Urho3D.Rube;
 namespace Asteroids.UrhoGame.Components
 {
 
-
-
-
     /// <summary>
     /// Component for game Ship
     /// </summary>
     public class Ship : BaseComponent
     {
-        private const int FIRE_DELAY = 100;
-        private const int BLINK_DELAY = 25;
-
-
         Node _shipNode;
         RigidBody2D _shipBody;
 
@@ -55,27 +48,6 @@ namespace Asteroids.UrhoGame.Components
         public event EventHandler OnShipDestroy;
 
 
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            Input input = this.Application.Input;
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._initialize();
-            }
-            // dettach from scene
-            else
-            {
-                _destroy();
-            }
-
-        }
-
-
-
 
 
         protected override void OnUpdate(float timeStep)
@@ -96,13 +68,13 @@ namespace Asteroids.UrhoGame.Components
         }
 
 
-        private void _destroy()
+        protected override void _destroy()
         {
             // remove physics events
             this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
         }
 
-        private void _initialize()
+        protected override void _initialize()
         {
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson(UrhoConfig.Assets.Urho2D.RubePhysics.SHIP, this.Node, false);
@@ -161,7 +133,7 @@ namespace Asteroids.UrhoGame.Components
             {
                 if (_fireDelay == 0)
                 {
-                    _fireDelay = FIRE_DELAY;
+                    _fireDelay = UrhoConfig.Data.SHIP_FIRE_DELAY;
                     this._weapon.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
                 }
             }
@@ -170,7 +142,7 @@ namespace Asteroids.UrhoGame.Components
 
         private void _reset()
         {
-            _blinkDelay = BLINK_DELAY;
+            _blinkDelay = UrhoConfig.Data.SHIP_BLINK_DELAY;
             this.Enabled = false;
             // setVisible(false);
 

@@ -14,7 +14,7 @@ namespace Asteroids.UrhoGame.Components
     /// <summary>
     /// Component for game Thuster
     /// </summary>
-    public class Thruster : Component
+    public class Thruster : BaseComponent
     {
         private ParticleEmitter _particleEmitter;        
 
@@ -43,25 +43,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        public override void OnSceneSet(Scene scene)
-        {
-            base.OnSceneSet(scene);
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._initialize();
-            }
-            // dettach from scene
-            else
-            {
-
-            }
-        }
-
-
-
-        private void _initialize()
+        protected override void _initialize()
         {
             var cache = this.Application.ResourceCache;
             ParticleEffect particleEffect = cache.GetParticleEffect(UrhoConfig.Assets.Particles.THRUSTER);

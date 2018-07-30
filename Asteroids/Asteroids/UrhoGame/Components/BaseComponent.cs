@@ -16,6 +16,25 @@ namespace Asteroids.UrhoGame.Components
         /// Property for get camera
         /// </summary>
         protected Camera Camera => this._mainCamera ?? (this._mainCamera = this.Scene.GetChild(UrhoConfig.Names.MAIN_CAMERA_NODE).GetComponent<Camera>());
-        
+
+        public override void OnSceneSet(Scene scene)
+        {
+            base.OnSceneSet(scene);
+
+            // attach to scene
+            if (null != scene)
+            {
+                this._initialize();
+            }
+            // dettach from scene
+            else
+            {
+                _destroy();
+            }
+        }
+
+        protected virtual void _initialize() { }
+
+        protected virtual void _destroy() { }
     }
 }
