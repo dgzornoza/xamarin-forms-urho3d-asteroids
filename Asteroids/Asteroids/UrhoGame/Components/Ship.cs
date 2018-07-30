@@ -18,26 +18,22 @@ namespace Asteroids.UrhoGame.Components
     /// </summary>
     public class Ship : BaseComponent
     {
-        Node _shipNode;
-        RigidBody2D _shipBody;
-
-        Thruster _thruster;
-        Weapon _weapon;
-
-
         private float _acceleration;
         private float _maxLinearVelocity;
         private float _rotation;
         private float _maxAngularVelocity;
 
         private int _fireDelay;
-        private int _blinkDelay;
+
+        protected Node _shipNode;
+        protected RigidBody2D _shipBody;
+        protected Thruster _thruster;
+        protected Weapon _weapon;
 
 
         public Ship()
         {
-            _fireDelay = 0;
-            _blinkDelay = 0;
+            _fireDelay = 0;            
 
             this.ReceiveSceneUpdates = true;
         }
@@ -62,20 +58,15 @@ namespace Asteroids.UrhoGame.Components
 
             // update delays
             if (_fireDelay > 0) _fireDelay--;
-            if (_blinkDelay > 0) _blinkDelay--;
-            
+            // configure thruster
             this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
         }
 
 
-        protected override void _destroy()
-        {
-            // remove physics events
-            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
-        }
-
         protected override void _initialize()
         {
+            base._initialize();
+
             // create from rube json format
             B2dJson b2dJson = LoaderHelpers.LoadRubeJson(UrhoConfig.Assets.Urho2D.RubePhysics.SHIP, this.Node, false);
 
@@ -87,6 +78,9 @@ namespace Asteroids.UrhoGame.Components
 
             this._shipNode = this._shipBody.Node;
 
+            // add physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
+
             // thruster
             this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}").CreateComponent<Thruster>();
             this._thruster.Node.SetPosition2D(new Vector2(-0.25f, 0.0f));
@@ -94,6 +88,16 @@ namespace Asteroids.UrhoGame.Components
             // bullet node
             this._weapon = this.Node.CreateChild($"{nameof(Weapon)}").CreateComponent<Weapon>();
         }
+
+        protected override void _destroy()
+        {
+            base._destroy();
+
+            // remove physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
+        }
+
+
 
 
         private void _handleInput()
@@ -139,17 +143,6 @@ namespace Asteroids.UrhoGame.Components
             }
         }
 
-
-        private void _reset()
-        {
-            _blinkDelay = UrhoConfig.Data.SHIP_BLINK_DELAY;
-            this.Enabled = false;
-            // setVisible(false);
-
-            //body()->SetTransform(b2Vec2(((scene()->window()->getCenter().x - 10) / Physics::Scale), ((scene()->window()->getCenter().y - 10) / Physics::Scale)), 0);
-            //body()->SetLinearVelocity(b2Vec2_zero);
-            //body()->SetAngularVelocity(0);
-        }
 
         private void _onPhysicsBeginContact(PhysicsBeginContact2DEventArgs args)
         {

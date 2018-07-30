@@ -12,7 +12,7 @@ namespace Asteroids.UrhoGame
             public const int PLAYER_LIVES = 3;
 
             public const int SHIP_FIRE_DELAY = 100;
-            public const int SHIP_BLINK_DELAY = 25;
+            public const int SHIP_RESET_BLINK_TIMES = 5;
         }
 
 
@@ -23,7 +23,7 @@ namespace Asteroids.UrhoGame
             public const string RUBE_BULLET_BODY = "bullet";
             public const string RUBE_SHIP_BODY = "ship";
             public const string RUBE_ASTEROIDS_BODY = "asteroid_{0}";
-            public static readonly Regex RUBE_ASTEROIDS_BODY_REGEX = new Regex("^asteroid_{\\d+}$", RegexOptions.Compiled);
+            public static readonly Regex RUBE_ASTEROIDS_BODY_REGEX = new Regex("^asteroid_\\d+$", RegexOptions.Compiled);
 
             public const string SPRITE_SHEET_ASTEROIDS = "asteroid_{0}";
         }

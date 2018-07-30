@@ -45,6 +45,8 @@ namespace Asteroids.UrhoGame.Components
 
         protected override void _initialize()
         {
+            base._initialize();
+
             var cache = this.Application.ResourceCache;
             ParticleEffect particleEffect = cache.GetParticleEffect(UrhoConfig.Assets.Particles.THRUSTER);
             if (particleEffect == null) return;

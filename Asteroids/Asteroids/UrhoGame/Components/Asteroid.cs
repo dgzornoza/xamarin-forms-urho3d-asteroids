@@ -50,6 +50,8 @@ namespace Asteroids.UrhoGame.Components
 
         protected override void _initialize()
         {
+            base._initialize();
+
             // store JObject from rube file for create bullets
             if (null == _asteroidsDefinitions) _asteroidsDefinitions = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.ASTEROIDS);
 
@@ -63,6 +65,8 @@ namespace Asteroids.UrhoGame.Components
 
         protected override void _destroy()
         {
+            base._destroy();
+
             // remove physics events
             this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
         }

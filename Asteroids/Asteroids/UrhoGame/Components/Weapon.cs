@@ -89,6 +89,8 @@ namespace Asteroids.UrhoGame.Components
 
         protected override void _initialize()
         {
+            base._initialize();
+
             // store JObject from rube file for create bullets
             if (null == _bulletDefinition) _bulletDefinition = LoaderHelpers.GetJObjectFromJsonFile(UrhoConfig.Assets.Urho2D.RubePhysics.BULLET);
 
