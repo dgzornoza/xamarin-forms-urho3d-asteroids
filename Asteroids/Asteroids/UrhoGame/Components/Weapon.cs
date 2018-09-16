@@ -18,9 +18,6 @@ namespace Asteroids.UrhoGame.Components
     /// </summary>
     public class Weapon : BaseComponent
     {
-        private const int BULLET_SPEED = 20;
-        private const int BULLET_LIFETIME = 400;
-
         private static JObject _bulletDefinition;
         private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
 
@@ -36,7 +33,7 @@ namespace Asteroids.UrhoGame.Components
         /// <summary>
         /// Radial distance multiplier for adjust distance from fire position center
         /// </summary>
-        public float RadialDistance { get; set; } = 1.0f;
+        public float RadialDistance { get; set; } = 0.3f;
 
         /// <summary>
         /// Function for fire bullet
@@ -49,37 +46,35 @@ namespace Asteroids.UrhoGame.Components
             B2dJson b2dJson = LoaderHelpers.ReadIntoNodeFromValue(_bulletDefinition, this._bullets, false, UrhoConfig.Assets.Urho2D.RubePhysics.PATH);
             RigidBody2D bulletBody = b2dJson.GetBodyByName(UrhoConfig.Names.RUBE_BULLET_BODY);
             bulletBody.Node.SetVar(_lifeTimeVarStringHash, "0");
-            bulletBody.Node.NodeCollisionStart += _onNodeCollisionStart;
 
-            // get radial position
-            Vector2 radialPosition = MathHelpers.DegreeToVector2(angle) * RadialDistance;
+            // get radial position            
+            Vector2 radialPosition = MathHelpers.DegreeToVector2(angle) * 1.0f;
 
             // set bullet position
-            position.X += radialPosition.X;
-            position.Y += radialPosition.Y;
+            position.X += radialPosition.X * RadialDistance;
+            position.Y += radialPosition.Y * RadialDistance;
             bulletBody.Node.SetTransform2D(position, angle);
 
             // apply force            
-            float velocityX = radialPosition.X * BULLET_SPEED;
-            float velocityY = radialPosition.Y * BULLET_SPEED;
+            float velocityX = radialPosition.X * UrhoConfig.Data.BULLET_SPEED;
+            float velocityY = radialPosition.Y * UrhoConfig.Data.BULLET_SPEED;
             bulletBody.SetLinearVelocity(new Vector2(velocityX, velocityY));
         }
 
-
+        
 
 
         protected override void OnUpdate(float timeStep)
-        {            
+        {
             foreach (var node in this._bullets.Children)
             {
-                int lifeTime = Convert.ToInt32(node.GetVar(_lifeTimeVarStringHash));
-                node.SetVar(_lifeTimeVarStringHash, (++lifeTime).ToString());
+                float lifeTime = float.Parse(node.GetVar(_lifeTimeVarStringHash)) + timeStep;
+                node.SetVar(_lifeTimeVarStringHash, lifeTime.ToString());
 
                 node.MirrorIfExitScreen(this.Camera);
 
-                if (lifeTime > BULLET_LIFETIME)
+                if (lifeTime > UrhoConfig.Data.BULLET_LIFETIME)
                 {
-                    node.NodeCollisionStart -= _onNodeCollisionStart;
                     node.Remove();
                 }
             }
@@ -96,13 +91,39 @@ namespace Asteroids.UrhoGame.Components
 
             // create bullets node
             this._bullets = this.Node.CreateChild("bullets");
+
+            // add physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
         }
 
-        private void _onNodeCollisionStart(NodeCollisionStartEventArgs obj)
+        protected override void _destroy()
         {
-            int a = 5;
-            int b = a / 5;
+            base._destroy();
+
+            // remove physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D -= _onPhysicsBeginContact;
         }
 
+
+
+
+
+        private void _onPhysicsBeginContact(PhysicsBeginContact2DEventArgs args)
+        {
+            // get weapon and other object
+            Node weapon = null, otherObject = null;
+            foreach (var item in this._bullets.Children)
+            {
+                otherObject = args.GetOther(item);
+                if (null != otherObject) { weapon = item; break; }
+            }
+            if (null == otherObject) return;
+
+            // Asteroid
+            if (UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(otherObject.Name))
+            {
+                weapon.Remove();
+            }
+        }
     }
 }

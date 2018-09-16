@@ -12,32 +12,15 @@ namespace Asteroids.UrhoGame.Components
     /// </summary>
     public class Player : Ship
     {
-        private int _blinkDelay;
         private int _lives;
 
         public Player()
         {
-            _blinkDelay = 0;
             _lives = UrhoConfig.Data.PLAYER_LIVES;
-
-            this.ReceiveSceneUpdates = true;
         }
 
-        /// <summary>
-        /// Event called on ship destroy
-        /// </summary>
-        // public event EventHandler OnPlayerDestroy;
 
 
-
-
-        protected override void OnUpdate(float timeStep)
-        {
-            base.OnUpdate(timeStep);
-
-            // update delays
-            if (_blinkDelay > 0) _blinkDelay--;
-        }
 
         protected override void _initialize()
         {
@@ -58,16 +41,13 @@ namespace Asteroids.UrhoGame.Components
         }
 
 
+
+
         private void _onShipDestroy(object sender, EventArgs e)
         {
-            _reset();
-        }
-
-        private void _reset()
-        {
-            _blinkDelay = UrhoConfig.Data.SHIP_RESET_BLINK_TIMES;
             this._shipNode.RunActionsAsync(_blinkActions().ToArray());
         }
+
 
         private IList<FiniteTimeAction> _blinkActions()
         {

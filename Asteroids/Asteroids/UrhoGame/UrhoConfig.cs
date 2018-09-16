@@ -7,12 +7,21 @@ namespace Asteroids.UrhoGame
 {
     public class UrhoConfig
     {
+        /// <summary>Only work in Debug environment</summary>
+        public const bool DRAW_DEBUG_PHYSICS_GEOMETRY = true;
+        /// <summary>Only work in Debug environment</summary>
+        public const bool DRAW_DEBUG_RENDER_GEOMETRY = false;
+
+
         public static class Data
-        {
+        {            
             public const int PLAYER_LIVES = 3;
 
-            public const int SHIP_FIRE_DELAY = 100;
+            public const float SHIP_FIRE_DELAY = 0.5f;
             public const int SHIP_RESET_BLINK_TIMES = 5;
+
+            public const float BULLET_SPEED = 20.0f;
+            public const float BULLET_LIFETIME = 2.0f;
         }
 
 

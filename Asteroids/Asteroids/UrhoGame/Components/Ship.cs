@@ -23,7 +23,7 @@ namespace Asteroids.UrhoGame.Components
         private float _rotation;
         private float _maxAngularVelocity;
 
-        private int _fireDelay;
+        private float _fireDelay;
 
         protected Node _shipNode;
         protected RigidBody2D _shipBody;
@@ -45,7 +45,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-
+        
         protected override void OnUpdate(float timeStep)
         {
             base.OnUpdate(timeStep);
@@ -57,7 +57,7 @@ namespace Asteroids.UrhoGame.Components
             this._shipBody.Node.MirrorIfExitScreen(this.Camera);
 
             // update delays
-            if (_fireDelay > 0) _fireDelay--;
+            if (_fireDelay > 0) _fireDelay -= timeStep;
             // configure thruster
             this._thruster.SetParameters(this._shipBody.LinearVelocity.Length, this._maxLinearVelocity);
         }
@@ -78,15 +78,15 @@ namespace Asteroids.UrhoGame.Components
 
             this._shipNode = this._shipBody.Node;
 
-            // add physics events
-            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
-
             // thruster
             this._thruster = this._shipNode.CreateChild($"{nameof(Thruster)}").CreateComponent<Thruster>();
             this._thruster.Node.SetPosition2D(new Vector2(-0.25f, 0.0f));
 
             // bullet node
             this._weapon = this.Node.CreateChild($"{nameof(Weapon)}").CreateComponent<Weapon>();
+
+            // add physics events
+            this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
         }
 
         protected override void _destroy()
@@ -135,10 +135,10 @@ namespace Asteroids.UrhoGame.Components
             // Fire Bullet
             if (input.GetKeyDown(Key.Space))
             {
-                if (_fireDelay == 0)
+                if (_fireDelay <= 0)
                 {
                     _fireDelay = UrhoConfig.Data.SHIP_FIRE_DELAY;
-                    this._weapon.Fire(this._shipNode.WorldPosition2D, this._shipNode.WorldRotation2D);
+                    this._weapon.Fire(this._shipNode.Position2D, this._shipNode.WorldRotation2D);
                 }
             }
         }

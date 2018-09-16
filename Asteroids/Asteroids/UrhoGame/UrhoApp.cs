@@ -20,8 +20,6 @@ namespace Asteroids.UrhoGame
         private Scene _scene;
         private Camera _mainCamera;
 
-        private bool _drawDebug = true;
-
 
 
         [Preserve]
@@ -33,6 +31,7 @@ namespace Asteroids.UrhoGame
         {
             UnhandledException += (s, e) =>
             {
+                e.Exception.RegisterException<UrhoApp>();
                 if (Debugger.IsAttached) Debugger.Break();
                 e.Handled = true;
             };
@@ -47,17 +46,16 @@ namespace Asteroids.UrhoGame
             
             base.Start();
 
-#if DEBUG
-            _monoDebugHud = new MonoDebugHud(this);
-            _monoDebugHud.Show();
-#endif
-
             this._createScene();
             this._createCamera();
             this._setupViewport();
 
+#if DEBUG
+            _monoDebugHud = new MonoDebugHud(this);
+            _monoDebugHud.Show();
+            _subscribeToDebugEvents();
+#endif
 
-            this._subscribeToEvents();
 
             // pantalla principal
             this._scene.CreateChild(nameof(Stages.SpaceArenaStage)).CreateComponent<Stages.SpaceArenaStage>();
@@ -119,22 +117,19 @@ namespace Asteroids.UrhoGame
 
 
 
-
-        private void _subscribeToEvents()
+#if DEBUG
+        private void _subscribeToDebugEvents()
         {
             Engine.PostRenderUpdate += (PostRenderUpdateEventArgs obj) =>
             {
                 // If draw debug mode is enabled, draw viewport debug geometry, which will show eg. drawable bounding boxes and skeleton
                 // bones. Note that debug geometry has to be separately requested each frame. Disable depth test so that we can see the
                 // bones properly
-                if (_drawDebug)
-                {
-                    //this._scene.GetComponent<PhysicsWorld2D>()?.DrawDebugGeometry();
-                    // Renderer.DrawDebugGeometry(false);                    
-                }
+                if (UrhoConfig.DRAW_DEBUG_PHYSICS_GEOMETRY) this._scene.GetComponent<PhysicsWorld2D>()?.DrawDebugGeometry();
+                if (UrhoConfig.DRAW_DEBUG_RENDER_GEOMETRY) Renderer.DrawDebugGeometry(false);
             };
         }
-
+#endif
 
     }
 }

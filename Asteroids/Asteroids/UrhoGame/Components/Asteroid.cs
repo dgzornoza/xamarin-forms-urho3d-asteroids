@@ -21,7 +21,7 @@ namespace Asteroids.UrhoGame.Components
     public class Asteroid : BaseComponent
     {
         private static JObject _asteroidsDefinitions;
-        // private static StringHash _lifeTimeVarStringHash = new StringHash("life-time");
+        private static StringHash _asteroidSizeVarStringHash = new StringHash("asteroid-size");
 
         
 
@@ -33,8 +33,7 @@ namespace Asteroids.UrhoGame.Components
         {
             this.ReceiveSceneUpdates = true;            
         }
-
-
+        
 
 
 
@@ -57,7 +56,7 @@ namespace Asteroids.UrhoGame.Components
 
             // create asteroids node and asteroid
             this._asteroids = this.Node.CreateChild("asteroids");
-            this._createAsteroid();
+            this._createAsteroid(5);
 
             // attach physics events
             this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
@@ -74,7 +73,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        private void _createAsteroid()
+        private void _createAsteroid(int size, Vector2 position = default)
         {
             Graphics graphics = this.Application.Graphics;
 
@@ -86,15 +85,23 @@ namespace Asteroids.UrhoGame.Components
             // attach physics to sprite
             string asteroidId = "01"; // RandomHelpers.NextRandom(1, 16).ToString("00");
             RigidBody2D asteroidBody = b2dJson.GetBodyByName(string.Format(UrhoConfig.Names.RUBE_ASTEROIDS_BODY, asteroidId));
-            StaticSprite2D asteroidSprite = asteroidBody.Node.CreateComponent<StaticSprite2D>();
+            Node asteroidNode = asteroidBody.Node;
+            StaticSprite2D asteroidSprite = asteroidNode.CreateComponent<StaticSprite2D>();
             asteroidSprite.Sprite = spriteSheet.GetSprite(string.Format(UrhoConfig.Names.SPRITE_SHEET_ASTEROIDS, asteroidId));
-            
-            // random position
-            Vector3 position = Camera.ScreenToWorldPoint(new Vector3(RandomHelpers.NextRandom(0.0f, 1.0f), RandomHelpers.NextRandom(0.0f, 1.0f), 0.0f));
-            float angle = RandomHelpers.NextRandom(0.0f, 360.0f);
 
-            // configure movement
-            asteroidBody.Node.SetTransform2D(new Vector2(position.X, position.Y), angle);
+            // store asteroid size
+            asteroidNode.SetVar(_asteroidSizeVarStringHash, size.ToString());
+
+            // position
+            Vector3 position3D = position == default ? 
+                Camera.ScreenToWorldPoint(new Vector3(RandomHelpers.NextRandom(0.0f, 1.0f), RandomHelpers.NextRandom(0.0f, 1.0f), 0.0f)) :
+                new Vector3(position);
+            float angle = RandomHelpers.NextRandom(0.0f, 360.0f);
+            asteroidNode.SetTransform2D(new Vector2(position3D.X, position3D.Y), angle);
+            // scale 
+            if (size > 1) asteroidNode.SetScale2D(_getScaleFromSize(size));
+
+            // configure movement            
             asteroidBody.AngularVelocity = RandomHelpers.NextRandom(-1.0f, 1.0f);
 
             float velocityX = (float)Math.Sin(MathHelper.DegreesToRadians(angle));
@@ -104,20 +111,90 @@ namespace Asteroids.UrhoGame.Components
         }
 
 
+
+        private void _splitAsteroid(Node asteroid)
+        {
+            // fragments 
+            // int fragments = RandomHelpers.NextRandom(2, 5);
+            // int fragments = 4;
+
+            // current size
+            int size = Convert.ToInt32(asteroid.GetVar(_asteroidSizeVarStringHash)) -1;
+            asteroid.SetVar(_asteroidSizeVarStringHash, size.ToString());
+
+            // create fragments
+            switch (size)
+            {
+                case 5:
+                    for (int i = 0; i < 4; i++) this._createAsteroid(size, asteroid.Position2D);                    
+                    break;
+                case 4:
+                    for (int i = 0; i < 4; i++) this._createAsteroid(size, asteroid.Position2D);
+                    break;
+                case 3:
+                    for (int i = 0; i < 3; i++) this._createAsteroid(size, asteroid.Position2D);
+                    break;
+                case 2:
+                    for (int i = 0; i < 2; i++) this._createAsteroid(size, asteroid.Position2D);
+                    break;
+                default:
+                    // 1 not split, last size
+                    break;
+            }
+
+            asteroid.Remove();
+        }
+
+        private Vector2 _getScaleFromSize(int size)
+        {
+            Vector2 result;
+
+            switch (size)
+            {
+                case 5:
+                    result = new Vector2(1.0f, 1.0f);
+                    break;
+                case 4:
+                    result = new Vector2(0.7f, 0.2f);
+                    break;
+                case 3:
+                    result = new Vector2(0.5f, 0.5f);
+                    break;
+                case 2:
+                    result = new Vector2(0.25f, 0.25f);                    
+                    break;
+                default:
+                    result = new Vector2(0.10f, 0.10f);
+                    break;
+            }
+
+            return result;
+        }
+
         private void _onPhysicsBeginContact(PhysicsBeginContact2DEventArgs args)
         {
-            Node otherObject;
-            Node asteroid = this._asteroids.Children.FirstOrDefault(item => item == args.NodeA);
-            if (null != asteroid) otherObject = args.NodeB;
-            asteroid = this._asteroids.Children.FirstOrDefault(item => item == args.NodeB);
-            if (null != asteroid) otherObject = args.NodeA;
+            // get asteroid and other object
+            Node asteroid = null, otherObject = null;
+            foreach (var item in this._asteroids.Children)
+            {
+                otherObject = args.GetOther(item);
+                if (null != otherObject) { asteroid = item; break; }
+            }
+            if (null == otherObject) return;
 
-            bool isAsteroidNodeA = UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(args.NodeA.Name);
-            bool isAsteroidNodeB = UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(args.NodeB.Name);
-            
-            //if (IsAlive && bulletNode.Name != null && bulletNode.Name.StartsWith(nameof(Weapon)) && args.Body.Node == Node)
-            //{
-            //}
+            // collision actions
+            switch (otherObject.Name)
+            {
+                // Bullet
+                case UrhoConfig.Names.RUBE_BULLET_BODY:
+                    this._splitAsteroid(asteroid);
+                    break;
+                // Ship
+                case UrhoConfig.Names.RUBE_SHIP_BODY:
+                    this._splitAsteroid(asteroid);
+                    break;
+            }
         }
+
     }
 }

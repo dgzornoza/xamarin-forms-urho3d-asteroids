@@ -8,33 +8,16 @@ using XamarinForms.Toolkit.Urho3D;
 
 namespace Asteroids.UrhoGame.Stages
 {
-    public class SpaceArenaStage : Component
+    public class SpaceArenaStage : BaseComponent
     {
         public SpaceArenaStage() { }
 
-        public override void OnSceneSet(Scene scene)
-        {            
-            base.OnSceneSet(scene);
-
-            // attach to scene
-            if (null != scene)
-            {
-                this._create();
-            }
-            // dettach from scene
-            else
-            {
-
-            }
-        }
 
 
-
-
-
-
-        private void _create()
+        protected override void _initialize()
         {
+            base._initialize();
+
             // create world
             PhysicsWorld2D physicsWorld2D = this.Scene.GetOrCreateComponent<PhysicsWorld2D>();
             physicsWorld2D.Gravity = Vector2.Zero;
@@ -43,6 +26,16 @@ namespace Asteroids.UrhoGame.Stages
             this.Node.CreateChild($"{nameof(Player)}").CreateComponent<Player>();
             // create asteroid
             this.Node.CreateChild($"{nameof(Asteroid)}").CreateComponent<Asteroid>();
+
         }
+
+        protected override void _destroy()
+        {
+            base._destroy();
+        }
+
+
+
+
     }
 }
