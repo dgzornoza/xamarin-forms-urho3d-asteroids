@@ -56,7 +56,7 @@ namespace Asteroids.UrhoGame.Components
 
             // create asteroids node and asteroid
             this._asteroids = this.Node.CreateChild("asteroids");
-            this._createAsteroid(5);
+            this._createAsteroid();
 
             // attach physics events
             this.Scene.GetComponent<PhysicsWorld2D>().PhysicsBeginContact2D += _onPhysicsBeginContact;
@@ -73,7 +73,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        private void _createAsteroid(int size, Vector2 position = default)
+        private void _createAsteroid(int size = 4, Vector2 position = default)
         {
             Graphics graphics = this.Application.Graphics;
 
@@ -125,9 +125,6 @@ namespace Asteroids.UrhoGame.Components
             // create fragments
             switch (size)
             {
-                case 5:
-                    for (int i = 0; i < 4; i++) this._createAsteroid(size, asteroid.Position2D);                    
-                    break;
                 case 4:
                     for (int i = 0; i < 4; i++) this._createAsteroid(size, asteroid.Position2D);
                     break;
@@ -151,17 +148,14 @@ namespace Asteroids.UrhoGame.Components
 
             switch (size)
             {
-                case 5:
+                case 4:
                     result = new Vector2(1.0f, 1.0f);
                     break;
-                case 4:
-                    result = new Vector2(0.7f, 0.2f);
-                    break;
                 case 3:
-                    result = new Vector2(0.5f, 0.5f);
+                    result = new Vector2(0.7f, 0.7f);
                     break;
                 case 2:
-                    result = new Vector2(0.25f, 0.25f);                    
+                    result = new Vector2(0.4f, 0.4f);                    
                     break;
                 default:
                     result = new Vector2(0.10f, 0.10f);
