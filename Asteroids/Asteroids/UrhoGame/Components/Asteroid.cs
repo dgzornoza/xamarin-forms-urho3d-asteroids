@@ -73,7 +73,7 @@ namespace Asteroids.UrhoGame.Components
 
 
 
-        private void _createAsteroid(int size = 4, Vector2 position = default)
+        private void _createAsteroid(int size = 5, Vector2 position = default)
         {
             Graphics graphics = this.Application.Graphics;
 
@@ -114,31 +114,21 @@ namespace Asteroids.UrhoGame.Components
 
         private void _splitAsteroid(Node asteroid)
         {
-            // fragments 
-            // int fragments = RandomHelpers.NextRandom(2, 5);
-            // int fragments = 4;
-
-            // current size
+            // next size
             int size = Convert.ToInt32(asteroid.GetVar(_asteroidSizeVarStringHash)) -1;
             asteroid.SetVar(_asteroidSizeVarStringHash, size.ToString());
 
-            // create fragments
-            switch (size)
+
+            // size 1 is last size (small asteroid fragment)
+            if (size > 1)
             {
-                case 4:
-                    for (int i = 0; i < 4; i++) this._createAsteroid(size, asteroid.Position2D);
-                    break;
-                case 3:
-                    for (int i = 0; i < 3; i++) this._createAsteroid(size, asteroid.Position2D);
-                    break;
-                case 2:
-                    for (int i = 0; i < 2; i++) this._createAsteroid(size, asteroid.Position2D);
-                    break;
-                default:
-                    // 1 not split, last size
-                    break;
+                // create fragments
+                int fragments = size > 2 && RandomHelpers.NextBoolRandom() ? size - 1 : size;
+
+                for (int i = 0; i < fragments; i++) this._createAsteroid(size, asteroid.Position2D);
             }
 
+            // remove main
             asteroid.Remove();
         }
 
@@ -148,14 +138,17 @@ namespace Asteroids.UrhoGame.Components
 
             switch (size)
             {
-                case 4:
+                case 5:
                     result = new Vector2(1.0f, 1.0f);
                     break;
+                case 4:
+                    result = new Vector2(0.8f, 0.8f);
+                    break;
                 case 3:
-                    result = new Vector2(0.7f, 0.7f);
+                    result = new Vector2(0.6f, 0.6f);
                     break;
                 case 2:
-                    result = new Vector2(0.4f, 0.4f);                    
+                    result = new Vector2(0.3f, 0.3f);                    
                     break;
                 default:
                     result = new Vector2(0.10f, 0.10f);
@@ -188,6 +181,12 @@ namespace Asteroids.UrhoGame.Components
                     this._splitAsteroid(asteroid);
                     break;
             }
+
+            // Asteroid
+            //if (UrhoConfig.Names.RUBE_ASTEROIDS_BODY_REGEX.IsMatch(otherObject.Name))
+            //{
+            //    this._splitAsteroid(asteroid);
+            //}
         }
 
     }

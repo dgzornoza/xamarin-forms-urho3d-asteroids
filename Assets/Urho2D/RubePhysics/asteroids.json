@@ -19,7 +19,6 @@
 						"radius" : 2.251641035079956
 					},
 					"density" : 6.278440952301025,
-					"filter-maskBits" : 65534,
 					"name" : "asteroid_01-fixture",
 					"sensor" : true
 				}

@@ -72,6 +72,7 @@
           
           {
             "density" : 6.278440952301025,
+            "filter-maskBits" : 65534,
             "id" : 1,
             "name" : "asteroid_01-fixture",
             "sensor" : true,
